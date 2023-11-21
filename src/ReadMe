@@ -398,3 +398,5 @@ i. our place move and make pass method will take a color as parameter in order t
             Contains tests for the publicly visible signatures of our public interfaces
             This will be the home for unit tests for individual components as well as integration
             tests to measure communication between components (e.g. Between the view and controller)
+
+            Hi xu how are you
