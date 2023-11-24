@@ -1,3 +1,21 @@
+--------------------------------------------------HW7-----------------------------------------------------------------
+ The key design idea for this assignment is to have two managers, one is for controller and the other is
+ for the view, once the model is updated, all of the controllers and views care about this model will be
+ updated. for the view, the view manager will let all the views to repaint the board in order to make sure
+ two players can check move on the same board. For the controllers manager, it will update the game state
+ include the current score for the black and white players and who's turn it is and if the player who will play
+ in next turn is a human player and there is no valid move on the board, notify the player that can only pass.
+ if the player who will play in next turn is an Ai player, ask the player to choose for the position and place
+ it.
+
+ We added a start game method in our model in order to make a clear distinction between “setting everything up”
+ and “actually playing the game”. in this method, we assigned the color for players by player that join the game
+ first will placing for black cell and player that second join the game will placing for white cell, and set the
+ player who goes first to black, and notify the controllers and views care about this model that game is start.
+
+
+
+
 --------------------------------------------------HW6----------------------------------------------------------------------------------------------------
 1. Overview
 The way we generate the view is by first get the coordinators for the middle point, which is (0,0)
