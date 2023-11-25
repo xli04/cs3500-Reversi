@@ -1,195 +1,103 @@
 package view;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import javax.swing.JFrame;
 import model.ReadOnlyReversiModel;
-import model.RowColPair;
-import java.awt.Color;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import java.awt.BorderLayout;
 import model.RepresentativeColor;
+import model.RowColPair;
 
 /**
- * ReversiView will update the board.
+ * A marker interface for all GUI views, to be used in the Reversi game.
  */
-public class ReversiView extends JFrame implements View {
-  private final ReversiBoardPanel panel;
-  private final JLabel whiteScore;
-  private final JLabel blackScore;
-  private final JLabel turn;
-  private final JLabel hasToPassWarning;
-  private final ViewManager manager;
-  private final JButton hint;
+public interface ReversiView {
 
   /**
-   * construct the ReversiView with the given parameter.
+   * display the view.
+   */
+  void display();
+
+  /**
+   * Get the user's current selected position in the board.
    *
-   * @param model the given model
+   * @return the coordinators that chosen by the user
    */
-  public ReversiView(ReadOnlyReversiModel model, ViewManager manager) {
-    this.panel = new ReversiBoardPanel(model, null);
-    this.add(panel);
-    this.manager = manager;
-    this.manager.register(this);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    hint = new JButton("Hint");
-    hint.setFocusable(false);
-    whiteScore = new JLabel("White: " + model.getScore(RepresentativeColor.WHITE));
-    blackScore = new JLabel("Black: " + model.getScore(RepresentativeColor.BLACK));
-    turn = new JLabel("");
-    hasToPassWarning = new JLabel("");
-    JPanel northPan = new JPanel();
-    northPan.add(hint);
-    northPan.add(whiteScore);
-    northPan.add(blackScore);
-    northPan.add(turn);
-    northPan.add(hasToPassWarning);
-    add(northPan, BorderLayout.NORTH);
-    this.pack();
-  }
-
-  public void setColor(RepresentativeColor color) {
-    panel.setColor(color);
-  }
+  RowColPair getSelectedPosition();
 
   /**
-   * set the default features, target is to notify the user they are
-   * doing something.
+   * after the user successfully place a cell in the selected position,
+   * reset the select position to null.
    */
-  public void setTestFeature() {
-    addFeatures(new Features() {
-      @Override
-      public void placeMove(RowColPair pair) {
+  void resetSelectedPosition();
 
-      }
+  /**
+   * update the current game state to the drawing board.
+   *
+   * @param model the current model
+   */
+  void resetPanel(ReadOnlyReversiModel model);
 
-      @Override
-      public void makePass() {
+  /**
+   * Add the features to the view.
+   *
+   * @param features the feature gonna to add.
+   */
+  void addFeatures(Features features);
 
-      }
+  /**
+   * update the model to all the views that care about this model.
+   *
+   * @param model the update model.
+   */
+  void update(ReadOnlyReversiModel model);
 
-      @Override
-      public void showHints(){
+  /**
+   * display the error message to notify the users include invalid move and
+   * game is over with the winner.
+   *
+   * @param s the message that to be showed
+   */
+  void showStates(String s);
 
-      }
-    });
-  }
+  /**
+   * lock the mouse event for the non human players.
+   */
+  void lockMouseForNonHumanPlayer();
 
-  @Override
-  public void display() {
-    this.setVisible(true);
-  }
+  /**
+   * show hints to the player show required to do so.
+   *
+   * @param color the color the player placing cell for
+   */
+  void showHints(RepresentativeColor color);
 
-  @Override
-  public RowColPair getSelectedPosition() {
-    return panel.getSelectedPosition();
-  }
-
-
-  @Override
-  public void resetPanel(ReadOnlyReversiModel model) {
-    panel.resetHexGrid(model);
-    resetScore(model.getScore(RepresentativeColor.BLACK),
-        model.getScore(RepresentativeColor.WHITE));
-  }
-
-  @Override
-  public void addFeatures(Features features) {
-    hint.addActionListener(e -> features.showHints());
-    this.addKeyListener(new KeyListener() {
-      @Override
-      public void keyTyped(KeyEvent e) {
-      }
-
-      @Override
-      public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-          if (getSelectedPosition() == null) {
-            showStates("Your are not selecting anything");
-            return;
-          }
-          features.placeMove(getSelectedPosition());
-        } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-          features.makePass();
-        }
-      }
-
-      @Override
-      public void keyReleased(KeyEvent e) {
-      }
-    });
-  }
-
-  private void resetScore(int black, int white) {
-    whiteScore.setText("White: " + white);
-    blackScore.setText("Black: " + black);
-  }
+  /**
+   * Set the game over message for the users and notify them who is the winner.
+   *
+   * @param winner the winner
+   * @param winOrNot whether this player win the game
+   */
+  void setGameOverState(RepresentativeColor winner, boolean winOrNot);
 
   /**
    * If the there is no valid move in current turn, and it this player's turn to make move,
    * notify the player.
    *
    * @param hasToPass whether there is valid move in current turn
-   * @param yourTurn the current turn in model
+   * @param isYourTurn the current turn in model
    */
-  public void setHasToPassWarning(boolean hasToPass, boolean yourTurn) {
-    if (hasToPass && yourTurn) {
-      hasToPassWarning.setText("You can only pass");
-      hasToPassWarning.setForeground(Color.RED);
-    } else {
-      hasToPassWarning.setText("");
-    }
-  }
+  void setHasToPassWarning(boolean hasToPass, boolean isYourTurn);
+
+  /**
+   * set the given color to the panel in order to only show the hints to the plyaer
+   * who required to do so.
+   *
+   * @param color the given color
+   */
+  void setColor(RepresentativeColor color);
 
   /**
    * notify the who's turn it is, if it this player's turn, notify the player.
    *
    * @param color the current turn in model
-   * @param yourTurn whether is this player's turn
+   * @param isYourTurn whether is this player's turn
    */
-  public void toggleTurn(RepresentativeColor color, boolean yourTurn) {
-    if (yourTurn) {
-      turn.setText("Current turn: " + color.getName() + " Is Your turn");
-    } else {
-      turn.setText("Current turn: " + color.getName());
-    }
-  }
-
-  public void setGameOverState(RepresentativeColor color) {
-    hasToPassWarning.setText("");
-    turn.setText("Game is over, winner is " + color);
-  }
-
-  public void showHints(RepresentativeColor color) {
-    panel.setShowHints(color);
-    repaint();
-  }
-
-  public void lockMouseForNonHumanPlayer() {
-    panel.setMouseLock(true);
-  }
-
-  public void showStates(String s) {
-    JOptionPane.showMessageDialog(null, s);
-  }
-
-  @Override
-  public void refresh() {
-    repaint();
-  }
-
-  @Override
-  public void resetSelectedPosition() {
-    panel.resetSelectedPosition();
-  }
-
-  public void update(ReadOnlyReversiModel model) {
-    manager.update(model);
-  }
-  //score, turn, winner, button,
-
+  void toggleTurn(RepresentativeColor color, boolean isYourTurn);
 }

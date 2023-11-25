@@ -9,14 +9,14 @@ import model.ReadOnlyReversiModel;
  * A ViewManager represents a observer pattern to all the views, once the
  * model is updated, notify all the view.
  */
-public class ViewManager implements Manager<View>  {
-  List<View> views;
+public class ViewManager implements Manager<ReversiView>  {
+  List<ReversiView> reversiViews;
 
   /**
    * Construct the current ViewManager.
    */
   public ViewManager() {
-    views = new ArrayList<>();
+    reversiViews = new ArrayList<>();
   }
 
   /**
@@ -25,8 +25,8 @@ public class ViewManager implements Manager<View>  {
    * @param element the view that wants to register
    */
   @Override
-  public void register(View element) {
-    views.add(element);
+  public void register(ReversiView element) {
+    reversiViews.add(element);
   }
 
   /**
@@ -36,8 +36,8 @@ public class ViewManager implements Manager<View>  {
    */
   @Override
   public void update(ReadOnlyReversiModel model) {
-    for (View view : views) {
-      view.resetPanel(model);
+    for (ReversiView reversiView : reversiViews) {
+      reversiView.resetPanel(model);
     }
   }
 

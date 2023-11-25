@@ -2,16 +2,17 @@ package controller;
 
 import model.MutableReversiModel;
 import model.Player;
+import model.RepresentativeColor;
 import model.RowColPair;
 import view.Features;
-import view.ReversiView;
+import view.RegularReversiReversiView;
 
 /**
  * A controller represents the features in this game, user will interact with controller.
  */
 public class Controller implements Features {
   private final MutableReversiModel model;
-  private final ReversiView view;
+  private final RegularReversiReversiView view;
   private final Player player;
   private final ControllerManager manager;
 
@@ -23,7 +24,7 @@ public class Controller implements Features {
    * @param player the player that will interact with this controller
    * @param cm the manager of this controller
    */
-  public Controller(MutableReversiModel model, ReversiView view, Player player,
+  public Controller(MutableReversiModel model, RegularReversiReversiView view, Player player,
                     ControllerManager cm) {
     this.model = model;
     this.view = view;
@@ -51,7 +52,9 @@ public class Controller implements Features {
    */
   public void update(boolean hasToPass, boolean gameOver) {
     if (gameOver) {
-      view.setGameOverState(model.getWinner());
+      RepresentativeColor winner = model.getWinner();
+      boolean win = winner == player.getColor();
+      view.setGameOverState(model.getWinner(), win);
       return;
     }
     boolean yourTurn = model.getTurn() == player.getColor();
