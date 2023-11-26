@@ -1,5 +1,5 @@
 import java.util.Arrays;
-import controller.Controller;
+import controller.GUIController;
 import controller.ControllerManager;
 import model.MutableReversiModel;
 import model.Player;
@@ -32,8 +32,8 @@ public class ReversiGame {
         new CompleteStrategy(new MinimaxStrategy()));
     Player player4 = new ReversiPlayer(RepresentativeColor.WHITE, null);
     ReversiGUIView view2 = new ReversiGUIView(model, manager);
-    Controller controller = new Controller(model, view, player3, cm);
-    Controller controller2 = new Controller(model, view2, player4, cm);
+    GUIController GUIController = new GUIController(model, view, player3, cm);
+    GUIController controller2 = new GUIController(model, view2, player4, cm);
     model.startGame();
     // who go first,
     // controller should not know the strategy

@@ -1,11 +1,96 @@
 --------------------------------------------------HW7-----------------------------------------------------------------
  1. Overview
+    The goal of our codebase is to allow games of reversi that follow the rules of Regular Reversi
+    to be played between two players. There is no pre-requisite knowledge required beyond
+    understanding how to make moves and how to play games of Reversi. Our code is intended for
+    extensibility, so that new features, like configurable hotkeys personalized for each player
+    can be easily added without changing our code very much. Our components (view, controller,
+    and model) are decoupled from implemenations as much as model and are dependent on interfaces,
+    so any model, view, or controller, or combination thereof, that sticks with our interface
+    should be able to work with our game of reversi. This means that our code is desgined to support
+    future new ways of viewing games of reversi and new ways (for example new rules, new start
+    positions, new board sizes, new ways to determine things like score and isGameOver, etc.) of
+    modeling games of Reversi.
+
+    Some assumptions that we make in our codebase:
+    -Players can be either human players (that will make their move by interacting with our view,
+    via command line arguments, GUI buttons, or other mechanisms), or AI Players (that will use
+    some form of strategy to select their moves)
+    -There can be more than one view and more than one controller for a given game of Reversi.
+    One player can be interacting via command line arguments and using a textual view and textual
+    controller, while at the same time the other player can be interacting with a GUI and inputting
+    their moves by clicking on buttons with mouse events, or using keys or hotkeys on their keybaord,
+    for example. In this example, each player would have their own controler and their own view.
+    In general, any combination of mechanisms for viewing and controlling a game of reversi can be supported,
+    meaning we can have 2 GUI players, 2 textual players, 1 GUI and 1 AI player, 2 AI players,
+    etc. etc.
+    -AI players will need a controller to prompt them for and apply their moves
 
  2. Quick Start
+A user may get started using our controller codebase by interacting with our a view GUI. Once the
+    game is begun, players will be able to interact with the GUI by selecting a tile for which to
+    place their color. When a tile is selected, its display color will become Cyan, indicating
+    that this is their selection. Tiles can be unselected and selected by clicking out of bounds,
+    or by clicking to other tiles. When a user wants to make move, they can click the enter key
+    when they have a selected tile. If the move is valid, it will go through and the corresponding
+    internal game logic and external view of the game will be updated, with the selected tile
+    being changed to the color of the player who just made the move. If the move is invalid, they
+    will know this because the actual color of the selected tile will not be changed to the color
+    of the player whose turn it is. For players interacting with other forms of views, like
+    textual views, and we had a game in progress called 'game', a sample user interaction may
+    look like this: “game.placeMove(new RowColPair(3,-1), RepresentativeColor.WHITE)"
+
+    If a user want sto make the legal move at (3, -1) in white as described above, by clicking
+    on the tile via our GUI view,
+    the path of callbacks and delegation will be as follows:
+    -ReversiGUIView is listening for low-level events like button clicks. This triggers the low-level
+     event of a button clicked
+     -The GUI view translates the low   level event of the Button from our HexGrid being clicked at
+      (3, -1) into a high level event in that is a request to place a move, as outlined in the features interface.
+    -The GUIController will check if the move is valid. Since it is, it will tell its controller manager
+    to broadcast the move to all of the controller managers that are registed / subscribed with the manager
+    -The controllers for each player in the game will be managed by the same manager, so each player's controller
+    will make the actual move on the model, and then make a callback to the each player's view that is controlled
+    by the controller to update itself
+    -Each view will then update itself, by re-rendering itself with the updated model.
 
  3. Key Components
+The Manager
+ We created an interface to represent a Manager for a model of Reversi. The idea is that the manager
+ can notify each type of observer whenever an interesting event occurs on the model, and all of the
+ observers of a given type will get called back when an event that they care about occurs. On this
+ callback, our controller manager updates the model, and our view callback re-displays itself
+ on the updated version of the model.
+ The key design idea for this assignment is to have two managers: one is for controller and the other is
+ for the view. Once an interesting event occurs (a move is made by a player, the game is started, etc.), all of
+ the controllers and views that care about this model will be notified and they will be updated.
+
+ We added a start game method in our model in order to make a clear distinction between “setting everything up”
+ and “actually playing the game”. In this method, we assigned the color for players by player that join the game
+ first will placing for black cell and player that second join the game will placing for white cell, and set the
+ player who goes first to black, and notify the controllers and views that care about this model that the game is started.
+
+The GUIController
+ Represents an asynchrnous controller for a game of reversi. GUIControllers are event-driven and
+ respond to whatever event happens at a given time. The job of GUIControllers are to control the
+ flow of Reversi Games by determining when and how to update the model, as well as how and when to
+ update the GUI view that they use.
 
  4. Key Subcomponents
+
+ For the view manager, whenever the model is updated, the view manager will notify all the views that
+ observe the model to repaint the board in order for each player to have an updated view of the board.
+
+ For the controllers manager, controllers that update the model will be notified to update the game state.
+ Updating the game state includes...
+ -Updating the current score for the black and white players
+ -Updating whose turn it
+ -Updating whether the player who will play in the  next turn is a human player or not
+ -Checking if there are no valid move on the board, and if this is the case,
+  notifying the model that the player that must pass (since they have no valid moves) .
+ -Checking if the player who will play in next turn is an Ai player, and if this is the case, asking the player
+ to choose for the position and place it.
+
 
 5. Source Organization
     -In the src directory, we can find 3 packages
@@ -16,10 +101,19 @@
         model. This mock model is used to confirm that strategies are using the proper inputs in
         order to check moves.
       -Controller→ contains different classes that help run the brains of our reversi game.
-       We have a manager interface
+      We have a GUI Controller class that represents an event-driven asynchronous GUI Controller.
+      The GUI Controller serves to control the flow of Reversi Games by determining when and how to
+      update the model, as well as how and when to update the GUI view that they use.
+       We have a manager interface, which represents a Manager for a model of Reversi. Managers
+       represent a type of observer, and the manager notifies all observers of the given type
+        whenever an interesting event occurs on the model.observers of a given type can be updated
+         when an event that they care about occurs. We have a manager for our controller and
+         that
       -View → contains different classes that help display our game to the players. The view provides
         interfaces for players to specify their desired move, and to observe the state of the game at
-        any time.
+        any time. The view also contains the view manager class, which raises events to all the views
+         that it manages. Views can subsrcibe to be managed by this manager. Whenever the game state
+          is updated, the view manager is called-back, and it notifies all its view subscribers to update their display.
       -Strategy -> contains different classes that help a player select a move, by using a specific
       strategy. The strategy package outlines how we can compose strategies, as well as contains
       specific implementations for different fallible and infallible strategies.
@@ -35,34 +129,7 @@
               of different moves and uphold their class signatures. For example, our fallible classes
               should throw an exception when their strategy move type does not exist for a given
               board state.
- The Manager
- We created an interface to represent a Manager for a model of Reversi. The idea is that the manager
- can notify each type of observer whenever an interesting event occurs on the model, and all of the
- observers of a given type will get called back when an event that they care about occurs. On this
- callback, our controller manager updates the model, and our view callback re-displays itself
- on the updated version of the model.
- The key design idea for this assignment is to have two managers: one is for controller and the other is
- for the view. Once an interesting event occurs (a move is made by a player, the game is started, etc.), all of
- the controllers and views that care about this model will be notified and they will be updated.
- For the view, whenever the model is updated, the view manager will notify all the views that observe the model to repaint the board in order
- for each player to have an updated view of the board.
 
- For the controllers manager, controllers that update the model will be notified to update the game state.
- Updating the game state includes...
- -Updating the current score for the black and white players
- -Updating whose turn it
- -Updating whether the player who will play in the  next turn is a human player or not
- -Checking if there are no valid move on the board, and if this is the case,
-  notifying the model that the player that must pass (since they have no valid moves) .
- -Checking if the player who will play in next turn is an Ai player, and if this is the case, asking the player
- to choose for the position and place it.
-
- We added a start game method in our model in order to make a clear distinction between “setting everything up”
- and “actually playing the game”. In this method, we assigned the color for players by player that join the game
- first will placing for black cell and player that second join the game will placing for white cell, and set the
- player who goes first to black, and notify the controllers and views that care about this model that the game is started.
-
-The Controller
 
 
 --------------------------------------------------HW6----------------------------------------------------------------------------------------------------

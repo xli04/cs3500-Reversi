@@ -8,9 +8,12 @@ import view.Features;
 import view.ReversiGUIView;
 
 /**
- * A controller represents the features in this game, user will interact with controller.
+ * Represents an asynchrnous controller for a game of reversi. GUIControllers are event-driven
+ * and respond to whatever event happens at a given time. The job of GUIControllers are to
+ * control the flow of Reversi Games by determining when and how to update the model, as well
+ * as how and when to update the GUI view that they use.
  */
-public final class Controller implements Features {
+public final class GUIController implements Features {
   private final MutableReversiModel model;
   private final ReversiGUIView view;
   private final Player player;
@@ -24,8 +27,8 @@ public final class Controller implements Features {
    * @param player the player that will interact with this controller
    * @param cm     the manager of this controller
    */
-  public Controller(MutableReversiModel model, ReversiGUIView view, Player player,
-                    ControllerManager cm) {
+  public GUIController(MutableReversiModel model, ReversiGUIView view, Player player,
+                       ControllerManager cm) {
     this.model = model;
     this.view = view;
     this.player = player;

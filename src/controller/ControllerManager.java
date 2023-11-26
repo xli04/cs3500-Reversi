@@ -6,12 +6,14 @@ import java.util.List;
 import model.ReadOnlyReversiModel;
 
 /**
- * A ControllerManager raises events to all the controllers. The job of a controller manager is
- * to notify all the controllers whenever an interesting event happens on the model, for example
- * whenever the model is updated.
+ * A ControllerManager raises events to all the controllers. Controllers can register (subscribe)
+ * to be managed by a controller manager. The job of a controller manager is to call-back all
+ * controllers that are subscribed,  whenever an intereseting event occurs (such as a move is
+ * made on the model), and to have each controller update the corresponding view that the
+ * controller controls.
  */
-public final class ControllerManager implements Manager<Controller> {
-  private final List<Controller> controllers;
+public final class ControllerManager implements Manager<GUIController> {
+  private final List<GUIController> controllers;
 
   /**
    * Construct the current ControllerManager.
@@ -26,7 +28,7 @@ public final class ControllerManager implements Manager<Controller> {
    * @param c the controller that wants to register
    */
   @Override
-  public void register(Controller c) {
+  public void register(GUIController c) {
     controllers.add(c);
   }
 
@@ -37,7 +39,7 @@ public final class ControllerManager implements Manager<Controller> {
    */
   @Override
   public void update(ReadOnlyReversiModel model) {
-    for (Controller c : controllers) {
+    for (GUIController c : controllers) {
       boolean over = model.isGameOver();
       if (over) {
         c.update(false, true);
@@ -46,7 +48,7 @@ public final class ControllerManager implements Manager<Controller> {
       }
 
     }
-    for (Controller c : controllers) {
+    for (GUIController c : controllers) {
       c.tryToPlace();
     }
   }
