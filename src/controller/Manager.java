@@ -17,7 +17,7 @@ public interface Manager<T> {
   void register(T observer);
 
   /**
-   * Notify all the observers of that are managed by this manager to update.
+   * Broadcast to all the observers of that are managed by this manager to update.
    *
    * @param model the model to be updated.
    */

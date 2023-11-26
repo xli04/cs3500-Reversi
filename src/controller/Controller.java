@@ -5,14 +5,14 @@ import model.Player;
 import model.RepresentativeColor;
 import model.RowColPair;
 import view.Features;
-import view.RegularReversiReversiView;
+import view.ReversiGUIView;
 
 /**
  * A controller represents the features in this game, user will interact with controller.
  */
 public final class Controller implements Features {
   private final MutableReversiModel model;
-  private final RegularReversiReversiView view;
+  private final ReversiGUIView view;
   private final Player player;
   private final ControllerManager manager;
 
@@ -24,7 +24,7 @@ public final class Controller implements Features {
    * @param player the player that will interact with this controller
    * @param cm     the manager of this controller
    */
-  public Controller(MutableReversiModel model, RegularReversiReversiView view, Player player,
+  public Controller(MutableReversiModel model, ReversiGUIView view, Player player,
                     ControllerManager cm) {
     this.model = model;
     this.view = view;
@@ -46,11 +46,11 @@ public final class Controller implements Features {
   }
 
   /**
-   * Update the game state to all the view that shared the same model with current one,
-   * if the current model do not has any valid move in the curretn turn, notify the player
+   * An event handler to update the game state to all the view that shared the same model with
+   * current one. If the current model has no valid moves in the current turn, notify the player
    * that will play in next turn.
    *
-   * @param hasToPass whether there exist valid move inside of the current model
+   * @param hasToPass whether there exists any valid moves for the current model
    * @param gameOver  whether the game is over for the given model.
    */
   public void update(boolean hasToPass, boolean gameOver) {

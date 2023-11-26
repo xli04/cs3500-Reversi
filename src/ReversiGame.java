@@ -8,7 +8,7 @@ import model.RepresentativeColor;
 import model.ReversiPlayer;
 import strategy.CompleteStrategy;
 import strategy.MinimaxStrategy;
-import view.RegularReversiReversiView;
+import view.ReversiGUIView;
 import view.ViewManager;
 
 /**
@@ -27,11 +27,11 @@ public class ReversiGame {
     Player player = new ReversiPlayer(RepresentativeColor.BLACK,
         new CompleteStrategy(new MinimaxStrategy()));
     Player player3 = new ReversiPlayer(RepresentativeColor.BLACK, null);
-    RegularReversiReversiView view = new RegularReversiReversiView(model, manager);
+    ReversiGUIView view = new ReversiGUIView(model, manager);
     Player player2 = new ReversiPlayer(RepresentativeColor.WHITE,
         new CompleteStrategy(new MinimaxStrategy()));
     Player player4 = new ReversiPlayer(RepresentativeColor.WHITE, null);
-    RegularReversiReversiView view2 = new RegularReversiReversiView(model, manager);
+    ReversiGUIView view2 = new ReversiGUIView(model, manager);
     Controller controller = new Controller(model, view, player3, cm);
     Controller controller2 = new Controller(model, view2, player4, cm);
     model.startGame();

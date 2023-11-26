@@ -1,22 +1,19 @@
 package view;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import javax.swing.JFrame;
+
+import javax.swing.*;
+
 import model.ReadOnlyReversiModel;
-import model.RowColPair;
-import java.awt.Color;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import java.awt.BorderLayout;
 import model.RepresentativeColor;
+import model.RowColPair;
 
 /**
- * ReversiView will update the board.
+ * Represents a GUI view for a game of reversi.
  */
-public final class RegularReversiReversiView extends JFrame implements ReversiView {
+public final class ReversiGUIView extends JFrame implements GUIView {
   private final ReversiBoardPanel panel;
   private final JLabel whiteScore;
   private final JLabel blackScore;
@@ -26,11 +23,12 @@ public final class RegularReversiReversiView extends JFrame implements ReversiVi
   private final JButton hint;
 
   /**
-   * construct the ReversiView with the given parameter.
+   * construct the ReversiGuiView with the given parameter.
    *
    * @param model the given model
+   * @param manager the view manager that will observe and update our view
    */
-  public RegularReversiReversiView(ReadOnlyReversiModel model, ViewManager manager) {
+  public ReversiGUIView(ReadOnlyReversiModel model, ViewManager manager) {
     this.panel = new ReversiBoardPanel(model, null);
     this.add(panel);
     this.manager = manager;
@@ -51,6 +49,7 @@ public final class RegularReversiReversiView extends JFrame implements ReversiVi
     add(northPan, BorderLayout.NORTH);
     this.pack();
   }
+
   @Override
   public void setColor(RepresentativeColor color) {
     panel.setColor(color);
@@ -73,7 +72,7 @@ public final class RegularReversiReversiView extends JFrame implements ReversiVi
       }
 
       @Override
-      public void showHints(){
+      public void showHints() {
 
       }
     });
@@ -94,7 +93,7 @@ public final class RegularReversiReversiView extends JFrame implements ReversiVi
   public void resetPanel(ReadOnlyReversiModel model) {
     panel.resetHexGrid(model);
     resetScore(model.getScore(RepresentativeColor.BLACK),
-        model.getScore(RepresentativeColor.WHITE));
+            model.getScore(RepresentativeColor.WHITE));
   }
 
   @Override
@@ -134,7 +133,7 @@ public final class RegularReversiReversiView extends JFrame implements ReversiVi
    * notify the player.
    *
    * @param hasToPass whether there is valid move in current turn
-   * @param yourTurn the current turn in model
+   * @param yourTurn  the current turn in model
    */
   @Override
   public void setHasToPassWarning(boolean hasToPass, boolean yourTurn) {
@@ -149,7 +148,7 @@ public final class RegularReversiReversiView extends JFrame implements ReversiVi
   /**
    * notify the who's turn it is, if it this player's turn, notify the player.
    *
-   * @param color the current turn in model
+   * @param color    the current turn in model
    * @param yourTurn whether is this player's turn
    */
   @Override
@@ -162,7 +161,7 @@ public final class RegularReversiReversiView extends JFrame implements ReversiVi
   }
 
   @Override
-  public void setGameOverState(RepresentativeColor color,  boolean winOrNot) {
+  public void setGameOverState(RepresentativeColor color, boolean winOrNot) {
     hasToPassWarning.setText("");
     if (winOrNot) {
       turn.setText("Game is over, winner is " + color + " You win!!");
@@ -191,6 +190,7 @@ public final class RegularReversiReversiView extends JFrame implements ReversiVi
   public void resetSelectedPosition() {
     panel.resetSelectedPosition();
   }
+
   @Override
   public void update(ReadOnlyReversiModel model) {
     manager.update(model);

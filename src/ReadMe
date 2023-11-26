@@ -38,7 +38,9 @@
  The Manager
  We created an interface to represent a Manager for a model of Reversi. The idea is that the manager
  can notify each type of observer whenever an interesting event occurs on the model, and all of the
- observers of a given type can be updated when an event that they care about occurs.
+ observers of a given type will get called back when an event that they care about occurs. On this
+ callback, our controller manager updates the model, and our view callback re-displays itself
+ on the updated version of the model.
  The key design idea for this assignment is to have two managers: one is for controller and the other is
  for the view. Once an interesting event occurs (a move is made by a player, the game is started, etc.), all of
  the controllers and views that care about this model will be notified and they will be updated.
