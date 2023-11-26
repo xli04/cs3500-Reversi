@@ -28,16 +28,17 @@ public final class RegularReversiModel implements MutableReversiModel {
    * initialize the game with the given size. the 2 should be the smallest size for a board
    * to put in all the pre-positioned cells.
    *
-   * @param size size of the board
+   * @param size     size of the board
+   * @param managers the observers that will be added to our regular reversi model
    */
-  public RegularReversiModel(int size, List<Manager<?>> list) {
+  public RegularReversiModel(int size, List<Manager<?>> managers) {
     if (size < 2) {
       throw new IllegalArgumentException("Invalid board size");
     }
     board = new HashMap<>();
     passTimes = 0;
     this.size = size;
-    this.managers = list;
+    this.managers = managers;
     setEntireBoardToBlankCells(size);
     setBoardToStartingPosition();
   }
@@ -45,12 +46,14 @@ public final class RegularReversiModel implements MutableReversiModel {
   /**
    * Initialize standard Reversi Game with side length 6 and 6 pre-positioned cells
    * 3 black and 3 white.
+   *
+   * @param managers the observers that will be added to ur regular reversi model.
    */
-  public RegularReversiModel(List<Manager<?>> list) {
+  public RegularReversiModel(List<Manager<?>> managers) {
     passTimes = 0;
     board = new HashMap<>();
     this.size = DEFAULT_SIZE;
-    this.managers = list;
+    this.managers = managers;
     setEntireBoardToBlankCells(DEFAULT_SIZE);
     setBoardToStartingPosition();
   }
@@ -67,9 +70,9 @@ public final class RegularReversiModel implements MutableReversiModel {
    */
   RegularReversiModel(Map<RowColPair, Hexagon> board, int size, RepresentativeColor turn) {
     if (board == null || size < 2 || (turn != RepresentativeColor.WHITE
-        && turn != RepresentativeColor.BLACK)) {
+            && turn != RepresentativeColor.BLACK)) {
       throw new IllegalArgumentException(
-        "Error occurred when trying to initialize Reversi Model from rigged board"
+              "Error occurred when trying to initialize Reversi Model from rigged board"
       );
     }
     this.board = board;
@@ -88,11 +91,11 @@ public final class RegularReversiModel implements MutableReversiModel {
    * left, the r will increase, if the cell go right, the r will decrease. for the q, the leftCol,
    * it will increase when the col go left. and for the s, the rightCol, it will increase
    * when the col go right.
-   *        (-2,0,2) (-2,1,1) (-2,2,0)
-   *    (-1,-1,2) (-1,0,1) (-1,1,0) (-1,-2,-1)
+   * (-2,0,2) (-2,1,1) (-2,2,0)
+   * (-1,-1,2) (-1,0,1) (-1,1,0) (-1,-2,-1)
    * (0,-2,2) (0,-1,1) (0,0,0) (0,1,-1) (0,2,-2)
-   *    (1,-2,1) (1,-1,0) (1,0,-1) (1,1,-2)
-   *       (2,-2,0) (2,-1,-1) (2,0,-2)
+   * (1,-2,1) (1,-1,0) (1,0,-1) (1,1,-2)
+   * (2,-2,0) (2,-1,-1) (2,0,-2)
    *
    * @param size the size of the board
    */
@@ -368,7 +371,7 @@ public final class RegularReversiModel implements MutableReversiModel {
   @Override
   public void startGame() {
     turn = RepresentativeColor.BLACK;
-    for (Manager m : managers) {
+    for (Manager<?> m : managers) {
       m.update(this);
     }
   }
@@ -382,8 +385,8 @@ public final class RegularReversiModel implements MutableReversiModel {
    */
   private CubeCoordinateTrio findAdjacentCells(CubeCoordinateTrio current, Direction direction) {
     return new CubeCoordinateTrio(current.getRow() + direction.getRowOffset(),
-      current.getLeftCol() + direction.getLeftColOffset(),
-      current.getRightCol() + direction.getRightColOffset());
+            current.getLeftCol() + direction.getLeftColOffset(),
+            current.getRightCol() + direction.getRightColOffset());
   }
 
   @Override
@@ -391,7 +394,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     Map<RowColPair, Hexagon> copy = new HashMap<>();
     for (RowColPair pair : board.keySet()) {
       copy.put(new RowColPair(pair.getRow(), pair.getCol()),
-          new Hexagon(board.get(pair).getColor()));
+              new Hexagon(board.get(pair).getColor()));
     }
     return copy;
   }

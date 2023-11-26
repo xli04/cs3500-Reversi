@@ -3,22 +3,23 @@ package controller;
 import model.ReadOnlyReversiModel;
 
 /**
- * A Manager interface represents a observer pattern, once the
- * model is updated, notify all the element that interest in it.
+ * Represents a Manager for a model of Reversi. Managers represent a type of observer, and
+ * are all observers of the given type whenever an interesting event occurs on the model.
+ * observers of a given type can be updated when an event that they care about occurs.
  */
 public interface Manager<T> {
 
   /**
    * Register for current manager.
    *
-   * @param element the element that wants to register
+   * @param observer the observer that wants to register to be managed.
    */
-  void register(T element);
+  void register(T observer);
 
   /**
-   * update the current game state to all the elements that shared the same model.
+   * Notify all the observers of that are managed by this manager to update.
    *
-   * @param model if there exist valid move in the current game board
+   * @param model the model to be updated.
    */
   void update(ReadOnlyReversiModel model);
 }

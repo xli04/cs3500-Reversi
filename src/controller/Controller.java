@@ -19,10 +19,10 @@ public final class Controller implements Features {
   /**
    * Construct the controller with given parameters.
    *
-   * @param model the current model
-   * @param view the current view
+   * @param model  the current model
+   * @param view   the current view
    * @param player the player that will interact with this controller
-   * @param cm the manager of this controller
+   * @param cm     the manager of this controller
    */
   public Controller(MutableReversiModel model, RegularReversiReversiView view, Player player,
                     ControllerManager cm) {
@@ -51,6 +51,7 @@ public final class Controller implements Features {
    * that will play in next turn.
    *
    * @param hasToPass whether there exist valid move inside of the current model
+   * @param gameOver  whether the game is over for the given model.
    */
   public void update(boolean hasToPass, boolean gameOver) {
     if (gameOver) {
