@@ -10,7 +10,7 @@ import view.RegularReversiReversiView;
 /**
  * A controller represents the features in this game, user will interact with controller.
  */
-public class Controller implements Features {
+public final class Controller implements Features {
   private final MutableReversiModel model;
   private final RegularReversiReversiView view;
   private final Player player;
@@ -28,15 +28,17 @@ public class Controller implements Features {
                     ControllerManager cm) {
     this.model = model;
     this.view = view;
-    view.setColor(player.getColor());
-    view.addFeatures(this);
-    view.display();
     this.player = player;
-    boolean yourTurn = model.getTurn() == player.getColor();
+    this.manager = cm;
+
+    view.setColor(player.getColor());
+    view.addFeatures(this); //add this controller as an observer to the view
+    view.display(); //render the initial game state
+
+    boolean playerTurn = (model.getTurn() == player.getColor());
     if (model.getTurn() != null) {
-      view.toggleTurn(model.getTurn(), yourTurn);
+      view.toggleTurn(model.getTurn(), playerTurn);
     }
-    manager = cm;
     if (player.isAiPlayer()) {
       view.lockMouseForNonHumanPlayer();
     }
@@ -53,7 +55,7 @@ public class Controller implements Features {
   public void update(boolean hasToPass, boolean gameOver) {
     if (gameOver) {
       RepresentativeColor winner = model.getWinner();
-      boolean win = winner == player.getColor();
+      boolean win = (winner == player.getColor());
       view.setGameOverState(model.getWinner(), win);
       return;
     }

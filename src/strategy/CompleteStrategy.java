@@ -9,7 +9,7 @@ import model.RowColPair;
  * A complete strategy represents a kinds of strategy that will never fail by never
  * return null or empty when choosing positions.
  */
-public class CompleteStrategy implements InfallibleStrategy {
+public final class CompleteStrategy implements InfallibleStrategy {
   private final FallibleStrategy strategy;
 
   /**

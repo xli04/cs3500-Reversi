@@ -5,7 +5,7 @@ import strategy.InfallibleStrategy;
 /**
  * A ReversiPlayer interface, represents ai player in the reversi game.
  */
-public class ReversiPlayer implements Player {
+public final class ReversiPlayer implements Player {
   private final RepresentativeColor color;
   private final InfallibleStrategy strategy;
   private PlayerType type;
@@ -15,7 +15,7 @@ public class ReversiPlayer implements Player {
    * player will use for choose next move, if the strategy is null. this means this player is
    * a human player.
    *
-   * @param color the color
+   * @param color    the color
    * @param strategy the strategy
    */
   public ReversiPlayer(RepresentativeColor color, InfallibleStrategy strategy) {
@@ -50,6 +50,6 @@ public class ReversiPlayer implements Player {
    * Represents a player type relative to a player in the game. A regular reversi should
    * only has two types of player, ai or human.
    */
-  protected enum PlayerType { Human, Ai }
+  protected enum PlayerType {Human, Ai}
 }
 

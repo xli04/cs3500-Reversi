@@ -7,7 +7,7 @@ import model.RowColPair;
 /**
  * A place move implementation of ReversiCommand represents the place move method in model.
  */
-public class PlaceMove implements ReversiCommand {
+public final class PlaceMove implements ReversiCommand {
   private final RowColPair pair;
 
   /**

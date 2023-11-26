@@ -6,7 +6,7 @@ import java.util.Objects;
  * Represents row-column pair. Rows and cols are both zero-indexed. (0,0) means the middle cell
  * in our board.
  */
-public class RowColPair implements Comparable<RowColPair> {
+public final class RowColPair implements Comparable<RowColPair> {
   private final int row;
   private final int col;
 
@@ -53,7 +53,7 @@ public class RowColPair implements Comparable<RowColPair> {
 
   @Override
   public boolean equals(Object obj) {
-    if (! (obj instanceof RowColPair)) {
+    if (!(obj instanceof RowColPair)) {
       return false;
     }
     return row == ((RowColPair) obj).getRow() && col == ((RowColPair) obj).getCol();

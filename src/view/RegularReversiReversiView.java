@@ -16,7 +16,7 @@ import model.RepresentativeColor;
 /**
  * ReversiView will update the board.
  */
-public class RegularReversiReversiView extends JFrame implements ReversiView {
+public final class RegularReversiReversiView extends JFrame implements ReversiView {
   private final ReversiBoardPanel panel;
   private final JLabel whiteScore;
   private final JLabel blackScore;

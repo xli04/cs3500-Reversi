@@ -1,17 +1,29 @@
 --------------------------------------------------HW7-----------------------------------------------------------------
- The key design idea for this assignment is to have two managers, one is for controller and the other is
- for the view, once the model is updated, all of the controllers and views care about this model will be
- updated. for the view, the view manager will let all the views to repaint the board in order to make sure
- two players can check move on the same board. For the controllers manager, it will update the game state
- include the current score for the black and white players and who's turn it is and if the player who will play
- in next turn is a human player and there is no valid move on the board, notify the player that can only pass.
- if the player who will play in next turn is an Ai player, ask the player to choose for the position and place
- it.
+ 3. Key Components
+ The Manager
+ We created an interface to represent a Manager for a model of Reversi. The idea is that the manager
+ can notify each type of observer whenever an interesting event occurs on the model, and all of the
+ observers of a given type can be updated when an event that they care about occurs.
+ The key design idea for this assignment is to have two managers: one is for controller and the other is
+ for the view. Once an interesting event occurs (a move is made by a player, the game is started, etc.), all of
+ the controllers and views that care about this model will be notified and they will be updated.
+ For the view, whenever the model is updated, the view manager will notify all the views that observe the model to repaint the board in order
+ for each player to have an updated view of the board.
+
+ For the controllers manager, controllers that update the model will be notified to update the game state.
+ Updating the game state includes...
+ -Updating the current score for the black and white players
+ -Updating whose turn it i
+ -Updating whether the player who will play in the  next turn is a human player or not
+ -Checking if there are no valid move on the board, and if this is the case,
+  notifying the model that the player that must pass (since they have no valid moves) .
+ -Checking if the player who will play in next turn is an Ai player, and if this is the case, asking the player
+ to choose for the position and place it.
 
  We added a start game method in our model in order to make a clear distinction between “setting everything up”
- and “actually playing the game”. in this method, we assigned the color for players by player that join the game
+ and “actually playing the game”. In this method, we assigned the color for players by player that join the game
  first will placing for black cell and player that second join the game will placing for white cell, and set the
- player who goes first to black, and notify the controllers and views care about this model that game is start.
+ player who goes first to black, and notify the controllers and views that care about this model that the game is started.
 
 
 
@@ -417,4 +429,3 @@ i. our place move and make pass method will take a color as parameter in order t
             This will be the home for unit tests for individual components as well as integration
             tests to measure communication between components (e.g. Between the view and controller)
 
-            Hi xu how are you

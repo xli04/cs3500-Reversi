@@ -6,7 +6,7 @@ package model;
  * we count the number of column from left to right and the rightCol refers to count from
  * right to left.
  */
-public class CubeCoordinateTrio {
+public final class CubeCoordinateTrio {
   private final int row;
   private final int leftCol;
   private final int rightCol;

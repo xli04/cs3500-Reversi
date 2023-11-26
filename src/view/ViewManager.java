@@ -2,6 +2,7 @@ package view;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import controller.Manager;
 import model.ReadOnlyReversiModel;
 
@@ -9,8 +10,8 @@ import model.ReadOnlyReversiModel;
  * A ViewManager represents a observer pattern to all the views, once the
  * model is updated, notify all the view.
  */
-public class ViewManager implements Manager<ReversiView>  {
-  List<ReversiView> reversiViews;
+public final class ViewManager implements Manager<ReversiView> {
+  private final List<ReversiView> reversiViews;
 
   /**
    * Construct the current ViewManager.

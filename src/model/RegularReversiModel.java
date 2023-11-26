@@ -1,5 +1,6 @@
 package model;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ public final class RegularReversiModel implements MutableReversiModel {
   private int passTimes;
   //INVARIANT: turn can only be white or black.
   private RepresentativeColor turn = null;
-  private List<Manager> managers;
+  private final List<Manager<?>> managers;
 
   /**
    * initialize the game with the given size. the 2 should be the smallest size for a board
@@ -29,7 +30,7 @@ public final class RegularReversiModel implements MutableReversiModel {
    *
    * @param size size of the board
    */
-  public RegularReversiModel(int size, List<Manager> list) {
+  public RegularReversiModel(int size, List<Manager<?>> list) {
     if (size < 2) {
       throw new IllegalArgumentException("Invalid board size");
     }
@@ -45,7 +46,7 @@ public final class RegularReversiModel implements MutableReversiModel {
    * Initialize standard Reversi Game with side length 6 and 6 pre-positioned cells
    * 3 black and 3 white.
    */
-  public RegularReversiModel(List<Manager> list) {
+  public RegularReversiModel(List<Manager<?>> list) {
     passTimes = 0;
     board = new HashMap<>();
     this.size = DEFAULT_SIZE;
@@ -75,6 +76,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     passTimes = 0;
     this.turn = turn;
     this.size = size;
+    this.managers = Collections.emptyList();
   }
 
   /**

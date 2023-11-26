@@ -1,10 +1,6 @@
 package view;
 
-import java.awt.Graphics2D;
-import java.awt.Graphics;
-import java.awt.Polygon;
-import java.awt.Color;
-import java.awt.BasicStroke;
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -21,17 +17,17 @@ import model.RepresentativeColor;
 import model.RowColPair;
 
 /**
- * a HexGrid represents the assemble of hexagons.
+ * a HexGrid represents the assembly of hexagons.
  */
-public class HexGrid {
-  private int size;
+public final class HexGrid {
+  private final int size;
   private Map<RowColPair, Hexagon> hexagons;
   private final Map<RowColPair, Ellipse2D> center;
-  protected Map<RowColPair, Integer> number;
+  Map<RowColPair, Integer> number;
   private final int width;
   private final int height;
   public final double theta = (Math.PI * 2) / 6.0;
-  public static int hexagonLength = 5;
+  public static final int hexagonLength = 5;
   private final ReadOnlyReversiModel model;
 
   /**
@@ -109,8 +105,8 @@ public class HexGrid {
     if (currentColor == RepresentativeColor.BLACK || currentColor == RepresentativeColor.WHITE) {
       double circleRadius = hexagonLength / Math.sqrt(3);
       center.put(new RowColPair(0, 0),
-        new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
-          circleRadius * 2, circleRadius * 2));
+              new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
+                      circleRadius * 2, circleRadius * 2));
     } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()) {
       Map<Direction, Integer> value = model.checkMove(new RowColPair(0, 0), model.getTurn());
       int total = 0;
@@ -159,8 +155,8 @@ public class HexGrid {
     if (currentColor == RepresentativeColor.BLACK || currentColor == RepresentativeColor.WHITE) {
       double circleRadius = hexagonLength / Math.sqrt(3);
       center.put(pair,
-        new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
-          circleRadius * 2, circleRadius * 2));
+              new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
+                      circleRadius * 2, circleRadius * 2));
     } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()) {
       Map<Direction, Integer> value = model.checkMove(pair, model.getTurn());
       int total = 0;
@@ -206,7 +202,7 @@ public class HexGrid {
    *
    * @param p the given point
    * @return the coordinators in rowcol system that represent the position or null means
-   *        the given position doesn't in any hexagons
+   * the given position doesn't in any hexagons
    */
   public RowColPair getPoint(Point2D p) {
     for (RowColPair pair : hexagons.keySet()) {
@@ -214,7 +210,7 @@ public class HexGrid {
       Polygon part = hexagon.getPolygon();
       if (part.contains(p)) {
         System.out.println("Now you are selecting" + "(" + pair.getRow() + ","
-            + pair.getCol() + ")" + hexagons.get(pair).getColor());
+                + pair.getCol() + ")" + hexagons.get(pair).getColor());
         return pair;
       }
     }

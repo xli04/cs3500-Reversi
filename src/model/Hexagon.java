@@ -1,12 +1,11 @@
 package model;
 
-import java.awt.Polygon;
-import java.util.Objects;
+import java.awt.*;
 
 /**
  * A Single hexagon tile in the game board.
  */
-public class Hexagon {
+public final class Hexagon {
   private Polygon poly;
 
   private RepresentativeColor representativeColor;
