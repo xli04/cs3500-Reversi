@@ -84,7 +84,7 @@ The GUIController
  For the controllers manager, controllers that update the model will be notified to update the game state.
  Updating the game state includes...
  -Updating the current score for the black and white players
- -Updating whose turn it
+ -Updating whose turn it is
  -Updating whether the player who will play in the  next turn is a human player or not
  -Checking if there are no valid move on the board, and if this is the case,
   notifying the model that the player that must pass (since they have no valid moves) .
@@ -99,7 +99,9 @@ The GUIController
         of the game. For instance, our model holds the Direction class that is used to handle checking
         if moves exist and executing moves on a certain direction.  This package also contains a Mock
         model. This mock model is used to confirm that strategies are using the proper inputs in
-        order to check moves.
+        order to check moves. This package also contains the Player Interface and the Reversi
+        Player class. The Player interface represents the different actions that a player can
+        make for a game of Reversi
       -Controller→ contains different classes that help run the brains of our reversi game.
       We have a GUI Controller class that represents an event-driven asynchronous GUI Controller.
       The GUI Controller serves to control the flow of Reversi Games by determining when and how to
@@ -130,8 +132,9 @@ The GUIController
               should throw an exception when their strategy move type does not exist for a given
               board state.
 
-
-
+Changes for part 3:
+-Refactored our RegularReversiModel to start the game when startGame() is called, rather than
+on the construction of a model object itself. This allows
 --------------------------------------------------HW6----------------------------------------------------------------------------------------------------
 1. Overview
 The way we generate the view is by first get the coordinators for the middle point, which is (0,0)
