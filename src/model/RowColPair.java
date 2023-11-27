@@ -53,7 +53,7 @@ public final class RowColPair implements Comparable<RowColPair> {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof RowColPair)) {
+    if (! (obj instanceof RowColPair)) {
       return false;
     }
     return row == ((RowColPair) obj).getRow() && col == ((RowColPair) obj).getCol();

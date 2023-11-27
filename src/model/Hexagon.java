@@ -1,6 +1,6 @@
 package model;
 
-import java.awt.*;
+import java.awt.Polygon;
 
 /**
  * A Single hexagon tile in the game board.

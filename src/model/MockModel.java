@@ -9,7 +9,7 @@ import java.util.Map;
  * things we expected. it will give feedback which pair does the strategy visited and also
  * to test the strategy itself works properly.
  */
-public final class MockModel implements MutableReversiModel {
+final class MockModel implements MutableReversiModel {
   private final MutableReversiModel model;
   private final StringBuilder builder;
   private final List<RowColPair> positionsLieToStrategy;
@@ -104,6 +104,7 @@ public final class MockModel implements MutableReversiModel {
 
   @Override
   public void startGame() {
-
+    builder.append("game start");
+    model.startGame();
   }
 }

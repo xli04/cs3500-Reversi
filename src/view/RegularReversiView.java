@@ -1,19 +1,22 @@
 package view;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
-import javax.swing.*;
-
+import javax.swing.JFrame;
 import model.ReadOnlyReversiModel;
-import model.RepresentativeColor;
 import model.RowColPair;
+import java.awt.Color;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import java.awt.BorderLayout;
+import model.RepresentativeColor;
 
 /**
- * Represents a GUI view for a game of reversi.
+ * ReversiView will update the board.
  */
-public final class ReversiGUIView extends JFrame implements GUIView {
+public class RegularReversiView extends JFrame implements ReversiView {
   private final ReversiBoardPanel panel;
   private final JLabel whiteScore;
   private final JLabel blackScore;
@@ -23,12 +26,11 @@ public final class ReversiGUIView extends JFrame implements GUIView {
   private final JButton hint;
 
   /**
-   * construct the ReversiGuiView with the given parameter.
+   * construct the ReversiView with the given parameter.
    *
    * @param model the given model
-   * @param manager the view manager that will observe and update our view
    */
-  public ReversiGUIView(ReadOnlyReversiModel model, ViewManager manager) {
+  public RegularReversiView(ReadOnlyReversiModel model, ViewManager manager) {
     this.panel = new ReversiBoardPanel(model, null);
     this.add(panel);
     this.manager = manager;
@@ -59,21 +61,21 @@ public final class ReversiGUIView extends JFrame implements GUIView {
    * set the default features, target is to notify the user they are
    * doing something.
    */
-  public void setTestFeature() {
+  private void setTestFeature() {
     addFeatures(new Features() {
       @Override
       public void placeMove(RowColPair pair) {
-
+        // no action for test feature.
       }
 
       @Override
       public void makePass() {
-
+        // no action for test feature.
       }
 
       @Override
-      public void showHints() {
-
+      public void showHints(){
+        // no action for test feature.
       }
     });
   }
@@ -93,7 +95,7 @@ public final class ReversiGUIView extends JFrame implements GUIView {
   public void resetPanel(ReadOnlyReversiModel model) {
     panel.resetHexGrid(model);
     resetScore(model.getScore(RepresentativeColor.BLACK),
-            model.getScore(RepresentativeColor.WHITE));
+        model.getScore(RepresentativeColor.WHITE));
   }
 
   @Override
@@ -102,6 +104,7 @@ public final class ReversiGUIView extends JFrame implements GUIView {
     this.addKeyListener(new KeyListener() {
       @Override
       public void keyTyped(KeyEvent e) {
+        // no action for keyTyped.
       }
 
       @Override
@@ -119,6 +122,7 @@ public final class ReversiGUIView extends JFrame implements GUIView {
 
       @Override
       public void keyReleased(KeyEvent e) {
+        // no action for keyReleased.
       }
     });
   }
@@ -128,16 +132,9 @@ public final class ReversiGUIView extends JFrame implements GUIView {
     blackScore.setText("Black: " + black);
   }
 
-  /**
-   * If the there is no valid move in current turn, and it this player's turn to make move,
-   * notify the player.
-   *
-   * @param hasToPass whether there is valid move in current turn
-   * @param yourTurn  the current turn in model
-   */
   @Override
-  public void setHasToPassWarning(boolean hasToPass, boolean yourTurn) {
-    if (hasToPass && yourTurn) {
+  public void setHasToPassWarning(boolean hasToPass, boolean isYourTurn) {
+    if (hasToPass && isYourTurn) {
       hasToPassWarning.setText("You can only pass");
       hasToPassWarning.setForeground(Color.RED);
     } else {
@@ -145,15 +142,9 @@ public final class ReversiGUIView extends JFrame implements GUIView {
     }
   }
 
-  /**
-   * notify the who's turn it is, if it this player's turn, notify the player.
-   *
-   * @param color    the current turn in model
-   * @param yourTurn whether is this player's turn
-   */
   @Override
-  public void toggleTurn(RepresentativeColor color, boolean yourTurn) {
-    if (yourTurn) {
+  public void toggleTurn(RepresentativeColor color, boolean isYourTurn) {
+    if (isYourTurn) {
       turn.setText("Current turn: " + color.getName() + " Is Your turn");
     } else {
       turn.setText("Current turn: " + color.getName());
@@ -161,12 +152,12 @@ public final class ReversiGUIView extends JFrame implements GUIView {
   }
 
   @Override
-  public void setGameOverState(RepresentativeColor color, boolean winOrNot) {
+  public void setGameOverState(RepresentativeColor winner, boolean winOrNot) {
     hasToPassWarning.setText("");
     if (winOrNot) {
-      turn.setText("Game is over, winner is " + color + " You win!!");
+      turn.setText("Game is over, winner is " + winner + " You win!!");
     } else {
-      turn.setText("Game is over, winner is " + color);
+      turn.setText("Game is over, winner is " + winner);
     }
   }
 

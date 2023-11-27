@@ -5,67 +5,64 @@ import model.Player;
 import model.RepresentativeColor;
 import model.RowColPair;
 import view.Features;
-import view.ReversiGUIView;
+import view.ReversiView;
 
 /**
- * Represents an asynchrnous controller for a game of reversi. GUIControllers are event-driven
+ * Represents an asynchronous controller for a game of reversi. Controllers are event-driven
  * and respond to whatever event happens at a given time. The job of GUIControllers are to
  * control the flow of Reversi Games by determining when and how to update the model, as well
  * as how and when to update the GUI view that they use.
  */
-public final class GUIController implements Features {
+public final class Controller implements Features {
   private final MutableReversiModel model;
-  private final ReversiGUIView view;
+  private final ReversiView reversiView;
   private final Player player;
-  private final ControllerManager manager;
+  private final Manager<Controller> manager;
 
   /**
    * Construct the controller with given parameters.
    *
-   * @param model  the current model
-   * @param view   the current view
+   * @param model the current model
+   * @param reversiView the current view
    * @param player the player that will interact with this controller
-   * @param cm     the manager of this controller
+   * @param cm the manager of this controller
    */
-  public GUIController(MutableReversiModel model, ReversiGUIView view, Player player,
-                       ControllerManager cm) {
+  public Controller(MutableReversiModel model, ReversiView reversiView, Player player,
+                    Manager<Controller> cm) {
     this.model = model;
-    this.view = view;
+    this.reversiView = reversiView;
+    reversiView.addFeatures(this);
+    reversiView.display();
     this.player = player;
-    this.manager = cm;
-
-    view.setColor(player.getColor());
-    view.addFeatures(this); //add this controller as an observer to the view
-    view.display(); //render the initial game state
-
-    boolean playerTurn = (model.getTurn() == player.getColor());
+    boolean yourTurn = model.getTurn() == player.getColor();
     if (model.getTurn() != null) {
-      view.toggleTurn(model.getTurn(), playerTurn);
+      reversiView.toggleTurn(model.getTurn(), yourTurn);
     }
+    manager = cm;
     if (player.isAiPlayer()) {
-      view.lockMouseForNonHumanPlayer();
+      reversiView.lockMouseForNonHumanPlayer();
     }
     cm.register(this);
   }
 
   /**
-   * An event handler to update the game state to all the view that shared the same model with
-   * current one. If the current model has no valid moves in the current turn, notify the player
+   * Update the game state to all the view that shared the same model with current one,
+   * if the current model do not has any valid move in the curretn turn, notify the player
    * that will play in next turn.
    *
-   * @param hasToPass whether there exists any valid moves for the current model
-   * @param gameOver  whether the game is over for the given model.
+   * @param hasToPass whether there exist valid move inside of the current model
    */
   public void update(boolean hasToPass, boolean gameOver) {
     if (gameOver) {
       RepresentativeColor winner = model.getWinner();
-      boolean win = (winner == player.getColor());
-      view.setGameOverState(model.getWinner(), win);
+      boolean win = winner == player.getColor();
+      reversiView.setGameOverState(model.getWinner(), win);
       return;
     }
+    reversiView.setColor(player.getColor());
     boolean yourTurn = model.getTurn() == player.getColor();
-    view.toggleTurn(model.getTurn(), yourTurn);
-    view.setHasToPassWarning(hasToPass, yourTurn);
+    reversiView.toggleTurn(model.getTurn(), yourTurn);
+    reversiView.setHasToPassWarning(hasToPass, yourTurn);
   }
 
   /**
@@ -87,7 +84,7 @@ public final class GUIController implements Features {
         RowColPair pair = player.chooseNextMove(model);
         placeMove(pair);
       } catch (IllegalStateException ignored) {
-        view.showStates("Some thing wrong with the Ai strategy");
+        reversiView.showStates("Some thing wrong with the Ai strategy");
       }
     }
   }
@@ -102,15 +99,15 @@ public final class GUIController implements Features {
         return;
       }
       if (model.hasToPass()) {
-        view.showStates("No valid move, can only choose to pass " + model.getTurn());
+        reversiView.showStates("No valid move, can only choose to pass " + model.getTurn());
         return;
       }
       model.placeMove(pair, player.getColor());
-      view.resetSelectedPosition();
-      view.update(model);
+      reversiView.resetSelectedPosition();
+      reversiView.update(model);
       manager.update(model);
     } catch (IllegalStateException | IllegalArgumentException e) {
-      view.showStates("Can not place here " + model.getTurn());
+      reversiView.showStates("Can not place here " + model.getTurn());
     }
   }
 
@@ -120,20 +117,30 @@ public final class GUIController implements Features {
       if (player.getColor() != model.getTurn()) {
         return;
       }
-      view.resetSelectedPosition();
+      reversiView.resetSelectedPosition();
       model.makePass(player.getColor());
       if (model.isGameOver()) {
-        view.showStates("Game is over " + "Winner is " + model.getWinner());
+        reversiView.showStates("Game is over " + "Winner is " + model.getWinner());
       }
-      view.update(model);
+      reversiView.update(model);
       manager.update(model);
     } catch (IllegalStateException e) {
-      view.showStates("Can not do thing right now " + model.getTurn());
+      reversiView.showStates("Can not do thing right now " + model.getTurn());
     }
   }
 
   @Override
   public void showHints() {
-    view.showHints(player.getColor());
+    reversiView.showHints(player.getColor());
+  }
+
+  /**
+   * Get the player in this controller, used to let the manager assign the color
+   * to different player.
+   *
+   * @return the player in this controller
+   */
+  public Player checkPlayer() {
+    return player;
   }
 }

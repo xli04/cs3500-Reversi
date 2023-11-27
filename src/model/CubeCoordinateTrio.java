@@ -14,8 +14,8 @@ public final class CubeCoordinateTrio {
   /**
    * construct the cubePair with given parameters.
    *
-   * @param row      the row
-   * @param leftCol  the left column
+   * @param row the row
+   * @param leftCol the left column
    * @param rightCol the right column
    */
   public CubeCoordinateTrio(int row, int leftCol, int rightCol) {
@@ -68,8 +68,8 @@ public final class CubeCoordinateTrio {
       return false;
     }
     return leftCol == ((CubeCoordinateTrio) obj).getRow()
-            && row == ((CubeCoordinateTrio) obj).getRow()
-            && rightCol == ((CubeCoordinateTrio) obj).getRightCol();
+      && row == ((CubeCoordinateTrio) obj).getRow()
+      && rightCol == ((CubeCoordinateTrio) obj).getRightCol();
   }
 
   @Override

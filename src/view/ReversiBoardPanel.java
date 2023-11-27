@@ -1,43 +1,28 @@
 package view;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Font;
+import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.Map;
 import java.util.Objects;
-
-import javax.swing.*;
+import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
-
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
 
 /**
- * hexagon, otherwise draw a circle in that hexagon based on the coordinators for its topping
  * A Panel will draw all the colors, allow users to click on them,
  * and play the game.
  */
-public final class ReversiBoardPanel extends JPanel {
-  /**
-   * first, get the coordinators for the middle point(0,0), use its coordinators to get the point
-   * surround it, then if the hexagon was unoccupied(the color is none or cyan), we will fill the
-   * point.
-   *
-   * @param g the <code>Graphics</code> object to protect
-   */
-  @Override
-  protected void paintComponent(Graphics g) {
-    super.paintComponent(g);
-    this.setLayout(new FlowLayout());
-    Graphics2D g2d = (Graphics2D) g.create();
-    g2d.transform(transformLogicalToPhysical());
-    hexGrid.paintComponent(g2d);
-    if (!model.isGameOver() && color == model.getTurn() && showHints) {
-      paintNumbers(g2d);
-    }
-  }
-
+public class ReversiBoardPanel extends JPanel {
   private static int preferWidth = 100;
   private static int preferHeight = 100;
   /**
@@ -48,7 +33,6 @@ public final class ReversiBoardPanel extends JPanel {
   private final HexGrid hexGrid;
   private RepresentativeColor color;
   private boolean showHints;
-
   private boolean mouseLock = false;
 
   /**
@@ -105,17 +89,34 @@ public final class ReversiBoardPanel extends JPanel {
     return new Dimension(preferWidth, preferHeight);
   }
 
+  /**
+   * first, get the coordinators for the middle point(0,0), use its coordinators to get the point
+   * surround it, then if the hexagon was unoccupied(the color is none or cyan), we will fill the
+   * hexagon, otherwise draw a circle in that hexagon based on the coordinators for its topping
+   * point.
+   *
+   * @param g the <code>Graphics</code> object to protect
+   */
+  @Override
+  protected void paintComponent(Graphics g) {
+    super.paintComponent(g);
+    this.setLayout(new FlowLayout());
+    Graphics2D g2d = (Graphics2D) g.create();
+    g2d.transform(transformLogicalToPhysical());
+    hexGrid.paintComponent(g2d);
+    if (!model.isGameOver() && color == model.getTurn() && showHints) {
+      paintNumbers(g2d);
+    }
+  }
+
   private void paintNumbers(Graphics2D g2d) {
     Font font = new Font("Arial", Font.PLAIN, 4);
     g2d.setFont(font);
     g2d.scale(1, -1);
     g2d.setColor(Color.gray);
-    for (RowColPair pair : hexGrid.number.keySet()) {
+    Map<RowColPair, Integer> drawingNumbers = hexGrid.getThePositionForDrawingNumber();
+    for (RowColPair pair : drawingNumbers.keySet()) {
       Point2D p2d = new Point2D() {
-        @Override
-        public void setLocation(double x, double y) {
-        }
-
         @Override
         public double getX() {
           return pair.getRow();
@@ -125,10 +126,15 @@ public final class ReversiBoardPanel extends JPanel {
         public double getY() {
           return pair.getCol() - 6;
         }
+
+        @Override
+        public void setLocation(double x, double y) {
+          // no action for setLocation.
+        }
       };
-      g2d.drawString(String.valueOf(hexGrid.number.get(pair)),
-              (int) inverse().transform(p2d, null).getX(),
-              (int) inverse().transform(p2d, null).getY());
+      g2d.drawString(String.valueOf(drawingNumbers.get(pair)),
+          (int) inverse().transform(p2d, null).getX(),
+          (int) inverse().transform(p2d, null).getY());
     }
   }
 
@@ -211,6 +217,7 @@ public final class ReversiBoardPanel extends JPanel {
   private class MouseEventsListener extends MouseInputAdapter {
     @Override
     public void mousePressed(MouseEvent e) {
+      // no action for mousePressed.
     }
 
     /**
@@ -242,7 +249,7 @@ public final class ReversiBoardPanel extends JPanel {
       }
       if (hexGrid.getColor(selected) == RepresentativeColor.NONE) {
         if (selectedPosition != null && hexGrid.getColor(selectedPosition)
-                == RepresentativeColor.CYAN) {
+            == RepresentativeColor.CYAN) {
           hexGrid.setColor(selectedPosition, RepresentativeColor.NONE);
         }
         selectedPosition = selected;
@@ -257,6 +264,7 @@ public final class ReversiBoardPanel extends JPanel {
 
     @Override
     public void mouseDragged(MouseEvent e) {
+      // no action for mouseDragged.
     }
   }
 }

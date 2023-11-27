@@ -3,9 +3,7 @@ package view;
 import model.RowColPair;
 
 /**
- * Represents communication between a Controller and a View. Allows the Controller to
- * be called back whenever a high-level event occurs, and allows the View to translate
- * low-level events into high-level events that can be broadcasted to the Controller.
+ * A feature interface represent the action that controller can make.
  */
 public interface Features {
   /**
@@ -20,8 +18,5 @@ public interface Features {
    */
   void makePass();
 
-  /**
-   * Displays hints for the amount of tiles that can be flipped for a given potential moves.
-   */
   void showHints();
 }

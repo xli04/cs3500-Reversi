@@ -2,17 +2,16 @@ package view;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import controller.Manager;
 import model.ReadOnlyReversiModel;
 
 /**
- * A ViewManager raises events to all the views that it manages. Views can subsrcibe
+ * A ViewManager raises events to all the views that it manages. Views can subscribe
  * to be managed by this manager. Whenever the game state is updated, the view manager is
  * called-back, and it notifies all its view subscribers to update their display.
  */
-public final class ViewManager implements Manager<GUIView> {
-  private final List<GUIView> reversiViews;
+public class ViewManager implements Manager<ReversiView>  {
+  List<ReversiView> reversiViews;
 
   /**
    * Construct the current ViewManager.
@@ -22,13 +21,14 @@ public final class ViewManager implements Manager<GUIView> {
   }
 
   /**
-   * Register for current manager.
+   * Register for current manager.so that all the views that registered in can be notified
+   * once an interesting event occurs (such as a move is made on the model).
    *
-   * @param view the view that wants to subscribe to the current manager.
+   * @param element the view that wants to register
    */
   @Override
-  public void register(GUIView view) {
-    reversiViews.add(view);
+  public void register(ReversiView element) {
+    reversiViews.add(element);
   }
 
   /**
@@ -38,7 +38,7 @@ public final class ViewManager implements Manager<GUIView> {
    */
   @Override
   public void update(ReadOnlyReversiModel model) {
-    for (GUIView reversiView : reversiViews) {
+    for (ReversiView reversiView : reversiViews) {
       reversiView.resetPanel(model);
     }
   }

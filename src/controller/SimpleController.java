@@ -2,15 +2,14 @@ package controller;
 
 import java.util.ArrayList;
 import java.util.Scanner;
-
 import model.MutableReversiModel;
 import model.RegularReversiModel;
 import model.RepresentativeColor;
-import model.RowColPair;
 import strategy.CompleteStrategy;
 import strategy.InfallibleStrategy;
 import strategy.MinimaxStrategy;
 import view.ReversiTextualView;
+import model.RowColPair;
 
 /**
  * A simple controller, used to test and let others understand how this code works easier.
@@ -19,7 +18,7 @@ import view.ReversiTextualView;
  * the game is over, winner will be the player who has higher score which means the player who
  * has more cells in its color. Or we can choose to let two ai player to against each other.
  */
-public final class SimpleController {
+public class SimpleController {
   /**
    * entry point of this program.
    *
@@ -27,7 +26,7 @@ public final class SimpleController {
    */
   public static void main(String[] args) {
     strategyCompetition(new CompleteStrategy(new MinimaxStrategy()),
-            new CompleteStrategy(new MinimaxStrategy()));
+        new CompleteStrategy(new MinimaxStrategy()));
   }
 
   /**

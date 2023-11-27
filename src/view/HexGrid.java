@@ -1,6 +1,10 @@
 package view;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Graphics;
+import java.awt.Polygon;
+import java.awt.Color;
+import java.awt.BasicStroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -9,7 +13,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import model.Direction;
 import model.Hexagon;
 import model.ReadOnlyReversiModel;
@@ -17,17 +20,17 @@ import model.RepresentativeColor;
 import model.RowColPair;
 
 /**
- * a HexGrid represents the assembly of hexagons.
+ * a HexGrid represents the assemble of hexagons.
  */
 public final class HexGrid {
   private final int size;
   private Map<RowColPair, Hexagon> hexagons;
   private final Map<RowColPair, Ellipse2D> center;
-  Map<RowColPair, Integer> number;
+  private Map<RowColPair, Integer> number;
   private final int width;
   private final int height;
   public final double theta = (Math.PI * 2) / 6.0;
-  public static final int hexagonLength = 5;
+  public final int hexagonLength = 5;
   private final ReadOnlyReversiModel model;
 
   /**
@@ -74,12 +77,14 @@ public final class HexGrid {
       currentSize--;
     }
     g2d.setStroke(new BasicStroke(strokeWidth));
-    g2d.draw(polygon);
-    g2d.setColor(color.getActualColor());
-    if (color == RepresentativeColor.BLACK || color == RepresentativeColor.WHITE) {
-      g2d.setColor(RepresentativeColor.NONE.getActualColor());
+    if (polygon != null) {
+      g2d.draw(polygon);
+      g2d.setColor(color.getActualColor());
+      if (color == RepresentativeColor.BLACK || color == RepresentativeColor.WHITE) {
+        g2d.setColor(RepresentativeColor.NONE.getActualColor());
+      }
+      g2d.fillPolygon(polygon);
     }
-    g2d.fillPolygon(polygon);
   }
 
   /**
@@ -105,8 +110,8 @@ public final class HexGrid {
     if (currentColor == RepresentativeColor.BLACK || currentColor == RepresentativeColor.WHITE) {
       double circleRadius = hexagonLength / Math.sqrt(3);
       center.put(new RowColPair(0, 0),
-              new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
-                      circleRadius * 2, circleRadius * 2));
+          new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
+            circleRadius * 2, circleRadius * 2));
     } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()) {
       Map<Direction, Integer> value = model.checkMove(new RowColPair(0, 0), model.getTurn());
       int total = 0;
@@ -155,9 +160,10 @@ public final class HexGrid {
     if (currentColor == RepresentativeColor.BLACK || currentColor == RepresentativeColor.WHITE) {
       double circleRadius = hexagonLength / Math.sqrt(3);
       center.put(pair,
-              new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
-                      circleRadius * 2, circleRadius * 2));
-    } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()) {
+          new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
+            circleRadius * 2, circleRadius * 2));
+    } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()
+        && model.getColorAt(pair) == RepresentativeColor.NONE) {
       Map<Direction, Integer> value = model.checkMove(pair, model.getTurn());
       int total = 0;
       for (int i : value.values()) {
@@ -181,12 +187,6 @@ public final class HexGrid {
     g2d.fillRect(-width / 2, -height / 2, width, height);
     List<RowColPair> list = new ArrayList<>(hexagons.keySet());
     Collections.sort(list);
-    for (RowColPair pair : hexagons.keySet()) {
-      if (hexagons.get(pair).getPolygon() == null) {
-        System.out.println(pair.getRow());
-        System.out.println(pair.getCol());
-      }
-    }
     for (RowColPair pair : list) {
       Polygon polygon = hexagons.get(pair).getPolygon();
       fillHexagon(g2d, polygon, hexagons.get(pair).getColor());
@@ -202,7 +202,7 @@ public final class HexGrid {
    *
    * @param p the given point
    * @return the coordinators in rowcol system that represent the position or null means
-   * the given position doesn't in any hexagons
+   *        the given position doesn't in any hexagons
    */
   public RowColPair getPoint(Point2D p) {
     for (RowColPair pair : hexagons.keySet()) {
@@ -210,7 +210,7 @@ public final class HexGrid {
       Polygon part = hexagon.getPolygon();
       if (part.contains(p)) {
         System.out.println("Now you are selecting" + "(" + pair.getRow() + ","
-                + pair.getCol() + ")" + hexagons.get(pair).getColor());
+            + pair.getCol() + ")" + hexagons.get(pair).getColor());
         return pair;
       }
     }
@@ -235,5 +235,15 @@ public final class HexGrid {
    */
   public RepresentativeColor getColor(RowColPair pair) {
     return hexagons.get(pair).getColor();
+  }
+
+  /**
+   * Get the position of the valid move cell and the number of cells they can flip.
+   *
+   * @return a copy of the map for the the position of the valid move cell and the number
+   *         of cells they can flip
+   */
+  public Map<RowColPair, Integer> getThePositionForDrawingNumber() {
+    return new HashMap<>(number);
   }
 }

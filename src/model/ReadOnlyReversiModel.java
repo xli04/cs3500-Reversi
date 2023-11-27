@@ -24,7 +24,7 @@ public interface ReadOnlyReversiModel {
   /**
    * check if there is valid move exits for the current player.
    *
-   * @return true if there is valid moves, false otherwise.
+   * @return true if there is valid moves, false otherwise
    * @throws IllegalStateException if the game is already ended
    * @throws IllegalArgumentException if the color are invalid
    */
@@ -33,7 +33,7 @@ public interface ReadOnlyReversiModel {
   /**
    * get the cell color at the given position.
    *
-   * @param pair the position for which to retrieve the cell color.
+   * @param pair the position
    * @return the color in the given position
    * @throws IllegalArgumentException if the coordinators are invalid
    */

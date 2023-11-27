@@ -24,13 +24,6 @@ public final class MinimaxStrategy extends AbstractStrategy implements FallibleS
     if (move == null) {
       return Optional.empty();
     }
-    try {
-      Thread.sleep(500);
-    } catch (InterruptedException ignored) {
-      if (move == null) {
-        return Optional.empty();
-      }
-    }
     return Optional.of(move.getPosition());
   }
 

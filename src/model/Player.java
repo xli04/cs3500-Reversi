@@ -28,4 +28,6 @@ public interface Player {
    * @return true if it is an Ai player, otherwise false
    */
   boolean isAiPlayer();
+
+  void assignColor(RepresentativeColor color);
 }
