@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import controller.Manager;
 
 /**
@@ -24,15 +23,16 @@ public final class RegularReversiModel implements MutableReversiModel {
   private RepresentativeColor turn = null;
   private List<Manager<?>> managers;
   private boolean hasGameStarted = false;
+  private final ModelStatus status;
 
   /**
    * initialize the game with the given size. the 2 should be the smallest size for a board
    * to put in all the pre-positioned cells.
    *
-   * @param size     size of the board
+   * @param size size of the board
    * @param managers the managers that care about the model
    */
-  public RegularReversiModel(int size, List<Manager<?>> managers) {
+  public RegularReversiModel(int size, List<Manager<?>> managers, ModelStatus status) {
     if (size < 2) {
       throw new IllegalArgumentException("Invalid board size");
     }
@@ -40,6 +40,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     passTimes = 0;
     this.size = size;
     this.managers = managers;
+    this.status = status;
     setEntireBoardToBlankCells(size);
     setBoardToStartingPosition();
   }
@@ -54,6 +55,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     if (size < 2) {
       throw new IllegalArgumentException("Invalid board size");
     }
+    this.hasGameStarted = true;
     board = new HashMap<>();
     passTimes = 0;
     this.size = size;
@@ -61,6 +63,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     setEntireBoardToBlankCells(size);
     setBoardToStartingPosition();
     turn = RepresentativeColor.BLACK;
+    status = new ReversiModelStatus();
   }
 
   /**
@@ -68,11 +71,13 @@ public final class RegularReversiModel implements MutableReversiModel {
    * 3 black and 3 white. Used to test the functionality of the model.
    */
   RegularReversiModel() {
+    this.hasGameStarted = true;
     board = new HashMap<>();
     passTimes = 0;
     this.size = DEFAULT_SIZE;
     this.managers = new ArrayList<>();
     turn = RepresentativeColor.BLACK;
+    status = new ReversiModelStatus();
     setEntireBoardToBlankCells(size);
     setBoardToStartingPosition();
   }
@@ -83,11 +88,12 @@ public final class RegularReversiModel implements MutableReversiModel {
    *
    * @param managers the managers that care about the model
    */
-  public RegularReversiModel(List<Manager<?>> managers) {
+  public RegularReversiModel(List<Manager<?>> managers, ModelStatus status) {
     passTimes = 0;
     board = new HashMap<>();
     this.size = DEFAULT_SIZE;
     this.managers = managers;
+    this.status = status;
     setEntireBoardToBlankCells(DEFAULT_SIZE);
     setBoardToStartingPosition();
   }
@@ -104,15 +110,17 @@ public final class RegularReversiModel implements MutableReversiModel {
    */
   RegularReversiModel(Map<RowColPair, Hexagon> board, int size, RepresentativeColor turn) {
     if (board == null || size < 2 || (turn != RepresentativeColor.WHITE
-            && turn != RepresentativeColor.BLACK)) {
+        && turn != RepresentativeColor.BLACK)) {
       throw new IllegalArgumentException(
-              "Error occurred when trying to initialize Reversi Model from rigged board"
+        "Error occurred when trying to initialize Reversi Model from rigged board"
       );
     }
+    this.hasGameStarted = true;
     this.board = board;
     passTimes = 0;
     this.turn = turn;
     this.size = size;
+    status = new ReversiModelStatus();
   }
 
   /**
@@ -124,11 +132,11 @@ public final class RegularReversiModel implements MutableReversiModel {
    * left, the r will increase, if the cell go right, the r will decrease. for the q, the leftCol,
    * it will increase when the col go left. and for the s, the rightCol, it will increase
    * when the col go right.
-   * (-2,0,2) (-2,1,1) (-2,2,0)
-   * (-1,-1,2) (-1,0,1) (-1,1,0) (-1,-2,-1)
+   *        (-2,0,2) (-2,1,1) (-2,2,0)
+   *    (-1,-1,2) (-1,0,1) (-1,1,0) (-1,-2,-1)
    * (0,-2,2) (0,-1,1) (0,0,0) (0,1,-1) (0,2,-2)
-   * (1,-2,1) (1,-1,0) (1,0,-1) (1,1,-2)
-   * (2,-2,0) (2,-1,-1) (2,0,-2)
+   *    (1,-2,1) (1,-1,0) (1,0,-1) (1,1,-2)
+   *       (2,-2,0) (2,-1,-1) (2,0,-2)
    *
    * @param size the size of the board
    */
@@ -179,7 +187,9 @@ public final class RegularReversiModel implements MutableReversiModel {
   }
 
   /**
-   * check if the game is already, since some actions are ot allowed after game is over.
+   * check if the game is already over, since some actions are ot allowed after game is over.
+   *
+   * @throws IllegalStateException when the game is already over
    */
   private void checkIfGameOver() {
     if (isGameOver()) {
@@ -196,6 +206,7 @@ public final class RegularReversiModel implements MutableReversiModel {
    * @param pair the row-col pair
    * @throws IllegalArgumentException If the coordinators are invalid
    * @throws IllegalStateException    If we can not place the given color cell in given position
+   *                                  or the game is already over or has not started
    */
   @Override
   public void placeMove(RowColPair pair, RepresentativeColor currentPlayer) {
@@ -242,6 +253,7 @@ public final class RegularReversiModel implements MutableReversiModel {
       throw new IllegalStateException("Invalid move");
     }
     turn = turn.getOpposite();
+    status.updateStatus(this);
   }
 
   /**
@@ -280,12 +292,18 @@ public final class RegularReversiModel implements MutableReversiModel {
     }
     passTimes++;
     turn = turn.getOpposite();
+    status.updateStatus(this);
   }
 
+  /**
+   * check if the game was started, since some actions are allowed before the game was started.
+   *
+   * @throws IllegalStateException when the game has not started
+   */
   private void checkIfGameStarted() {
     if (!hasGameStarted) {
-      throw new IllegalStateException("Unable to query the model before the game " +
-              "has started");
+      throw new IllegalStateException("Unable to query the model before the game "
+        + "has started");
     }
   }
 
@@ -356,6 +374,7 @@ public final class RegularReversiModel implements MutableReversiModel {
   @Override
   public boolean hasToPass() {
     checkIfGameOver();
+    checkIfGameStarted();
     for (RowColPair pair : board.keySet()) {
       if (board.get(pair).getColor() != RepresentativeColor.NONE) {
         continue;
@@ -380,6 +399,7 @@ public final class RegularReversiModel implements MutableReversiModel {
 
   @Override
   public RepresentativeColor getWinner() {
+    checkIfGameStarted();
     if (!isGameOver()) {
       throw new IllegalStateException("game hasn't ended yet");
     }
@@ -412,8 +432,15 @@ public final class RegularReversiModel implements MutableReversiModel {
 
   @Override
   public void startGame() {
+    if (hasGameStarted) {
+      throw new IllegalStateException("Game already started");
+    }
+    if (isGameOver()) {
+      throw new IllegalStateException("Game already over");
+    }
     this.hasGameStarted = true;
     turn = RepresentativeColor.BLACK;
+    status.updateStatus(this);
     for (Manager<?> m : managers) {
       m.update(this);
     }
@@ -428,8 +455,8 @@ public final class RegularReversiModel implements MutableReversiModel {
    */
   private CubeCoordinateTrio findAdjacentCells(CubeCoordinateTrio current, Direction direction) {
     return new CubeCoordinateTrio(current.getRow() + direction.getRowOffset(),
-            current.getLeftCol() + direction.getLeftColOffset(),
-            current.getRightCol() + direction.getRightColOffset());
+      current.getLeftCol() + direction.getLeftColOffset(),
+      current.getRightCol() + direction.getRightColOffset());
   }
 
   @Override
@@ -437,7 +464,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     Map<RowColPair, Hexagon> copy = new HashMap<>();
     for (RowColPair pair : board.keySet()) {
       copy.put(new RowColPair(pair.getRow(), pair.getCol()),
-              new Hexagon(board.get(pair).getColor()));
+          new Hexagon(board.get(pair).getColor()));
     }
     return copy;
   }

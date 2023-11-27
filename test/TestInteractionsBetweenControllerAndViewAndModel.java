@@ -6,15 +6,18 @@ import java.util.Arrays;
 import controller.Controller;
 import controller.ControllerManager;
 import controller.Manager;
+import model.ModelStatus;
 import model.MutableReversiModel;
 import model.RegularReversiModel;
 import model.RepresentativeColor;
-import model.ReversiPlayer;
+import model.ReversiAiPlayer;
+import model.ReversiHumanPlayer;
+import model.ReversiModelStatus;
 import model.RowColPair;
 import strategy.CompleteStrategy;
 import strategy.MinimaxStrategy;
 import view.MockView;
-import view.ReversiView;
+import view.GraphicView;
 import view.ViewManager;
 
 /**
@@ -22,14 +25,15 @@ import view.ViewManager;
  */
 public class TestInteractionsBetweenControllerAndViewAndModel {
   Controller controller1;
-  ReversiView mockView1;
+  GraphicView mockView1;
   MutableReversiModel model;
   StringBuilder builder1;
   Controller controller2;
-  ReversiView mockView2;
+  GraphicView mockView2;
   StringBuilder builder2;
   Manager<Controller> manager;
-  Manager<ReversiView> viewManager;
+  Manager<GraphicView> viewManager;
+  ModelStatus status;
 
   /**
    * set up the fields.
@@ -38,13 +42,14 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
   public void setUp() {
     manager = new ControllerManager();
     viewManager = new ViewManager();
-    model = new RegularReversiModel(Arrays.asList(manager, viewManager));
+    status = new ReversiModelStatus();
+    model = new RegularReversiModel(Arrays.asList(manager, viewManager), status);
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1, viewManager);
-    controller1 = new Controller(model, mockView1, new ReversiPlayer(null), manager);
+    controller1 = new Controller(model, mockView1, new ReversiHumanPlayer(), manager, status);
     builder2 = new StringBuilder();
     mockView2 = new MockView(builder2, viewManager);
-    controller2 = new Controller(model, mockView2, new ReversiPlayer(null), manager);
+    controller2 = new Controller(model, mockView2, new ReversiHumanPlayer(), manager, status);
     model.startGame();
   }
 
@@ -69,7 +74,7 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
 
   @Test
   public void testHasToPassWarning() {
-    model = new RegularReversiModel(2, Arrays.asList(manager, viewManager));
+    model = new RegularReversiModel(2, Arrays.asList(manager, viewManager), status);
     model.startGame();
     Assert.assertTrue(builder1.toString().contains("Set Warning: true"));
     // If there is no valid move in the current model, set the warning.
@@ -90,14 +95,14 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
   public void testAiPlayerLockTheMouse() {
     manager = new ControllerManager();
     viewManager = new ViewManager();
-    model = new RegularReversiModel(Arrays.asList(manager, viewManager));
+    model = new RegularReversiModel(Arrays.asList(manager, viewManager), status);
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1, viewManager);
-    controller1 = new Controller(model, mockView1, new ReversiPlayer(new
-      CompleteStrategy(new MinimaxStrategy())), manager);
+    controller1 = new Controller(model, mockView1, new ReversiAiPlayer(new
+      CompleteStrategy(new MinimaxStrategy())), manager, status);
     builder2 = new StringBuilder();
     mockView2 = new MockView(builder2, viewManager);
-    controller2 = new Controller(model, mockView2, new ReversiPlayer(null), manager);
+    controller2 = new Controller(model, mockView2, new ReversiHumanPlayer(), manager, status);
     model.startGame();
     Assert.assertTrue(builder1.toString().contains("Lock the mouse"));
     // only lock the mouse for the Non human player.
@@ -121,13 +126,13 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
   public void testNotifyTheUserCanOnlyPass() {
     manager = new ControllerManager();
     viewManager = new ViewManager();
-    model = new RegularReversiModel(2, Arrays.asList(manager, viewManager));
+    model = new RegularReversiModel(2, Arrays.asList(manager, viewManager), status);
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1, viewManager);
-    controller1 = new Controller(model, mockView1, new ReversiPlayer(null), manager);
+    controller1 = new Controller(model, mockView1, new ReversiHumanPlayer(), manager, status);
     builder2 = new StringBuilder();
     mockView2 = new MockView(builder2, viewManager);
-    controller2 = new Controller(model, mockView2, new ReversiPlayer(null), manager);
+    controller2 = new Controller(model, mockView2, new ReversiHumanPlayer(), manager, status);
     model.startGame();
     controller1.placeMove(new RowColPair(0, 0));
     Assert.assertTrue(builder1.toString().contains("No valid move, can only choose to pass BLACK"));
@@ -180,11 +185,11 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
   public void testStartGameAssignColorCorrectly() {
     ViewManager manager = new ViewManager();
     ControllerManager cm = new ControllerManager();
-    MutableReversiModel model = new RegularReversiModel(Arrays.asList(cm, manager));
-    ReversiView view = new MockView(new StringBuilder(), manager);
-    ReversiView view2 = new MockView(new StringBuilder(), manager);
-    Controller controller = new Controller(model, view, new ReversiPlayer(null), cm);
-    Controller controller2 = new Controller(model, view2, new ReversiPlayer(null), cm);
+    MutableReversiModel model = new RegularReversiModel(Arrays.asList(cm, manager), status);
+    GraphicView view = new MockView(new StringBuilder(), manager);
+    GraphicView view2 = new MockView(new StringBuilder(), manager);
+    Controller controller = new Controller(model, view, new ReversiHumanPlayer(), cm, status);
+    Controller controller2 = new Controller(model, view2, new ReversiHumanPlayer(), cm, status);
     Assert.assertNull(controller.checkPlayer().getColor());
     Assert.assertNull(controller2.checkPlayer().getColor());
     model.startGame();
@@ -196,16 +201,17 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
   public void testThrowExceptionWhenMoreThanTwoPlayersWasAdded() {
     manager = new ControllerManager();
     viewManager = new ViewManager();
-    model = new RegularReversiModel(Arrays.asList(manager, viewManager));
+    model = new RegularReversiModel(Arrays.asList(manager, viewManager), status);
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1, viewManager);
-    controller1 = new Controller(model, mockView1, new ReversiPlayer(null), manager);
+    controller1 = new Controller(model, mockView1, new ReversiHumanPlayer(), manager, status);
     builder2 = new StringBuilder();
     mockView2 = new MockView(builder2, viewManager);
-    controller2 = new Controller(model, mockView2, new ReversiPlayer(null), manager);
+    controller2 = new Controller(model, mockView2, new ReversiHumanPlayer(), manager, status);
     StringBuilder builder3 = new StringBuilder();
-    ReversiView mockView3 = new MockView(builder3, viewManager);
-    Controller controller3 = new Controller(model, mockView3, new ReversiPlayer(null), manager);
+    GraphicView mockView3 = new MockView(builder3, viewManager);
+    Controller controller3 = new Controller(model, mockView3, new ReversiHumanPlayer(),
+      manager, status);
     Assert.assertThrows(IllegalStateException.class, () -> model.startGame());
     // since the current game is only for two players, when the controller manager detect the
     // third player wants to join the game, throw the exception

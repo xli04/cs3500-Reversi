@@ -1,13 +1,16 @@
 import java.util.Arrays;
 import controller.Controller;
 import controller.ControllerManager;
+import model.ModelStatus;
 import model.MutableReversiModel;
 import model.Player;
 import model.RegularReversiModel;
-import model.ReversiPlayer;
+import model.ReversiAiPlayer;
+import model.ReversiHumanPlayer;
+import model.ReversiModelStatus;
 import strategy.CompleteStrategy;
 import strategy.MinimaxStrategy;
-import view.RegularReversiView;
+import view.ReversiGraphicView;
 import view.ViewManager;
 
 /**
@@ -22,15 +25,16 @@ public class ReversiGame {
   public static void main(String[] args) {
     ViewManager manager = new ViewManager();
     ControllerManager cm = new ControllerManager();
-    MutableReversiModel model = new RegularReversiModel(Arrays.asList(cm, manager));
-    Player aiPlayer1 = new ReversiPlayer(new CompleteStrategy(new MinimaxStrategy()));
-    Player humanPlayer1 = new ReversiPlayer(null);
-    RegularReversiView view = new RegularReversiView(model, manager);
-    Player aiPlayer2 = new ReversiPlayer(new CompleteStrategy(new MinimaxStrategy()));
-    Player humanPlayer2 = new ReversiPlayer(null);
-    RegularReversiView view2 = new RegularReversiView(model, manager);
-    Controller controller = new Controller(model, view, humanPlayer1, cm);
-    Controller controller2 = new Controller(model, view2, aiPlayer2, cm);
+    ModelStatus status = new ReversiModelStatus();
+    MutableReversiModel model = new RegularReversiModel(2, Arrays.asList(cm, manager), status);
+    Player aiPlayer1 = new ReversiAiPlayer(new CompleteStrategy(new MinimaxStrategy()));
+    Player humanPlayer1 = new ReversiHumanPlayer();
+    ReversiGraphicView view = new ReversiGraphicView(model, manager);
+    Player aiPlayer2 = new ReversiAiPlayer(new CompleteStrategy(new MinimaxStrategy()));
+    Player humanPlayer2 = new ReversiHumanPlayer();
+    ReversiGraphicView view2 = new ReversiGraphicView(model, manager);
+    Controller controller = new Controller(model, view, humanPlayer1, cm, status);
+    Controller controller2 = new Controller(model, view2, aiPlayer2, cm, status);
     model.startGame();
   }
 }

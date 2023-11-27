@@ -57,10 +57,21 @@ public class ReversiBoardPanel extends JPanel {
     showHints = false;
   }
 
+  /**
+   * Set the color to the panel, represent this panel is for the player in given color.
+   *
+   * @param color the given color, represents the player
+   */
   public void setColor(RepresentativeColor color) {
     this.color = color;
   }
 
+  /**
+   * Set the mouse lock to the panel, in order to keep human players away from bothering
+   * the ai players by marking the cell as selected.
+   *
+   * @param lock whether to lock the mouse event
+   */
   public void setMouseLock(Boolean lock) {
     mouseLock = lock;
   }
@@ -109,6 +120,12 @@ public class ReversiBoardPanel extends JPanel {
     }
   }
 
+  /**
+   * Paint the number on the specific hexagon represents the number of cells that the current
+   * player place here can flipped.
+   *
+   * @param g2d the graphic that paint on
+   */
   private void paintNumbers(Graphics2D g2d) {
     Font font = new Font("Arial", Font.PLAIN, 4);
     g2d.setFont(font);
@@ -158,7 +175,14 @@ public class ReversiBoardPanel extends JPanel {
     selectedPosition = null;
   }
 
-  AffineTransform inverse() {
+  /**
+   * flipping the graphics vertically by applying a scaling transformation with
+   * a scaling factor of 1 along the x-axis (no change) and a scaling factor of -1
+   * along the y-axis.
+   *
+   * @return the transformation after flipping
+   */
+  private AffineTransform inverse() {
     AffineTransform ret = new AffineTransform();
     ret.scale(1, -1);
     return ret;
@@ -210,6 +234,11 @@ public class ReversiBoardPanel extends JPanel {
     }
   }
 
+  /**
+   * Get the user's current selected position in the system of RowColPair.
+   *
+   * @return a RowColPair represents the current selected position
+   */
   public RowColPair getSelectedPosition() {
     return selectedPosition;
   }

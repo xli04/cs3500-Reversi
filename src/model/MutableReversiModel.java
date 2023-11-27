@@ -15,7 +15,7 @@ public interface MutableReversiModel extends ReadOnlyReversiModel {
    *
    * @param pair the row-col pair
    * @param currentPlayer the player that want to place
-   * @throws IllegalStateException if the game is already ended
+   * @throws IllegalStateException if the game is already ended or has not started
    * @throws IllegalArgumentException If the coordinators are invalid
    * @throws IllegalStateException If we can not place the given color cell in given position or
    *         player place a cell when it's not his or her turn
@@ -28,13 +28,16 @@ public interface MutableReversiModel extends ReadOnlyReversiModel {
    *
    * @param currentPlayer the player that want to place
    * @throws IllegalStateException if the game is already ended or
-             player place a cell when it's not his or her turn
+   *          player place a cell when it's not his or her turn
+   *          or the game has not started
    */
   void makePass(RepresentativeColor currentPlayer);
 
   /**
    * notify all the elements such as controller and view that care about the state of this model
    * that the game is start, and set the turn to black.
+   *
+   * @throws IllegalStateException if the game has not started or the game was already over
    */
   void startGame();
 }

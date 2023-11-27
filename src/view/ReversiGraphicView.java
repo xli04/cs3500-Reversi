@@ -16,7 +16,7 @@ import model.RepresentativeColor;
 /**
  * ReversiView will update the board.
  */
-public class RegularReversiView extends JFrame implements ReversiView {
+public class ReversiGraphicView extends JFrame implements GraphicView {
   private final ReversiBoardPanel panel;
   private final JLabel whiteScore;
   private final JLabel blackScore;
@@ -30,7 +30,7 @@ public class RegularReversiView extends JFrame implements ReversiView {
    *
    * @param model the given model
    */
-  public RegularReversiView(ReadOnlyReversiModel model, ViewManager manager) {
+  public ReversiGraphicView(ReadOnlyReversiModel model, ViewManager manager) {
     this.panel = new ReversiBoardPanel(model, null);
     this.add(panel);
     this.manager = manager;
@@ -110,10 +110,6 @@ public class RegularReversiView extends JFrame implements ReversiView {
       @Override
       public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-          if (getSelectedPosition() == null) {
-            showStates("Your are not selecting anything");
-            return;
-          }
           features.placeMove(getSelectedPosition());
         } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
           features.makePass();
@@ -127,6 +123,12 @@ public class RegularReversiView extends JFrame implements ReversiView {
     });
   }
 
+  /**
+   * Reset the message to notify the users the score.
+   *
+   * @param black the current score for black player
+   * @param white the current score for white player
+   */
   private void resetScore(int black, int white) {
     whiteScore.setText("White: " + white);
     blackScore.setText("Black: " + black);

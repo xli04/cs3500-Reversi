@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Optional;
+
 /**
  * Represents a player for a game of Reversi. Reversi games controller will assign each player
  * a color. Players select their moves, and then take turns making moves with their color, with
@@ -13,7 +15,7 @@ public interface Player {
    * @param model the current model
    * @return the position to place the cell ot null if there is no valid move.
    */
-  RowColPair chooseNextMove(ReadOnlyReversiModel model);
+  Optional<RowColPair> chooseNextMove(ReadOnlyReversiModel model);
 
   /**
    * get the color of the cell that this player will place.
@@ -29,5 +31,10 @@ public interface Player {
    */
   boolean isAiPlayer();
 
+  /**
+   * Assign the color to the player, which represents the color of cell they will place for.
+   *
+   * @param color the color of cell that they will place for
+   */
   void assignColor(RepresentativeColor color);
 }

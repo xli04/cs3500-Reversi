@@ -10,14 +10,14 @@ import model.ReadOnlyReversiModel;
  * to be managed by this manager. Whenever the game state is updated, the view manager is
  * called-back, and it notifies all its view subscribers to update their display.
  */
-public class ViewManager implements Manager<ReversiView>  {
-  List<ReversiView> reversiViews;
+public class ViewManager implements Manager<GraphicView>  {
+  List<GraphicView> graphicViews;
 
   /**
    * Construct the current ViewManager.
    */
   public ViewManager() {
-    reversiViews = new ArrayList<>();
+    graphicViews = new ArrayList<>();
   }
 
   /**
@@ -27,8 +27,8 @@ public class ViewManager implements Manager<ReversiView>  {
    * @param element the view that wants to register
    */
   @Override
-  public void register(ReversiView element) {
-    reversiViews.add(element);
+  public void register(GraphicView element) {
+    graphicViews.add(element);
   }
 
   /**
@@ -38,8 +38,8 @@ public class ViewManager implements Manager<ReversiView>  {
    */
   @Override
   public void update(ReadOnlyReversiModel model) {
-    for (ReversiView reversiView : reversiViews) {
-      reversiView.resetPanel(model);
+    for (GraphicView graphicView : graphicViews) {
+      graphicView.resetPanel(model);
     }
   }
 

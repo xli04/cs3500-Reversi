@@ -7,7 +7,7 @@ import model.RowColPair;
 /**
  * A marker interface for all GUI views, to be used in the Reversi game.
  */
-public interface ReversiView {
+public interface GraphicView {
 
   /**
    * display the view.

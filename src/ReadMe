@@ -68,8 +68,8 @@ The Manager
  the controllers and views that care about this model will be notified and they will be updated.
 
 The controller
- Represents an asynchronous controller for a game of reversi. GUIControllers are event-driven and
- respond to whatever event happens at a given time. The job of GUIControllers are to control the
+ Represents an asynchronous controller for a game of reversi. Controllers are event-driven and
+ respond to whatever event happens at a given time. The job of controllers are to control the
  flow of Reversi Games by determining when and how to update the model, as well as how and when to
  update the GUI view that they use.
 
@@ -120,6 +120,24 @@ MockView
   notifying the model that the player that must pass (since they have no valid moves) .
  -Checking if the player who will play in next turn is an Ai player, and if this is the case, asking the player
  to choose for the position and place it.
+
+ For the model status, we have four values to represent the current status for the game
+ END = The game has ended by 2 consecutive passes.
+ InProgress = the game has started and there are still legal moves on the board (at least
+ one legal move for black or for white).
+ HasNotStarted = startGame() has not been called yet.
+ Blocked = no valid moves, but the game is not over yet since the game has no passed.
+
+ For the players, we have two classes to represent two different kinds of players, human player and Ai player
+ and they share a common player interface which contains a very important methods isAiPlayer() this is used to
+ ask the player to choose for the next move if it is an ai player since human player will interact with the view
+ and press keys to place move and make pass.
+
+ Model Status: we have A ReversiModelStatus class represents the current status for the game model, once the player
+ placed a move or made a pass or the start the game, the status of the game will be updated in order to reflect the
+ most recent status. so that in the controller, we will also take in a model status as the parameter in order to track
+ the status of the model more effectively. we initialize the status to hasNotStart since every time when start the game,
+ the status will be updated and also, players can not place move or make pass before the game was started.
 
 
 5. Source Organization

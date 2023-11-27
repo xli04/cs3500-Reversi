@@ -9,9 +9,9 @@ import model.RowColPair;
  * a Mock view, represents a mock of the regular view, used to test if the strategy did the
  * things we expected. it will give feedback if the controller interact with the view correctly.
  */
-public class MockView implements ReversiView {
+public class MockView implements GraphicView {
   private final StringBuilder builder;
-  private final Manager<ReversiView> manager;
+  private final Manager<GraphicView> manager;
 
   /**
    * Initialize the mock view, string builder to record the action.
@@ -19,7 +19,7 @@ public class MockView implements ReversiView {
    * @param builder the string builder that to record the actions
    * @param manager the manager of views
    */
-  public MockView(StringBuilder builder, Manager<ReversiView> manager) {
+  public MockView(StringBuilder builder, Manager<GraphicView> manager) {
     this.builder = builder;
     this.manager = manager;
     manager.register(this);
