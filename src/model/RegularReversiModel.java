@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import controller.Controller;
-
 /**
  * A regular Reversi model, contains the regular rules. Once the cell was placed
  * successfully in this model, the adjacent cells will be flipped if they formed
@@ -22,7 +20,7 @@ public final class RegularReversiModel implements MutableReversiModel {
   private int passTimes;
   //INVARIANT: turn can only be white or black.
   private RepresentativeColor turn = null;
-  private List<Controller> controllers;
+  private List<ModelListener> listeners;
   private boolean hasGameStarted = false;
   private final ModelStatus status;
 
@@ -31,7 +29,7 @@ public final class RegularReversiModel implements MutableReversiModel {
    * to put in all the pre-positioned cells.
    *
    * @param size size of the board
-   * @param status the managers that care about the model
+   * @param status the status that represents the most recent states of game
    */
   public RegularReversiModel(int size, ModelStatus status) {
     if (size < 2) {
@@ -40,7 +38,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     board = new HashMap<>();
     passTimes = 0;
     this.size = size;
-    this.controllers = new ArrayList<>();
+    this.listeners = new ArrayList<>();
     this.status = status;
     setEntireBoardToBlankCells(size);
     setBoardToStartingPosition();
@@ -60,12 +58,12 @@ public final class RegularReversiModel implements MutableReversiModel {
     board = new HashMap<>();
     passTimes = 0;
     this.size = size;
-    this.controllers = new ArrayList<>();
+    this.listeners = new ArrayList<>();
     setEntireBoardToBlankCells(size);
     setBoardToStartingPosition();
     turn = RepresentativeColor.BLACK;
     status = new ReversiModelStatus();
-    controllers = new ArrayList<>();
+    listeners = new ArrayList<>();
   }
 
   /**
@@ -77,25 +75,25 @@ public final class RegularReversiModel implements MutableReversiModel {
     board = new HashMap<>();
     passTimes = 0;
     this.size = DEFAULT_SIZE;
-    this.controllers = new ArrayList<>();
+    this.listeners = new ArrayList<>();
     turn = RepresentativeColor.BLACK;
     status = new ReversiModelStatus();
     setEntireBoardToBlankCells(size);
     setBoardToStartingPosition();
-    controllers = new ArrayList<>();
+    listeners = new ArrayList<>();
   }
 
   /**
    * Initialize standard Reversi Game with side length 6 and 6 pre-positioned cells
    * 3 black and 3 white.
    *
-   * @param status the managers that care about the model
+   * @param status the status that represents the most recent states of game
    */
   public RegularReversiModel(ModelStatus status) {
     passTimes = 0;
     board = new HashMap<>();
     this.size = DEFAULT_SIZE;
-    this.controllers = new ArrayList<>();
+    this.listeners = new ArrayList<>();
     this.status = status;
     setEntireBoardToBlankCells(DEFAULT_SIZE);
     setBoardToStartingPosition();
@@ -124,7 +122,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     this.turn = turn;
     this.size = size;
     status = new ReversiModelStatus();
-    controllers = new ArrayList<>();
+    listeners = new ArrayList<>();
   }
 
   /**
@@ -205,9 +203,12 @@ public final class RegularReversiModel implements MutableReversiModel {
    * check if the attempt move is a valid move. check if the attempt position is
    * next to the opposite color cell with the current color and check if we can
    * flip some cell in a certain direction. once one player successfully placed
-   * a cell, reset the pass times.
+   * a cell, reset the pass times. In the end, update all the views by calling the controller
+   * to let the view repaint the board and update the controllers to show the current state of the
+   * game.
    *
    * @param pair the row-col pair
+   * @param currentPlayer the player that wants to place a move
    * @throws IllegalArgumentException If the coordinators are invalid
    * @throws IllegalStateException    If we can not place the given color cell in given position
    *                                  or the game is already over or has not started
@@ -258,11 +259,8 @@ public final class RegularReversiModel implements MutableReversiModel {
     }
     turn = turn.getOpposite();
     status.updateStatus(this);
-    for (Controller c : controllers) {
-      c.update(hasToPass(), isGameOver());
-    }
-    for (Controller c : controllers) {
-      c.tryToPlace();
+    for (ModelListener listener : listeners) {
+      listener.update();
     }
   }
 
@@ -293,6 +291,14 @@ public final class RegularReversiModel implements MutableReversiModel {
     return map;
   }
 
+  /**
+   * make a pass action when the user has to pass in this turn or the user wants to pass
+   * alter the turn to another player. In the end, update all the views by calling the controller
+   * to let the view repaint the board and update the controllers to show the current state of the
+   * game.
+   *
+   * @param currentPlayer the player that want to make pass
+   */
   @Override
   public void makePass(RepresentativeColor currentPlayer) {
     checkIfGameStarted();
@@ -303,17 +309,8 @@ public final class RegularReversiModel implements MutableReversiModel {
     passTimes++;
     turn = turn.getOpposite();
     status.updateStatus(this);
-    for (Controller c : controllers) {
-      if (isGameOver()) {
-        c.update(false, true);
-      } else {
-        c.update(hasToPass(), false);
-      }
-    }
-    if (!isGameOver()) {
-      for (Controller c : controllers) {
-        c.tryToPlace();
-      }
+    for (ModelListener listener : listeners) {
+      listener.update();
     }
   }
 
@@ -463,21 +460,8 @@ public final class RegularReversiModel implements MutableReversiModel {
     this.hasGameStarted = true;
     turn = RepresentativeColor.BLACK;
     status.updateStatus(this);
-    if (controllers.size() != 2) {
-      throw new IllegalStateException("Current game can only have two players");
-    }
-    if (controllers.get(0).checkPlayer().getColor() == null
-      && controllers.get(1).checkPlayer().getColor() == null) {
-      // first player join the game is placing black cell
-      controllers.get(0).checkPlayer().assignColor(RepresentativeColor.BLACK);
-      // second player is placing white cell
-      controllers.get(1).checkPlayer().assignColor(RepresentativeColor.WHITE);
-    }
-    for (Controller c : controllers) {
-      c.update(hasToPass(), isGameOver());
-    }
-    for (Controller c : controllers) {
-      c.tryToPlace();
+    for (ModelListener listener : listeners) {
+      listener.update();
     }
   }
 
@@ -521,7 +505,7 @@ public final class RegularReversiModel implements MutableReversiModel {
   }
 
   @Override
-  public void addListener(Controller controller) {
-    controllers.add(controller);
+  public void addListener(ModelListener listener) {
+    listeners.add(listener);
   }
 }

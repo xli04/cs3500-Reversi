@@ -97,5 +97,5 @@ public interface ReadOnlyReversiModel {
    */
   MutableReversiModel getDeepCopy(RepresentativeColor color);
 
-  void addListener(Controller controller);
+  void addListener(ModelListener listener);
 }

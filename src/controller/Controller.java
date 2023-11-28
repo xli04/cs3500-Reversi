@@ -28,6 +28,7 @@ public final class Controller implements Features {
    * @param model the current model
    * @param graphicView the current view
    * @param player the player that will interact with this controller
+   * @param status the status that represents the most recent states of game
    */
   public Controller(MutableReversiModel model, GraphicView graphicView, Player player,
                     ModelStatus status) {
@@ -51,13 +52,10 @@ public final class Controller implements Features {
    * if the current model do not has any valid move in the current turn, notify the player
    * that will play in next turn. If the game is over, update the view to show the game
    * over message and the winner in theis game.
-   *
-   * @param hasToPass whether there exist valid move inside of the current model
-   * @param gameOver whether the game is over in current board
    */
-  public void update(boolean hasToPass, boolean gameOver) {
+  public void update() {
     graphicView.resetPanel(model);
-    if (gameOver) {
+    if (status.getStatus() == ModelStatus.Status.END) {
       RepresentativeColor winner = model.getWinner();
       boolean win = winner == player.getColor();
       graphicView.setGameOverState(model.getWinner(), win);
@@ -68,7 +66,7 @@ public final class Controller implements Features {
     graphicView.setColor(player.getColor());
     boolean yourTurn = model.getTurn() == player.getColor();
     graphicView.toggleTurn(model.getTurn(), yourTurn);
-    graphicView.setHasToPassWarning(hasToPass, yourTurn);
+    graphicView.setHasToPassWarning(status.getStatus() == ModelStatus.Status.BLOCKED, yourTurn);
   }
 
   /**

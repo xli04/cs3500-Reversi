@@ -105,7 +105,7 @@ final class MockModel implements MutableReversiModel {
   }
 
   @Override
-  public void addListener(Controller controller) {
+  public void addListener(ModelListener listener) {
 
   }
 

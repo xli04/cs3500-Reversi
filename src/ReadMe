@@ -16,18 +16,9 @@
     -Players can be either human players (that will make their move by interacting with our view,
     via command line arguments, GUI buttons, or other mechanisms), or AI Players (that will use
     some form of strategy to select their moves)
-    -There can be more than one view and more than one controller for a given game of Reversi.
-    One player can be interacting via command line arguments and using a textual view and textual
-    controller, while at the same time the other player can be interacting with a GUI and inputting
-    their moves by clicking on buttons with mouse events, or using keys or hotkeys on their keybaord,
-    for example. In this example, each player would have their own controler and their own view.
-    In general, any combination of mechanisms for viewing and controlling a game of reversi can be supported,
-    meaning we can have 2 GUI players, 2 textual players, 1 GUI and 1 AI player, 2 AI players,
-    etc. etc.
-    -AI players will need a controller to prompt them for and apply their moves
 
  2. Quick Start
-A user may get started using our controller codebase by interacting with our a view GUI. Once the
+A user may get started using our controller codebase by interacting with our a graphic view GUI. Once the
     game is begun, players will be able to interact with the view by selecting a tile for which to
     place their color. When a tile is selected, its display color will become Cyan, indicating
     that this is their selection. Tiles can be unselected and selected by clicking out of bounds,
@@ -74,17 +65,16 @@ The View
  whether the player wants to get some hints. if the current turn matched with player's represent color
  we will notify the user it's your turn to place. If the game is over, we will also congratulate the winner.
 
+Features
+ we used a Features Interface in order to translate these low-level events into actions
+ that can be taken care of in the Controller. This allows our controllers to be decoupled from
+ views, and be able to be flexibile with any view implementations, This also allows the controller
+ to not be closely tied to a specific library - like Java Swing, which is good for future extension
+ and separating the roles of the View and Controller from each other. the controller registered itself
+ as a listener to both of the model of view, so that the user can interact with view to make actions
+ in the in the model according to the controller, and once the model was changed, the controller can notify
+ the view to repaint the board.
 
-
-The Manager
- We created an interface to represent a Manager for a model of Reversi. The idea is that the manager
- can notify each type of observer whenever an interesting event occurs on the model, and all of the
- observers of a given type will get called back when an event that they care about occurs. On this
- callback, our controller manager updates the model, and our view callback repaint itself
- on the updated version of the model.
- The key design idea for this assignment is to have two managers: one is for controller and the other is
- for the view. Once an interesting event occurs (a move is made by a player, the game is started, etc.), all of
- the controllers and views that care about this model will be notified and they will be updated.
 
 The controller
  Represents an asynchronous controller for a game of reversi. Controllers are event-driven and
@@ -98,7 +88,7 @@ KeyBoard And Mouse Lock
  a cell as selected nor actual make an action for ai player. This will prevent the human player from
  bothering the ai player.
 
-Start Game and List<Manager> in the model
+Start Game and List<Controller> in the model
  Since there should be a clear distinction between “setting everything up” and “actually playing the game”.
  our view and controller can paint the board before the game started. the start game method will first set the
  player who will place first to black and notify all the views and controllers that the game is started, the
@@ -211,11 +201,8 @@ Changes for part 3:
  first will placing for black cell and player that second join the game will placing for white cell, and set the
  player who goes first to black, and notify the controllers and views that care about this model that the game is started.
 
- Also, we modify the constructors to take a list of managers and a status as parameter so, once the game was started,
- all the stuffs that care about the model will be called to be updated include the status will update itself in order to
- reflect the most recent status for the current game. it also ensures that there is a clear distinction
- between “setting everything up” and “actually playing the game”. because we think the user should never add another
- controller during the game, all the managers should be settled before the initialization of the game.
+ Also, we added another method in to the readonly model called addListener, because we think listen will not change
+ the model itself, and this method is used to register the controller as a listener to the model
 
 
 --------------------------------------------------HW6----------------------------------------------------------------------------------------------------
