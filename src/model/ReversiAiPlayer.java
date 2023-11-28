@@ -20,6 +20,7 @@ public final class ReversiAiPlayer implements Player {
   public ReversiAiPlayer(InfallibleStrategy strategy) {
     Objects.requireNonNull(strategy);
     this.strategy = strategy;
+    color = null;
   }
 
   /**
@@ -30,6 +31,7 @@ public final class ReversiAiPlayer implements Player {
    * @throws IllegalStateException player's color can not modified during the game
    *         once it was signed
    */
+  @Override
   public void assignColor(RepresentativeColor color) {
     if (this.color != null) {
       throw new IllegalStateException("Can not chang the color during the game");

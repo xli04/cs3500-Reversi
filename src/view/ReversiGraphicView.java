@@ -14,7 +14,10 @@ import java.awt.BorderLayout;
 import model.RepresentativeColor;
 
 /**
- * ReversiView will update the board.
+ * Represents a graphic view for the reversi game, it will contains a board to show the
+ * current states for the model and a panel that shows the current score for both black
+ * and white players, and the hasToPassWarning. It also has a hint button used to determin
+ * whether the player wants to get some hints.
  */
 public class ReversiGraphicView extends JFrame implements GraphicView {
   private final ReversiBoardPanel panel;
@@ -22,19 +25,20 @@ public class ReversiGraphicView extends JFrame implements GraphicView {
   private final JLabel blackScore;
   private final JLabel turn;
   private final JLabel hasToPassWarning;
-  private final ViewManager manager;
   private final JButton hint;
 
   /**
-   * construct the ReversiView with the given parameter.
+   * construct the ReversiView with the given parameter. Register the current
+   * view into the manager in order to get update once the model is changed,
+   * add a board to show the current states for the model and a panel that shows
+   * the current score for both black and white players, and the hasToPassWarning.
+   * also add a hint button used to determine whether the player wants to get some hints.
    *
    * @param model the given model
    */
-  public ReversiGraphicView(ReadOnlyReversiModel model, ViewManager manager) {
+  public ReversiGraphicView(ReadOnlyReversiModel model) {
     this.panel = new ReversiBoardPanel(model, null);
     this.add(panel);
-    this.manager = manager;
-    this.manager.register(this);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     hint = new JButton("Hint");
     hint.setFocusable(false);
@@ -96,8 +100,18 @@ public class ReversiGraphicView extends JFrame implements GraphicView {
     panel.resetHexGrid(model);
     resetScore(model.getScore(RepresentativeColor.BLACK),
         model.getScore(RepresentativeColor.WHITE));
+    this.repaint();
   }
 
+  /**
+   * Add the features to the view, when the player press the enter, it means the player
+   * wants to place a cell that in the color this user represent to the selected position,
+   * which should be marked as cyan, when player press space, it means the player wants to
+   * make pass in this turn, and if the player click the hint button, it means the player
+   * need some hints then show the hints for that player.
+   *
+   * @param features the feature gonna to add.
+   */
   @Override
   public void addFeatures(Features features) {
     hint.addActionListener(e -> features.showHints());
@@ -166,7 +180,6 @@ public class ReversiGraphicView extends JFrame implements GraphicView {
   @Override
   public void showHints(RepresentativeColor color) {
     panel.setShowHints(color);
-    repaint();
   }
 
   @Override
@@ -175,7 +188,7 @@ public class ReversiGraphicView extends JFrame implements GraphicView {
   }
 
   @Override
-  public void showStates(String s) {
+  public void showMessage(String s) {
     JOptionPane.showMessageDialog(null, s);
   }
 
@@ -183,11 +196,5 @@ public class ReversiGraphicView extends JFrame implements GraphicView {
   public void resetSelectedPosition() {
     panel.resetSelectedPosition();
   }
-
-  @Override
-  public void update(ReadOnlyReversiModel model) {
-    manager.update(model);
-  }
-  //score, turn, winner, button,
 
 }

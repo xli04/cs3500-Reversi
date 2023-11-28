@@ -14,7 +14,7 @@ public class ReversiHumanPlayer implements Player {
    * no parameters needed.
    **/
   public ReversiHumanPlayer() {
-
+    color = null;
   }
 
   @Override
@@ -32,8 +32,19 @@ public class ReversiHumanPlayer implements Player {
     return false;
   }
 
+  /**
+   * assign the color to the players that which color they will play for in this
+   * standard reversi game.
+   *
+   * @param color the given color
+   * @throws IllegalStateException player's color can not modified during the game
+   *         once it was signed
+   */
   @Override
   public void assignColor(RepresentativeColor color) {
+    if (this.color != null) {
+      throw new IllegalStateException("Can not chang the color during the game");
+    }
     this.color = color;
   }
 }

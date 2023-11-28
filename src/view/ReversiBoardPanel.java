@@ -169,9 +169,6 @@ public class ReversiBoardPanel extends JPanel {
    * Reset the selected position to null and set it color to nonw.
    */
   public void resetSelectedPosition() {
-    if (selectedPosition != null) {
-      hexGrid.setColor(selectedPosition, RepresentativeColor.NONE);
-    }
     selectedPosition = null;
   }
 
@@ -223,11 +220,15 @@ public class ReversiBoardPanel extends JPanel {
   }
 
   /**
-   * If the player is the player need to make move in the turn, show hints.
+   * If the player is the player need to make move in the turn, show hints. If the game is already
+   * over, the player can not interact with panel anymore thus do nothing.
    *
    * @param color the current player
    */
   public void setShowHints(RepresentativeColor color) {
+    if (model.isGameOver()) {
+      return;
+    }
     if (color == model.getTurn()) {
       showHints = !showHints;
       repaint();
@@ -273,6 +274,7 @@ public class ReversiBoardPanel extends JPanel {
           return;
         }
         hexGrid.setColor(selectedPosition, RepresentativeColor.NONE);
+        selectedPosition = null;
         repaint();
         return;
       }

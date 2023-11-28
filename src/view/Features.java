@@ -19,8 +19,8 @@ public interface Features {
   void makePass();
 
   /**
-   * Displays the hints for a current player, that is the number of tiles of the color o fthe
-   * opposing player that would be flipped by each potential move.
+   * Displays the hints for a current player, that is the number of tiles of the color of the
+   * player that would be flipped by each potential move.
    */
   void showHints();
 }

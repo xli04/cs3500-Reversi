@@ -1,28 +1,24 @@
 package view;
 
-import controller.Manager;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
 
 /**
  * a Mock view, represents a mock of the regular view, used to test if the strategy did the
- * things we expected. it will give feedback if the controller interact with the view correctly.
+ * things we expected. it will give feedback to determine if the controller interact with
+ * the view correctly.
  */
 public class MockView implements GraphicView {
   private final StringBuilder builder;
-  private final Manager<GraphicView> manager;
 
   /**
    * Initialize the mock view, string builder to record the action.
    *
    * @param builder the string builder that to record the actions
-   * @param manager the manager of views
    */
-  public MockView(StringBuilder builder, Manager<GraphicView> manager) {
+  public MockView(StringBuilder builder) {
     this.builder = builder;
-    this.manager = manager;
-    manager.register(this);
   }
 
   @Override
@@ -51,12 +47,7 @@ public class MockView implements GraphicView {
   }
 
   @Override
-  public void update(ReadOnlyReversiModel model) {
-    manager.update(model);
-  }
-
-  @Override
-  public void showStates(String s) {
+  public void showMessage(String s) {
     builder.append(s).append("\n");
   }
 

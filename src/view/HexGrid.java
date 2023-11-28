@@ -209,8 +209,6 @@ public final class HexGrid {
       Hexagon hexagon = hexagons.get(pair);
       Polygon part = hexagon.getPolygon();
       if (part.contains(p)) {
-        System.out.println("Now you are selecting" + "(" + pair.getRow() + ","
-            + pair.getCol() + ")" + hexagons.get(pair).getColor());
         return pair;
       }
     }

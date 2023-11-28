@@ -38,7 +38,7 @@ public class SimpleController {
    */
   public static void strategyCompetition(InfallibleStrategy strategy1,
                                          InfallibleStrategy strategy2) {
-    MutableReversiModel model = new RegularReversiModel(new ArrayList<>(),
+    MutableReversiModel model = new RegularReversiModel(
         new ReversiModelStatus());
     model.startGame();
     ReversiTextualView view = new ReversiTextualView(model);
@@ -69,7 +69,7 @@ public class SimpleController {
    * Interact with the controller by typing command.
    */
   public static void tryToPlay() {
-    MutableReversiModel model = new RegularReversiModel(new ArrayList<>(),
+    MutableReversiModel model = new RegularReversiModel(
         new ReversiModelStatus());
     ReversiTextualView view = new ReversiTextualView(model);
     Scanner scanner = new Scanner(System.in);

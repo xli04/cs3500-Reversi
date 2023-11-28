@@ -5,7 +5,7 @@ import model.RepresentativeColor;
 import model.RowColPair;
 
 /**
- * A marker interface for all GUI views, to be used in the Reversi game.
+ * A marker interface for all graphic views, to be used in the Reversi game.
  */
 public interface GraphicView {
 
@@ -41,20 +41,23 @@ public interface GraphicView {
    */
   void addFeatures(Features features);
 
-  /**
-   * update the model to all the views that care about this model.
-   *
-   * @param model the update model.
-   */
-  void update(ReadOnlyReversiModel model);
+//  /**
+//   * Once one of the view was called to update, all the views that care about this model should
+//   * be called and update the current game to the drawing board in order to make sure both of the
+//   * players can consider their next move in a same board, it will also update the current score
+//   * for both black and white players.
+//   *
+//   * @param model the update model.
+//   */
+//  void update(ReadOnlyReversiModel model);
 
   /**
-   * display the error message to notify the users include invalid move and
+   * display the message to notify the users include invalid move and
    * game is over with the winner.
    *
    * @param s the message that to be showed
    */
-  void showStates(String s);
+  void showMessage(String s);
 
   /**
    * lock the mouse event for the non human players.
