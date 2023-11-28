@@ -160,4 +160,6 @@ public final class Controller implements Features {
   public Player checkPlayer() {
     return player;
   }
+
+  // model -> updated controller -> view
 }

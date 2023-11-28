@@ -26,7 +26,7 @@ public class ReversiGame {
     ViewManager manager = new ViewManager();
     ControllerManager cm = new ControllerManager();
     ModelStatus status = new ReversiModelStatus();
-    MutableReversiModel model = new RegularReversiModel(2, Arrays.asList(cm, manager), status);
+    MutableReversiModel model = new RegularReversiModel(Arrays.asList(cm, manager), status);
     Player aiPlayer1 = new ReversiAiPlayer(new CompleteStrategy(new MinimaxStrategy()));
     Player humanPlayer1 = new ReversiHumanPlayer();
     ReversiGraphicView view = new ReversiGraphicView(model, manager);
@@ -34,7 +34,7 @@ public class ReversiGame {
     Player humanPlayer2 = new ReversiHumanPlayer();
     ReversiGraphicView view2 = new ReversiGraphicView(model, manager);
     Controller controller = new Controller(model, view, humanPlayer1, cm, status);
-    Controller controller2 = new Controller(model, view2, aiPlayer2, cm, status);
+    Controller controller2 = new Controller(model, view2, humanPlayer2, cm, status);
     model.startGame();
   }
 }

@@ -286,6 +286,7 @@ public class ReversiBoardPanel extends JPanel {
         repaint();
       } else if (hexGrid.getColor(selected) == RepresentativeColor.CYAN) {
         hexGrid.setColor(selected, RepresentativeColor.NONE);
+        selectedPosition = null;
       }
       repaint();
     }
