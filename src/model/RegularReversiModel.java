@@ -82,6 +82,7 @@ public final class RegularReversiModel implements MutableReversiModel {
      * deepCopy()
      */
     Builder() {
+
     }
 
     /**
