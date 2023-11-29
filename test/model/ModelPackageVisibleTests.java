@@ -2,6 +2,7 @@ package model;
 
 import org.junit.Assert;
 import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,8 +48,9 @@ public class ModelPackageVisibleTests {
   @Test
   public void testCheckPassTrueWhenThereIsNoValidMove() {
     Map<RowColPair, Hexagon> riggedBoard = makeBoard(5);
-    MutableReversiModel nothingBoard =
-        new RegularReversiModel(riggedBoard, 5, RepresentativeColor.BLACK);
+    MutableReversiModel nothingBoard = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(riggedBoard).setSize(5).setTurn(RepresentativeColor.BLACK).build();
+    nothingBoard.startGame();
     Assert.assertTrue(nothingBoard.hasToPass());
     nothingBoard.makePass(RepresentativeColor.BLACK);
     Assert.assertTrue(nothingBoard.hasToPass());
@@ -65,7 +67,9 @@ public class ModelPackageVisibleTests {
     board.put(new RowColPair(0, -1), new Hexagon(RepresentativeColor.WHITE));
     board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.WHITE));
     board.put(new RowColPair(0, 2), new Hexagon(RepresentativeColor.BLACK));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(6).setTurn(RepresentativeColor.BLACK).build();
+    model.startGame();
     Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(0, 0)));
     model.placeMove(new RowColPair(0, 0), RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(0, 0)));
@@ -75,13 +79,13 @@ public class ModelPackageVisibleTests {
 
   /**
    * the row -1,0,1 will looks like
-   *  _ _ _ X O O _ _ _ _
+   * _ _ _ X O O _ _ _ _
    * _ _ _ _ _ _ O _ _ _ _
-   *  _ _ _ _ X X _ _ _ _
+   * _ _ _ _ X X _ _ _ _
    * after we placed a black cell in (-1,2) it looks like
-   *  _ _ _ X X X X _ _ _
+   * _ _ _ X X X X _ _ _
    * _ _ _ _ _ _ X _ _ _ _
-   *  _ _ _ _ X X _ _ _ _
+   * _ _ _ _ X X _ _ _ _
    * flip three white cells in two directions.
    */
   @Test
@@ -93,7 +97,9 @@ public class ModelPackageVisibleTests {
     board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.WHITE));
     board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.BLACK));
     board.put(new RowColPair(1, -1), new Hexagon(RepresentativeColor.BLACK));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(6).setTurn(RepresentativeColor.BLACK).build();
+    model.startGame();
     Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(-1, 2)));
     model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(-1, 1)));
@@ -105,7 +111,9 @@ public class ModelPackageVisibleTests {
   public void testGetWinnerWhiteWinWhenGameOver() {
     Map<RowColPair, Hexagon> board = makeBoard(6);
     board.put(new RowColPair(0, 0), new Hexagon(RepresentativeColor.WHITE));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(6).setTurn(RepresentativeColor.BLACK).build();
+    model.startGame();
     Assert.assertTrue(model.hasToPass());
     model.makePass(RepresentativeColor.BLACK);
     Assert.assertTrue(model.hasToPass());
@@ -120,7 +128,9 @@ public class ModelPackageVisibleTests {
   @Test
   public void testGameWillNotEndAutomatically() {
     Map<RowColPair, Hexagon> board = makeBoard(6);
-    MutableReversiModel model = new RegularReversiModel(board, 3, RepresentativeColor.BLACK);
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(6).setTurn(RepresentativeColor.BLACK).build();
+    model.startGame();
     Assert.assertTrue(model.hasToPass()); // Black player has to pass
     model.makePass(RepresentativeColor.BLACK); // Black Player pass
     Assert.assertTrue(model.hasToPass()); // White player also need to pass

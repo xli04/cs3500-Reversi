@@ -18,8 +18,8 @@ import model.RowColPair;
 import strategy.CaptureMaxPieces;
 import strategy.CompleteStrategy;
 import strategy.MinimaxStrategy;
-import view.MockView;
 import view.GraphicView;
+import view.MockView;
 
 /**
  * A test class for the if the controller interact with the view and model as we expected.
@@ -41,7 +41,7 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
   @Before
   public void setUp() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel(status);
+    model = new RegularReversiModel.Builder(status).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller1 = new Controller(model, mockView1, new ReversiHumanPlayer(), status);
@@ -76,7 +76,7 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
 
   @Test
   public void testHasToPassWarning() {
-    model = new RegularReversiModel(2, status);
+    model = new RegularReversiModel.Builder(status).setSize(2).build();
     ControllerListeners listeners = new ControllerListeners();
     listeners.register(controller1);
     listeners.register(controller2);
@@ -99,11 +99,11 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
 
   @Test
   public void testAiPlayerLockTheMouse() {
-    model = new RegularReversiModel(status);
+    model = new RegularReversiModel.Builder(status).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller1 = new Controller(model, mockView1, new ReversiAiPlayer(new
-      CompleteStrategy(new MinimaxStrategy())), status);
+            CompleteStrategy(new MinimaxStrategy())), status);
     builder2 = new StringBuilder();
     mockView2 = new MockView(builder2);
     controller2 = new Controller(model, mockView2, new ReversiHumanPlayer(), status);
@@ -133,7 +133,7 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
   @Test
   public void testNotifyTheUserCanOnlyPass() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel(2, status);
+    model = new RegularReversiModel.Builder(status).setSize(2).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller1 = new Controller(model, mockView1, new ReversiHumanPlayer(), status);
@@ -147,7 +147,7 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
     model.startGame();
     controller1.placeMove(new RowColPair(0, 0));
     Assert.assertTrue(builder1.toString()
-        .contains("No valid move, can only choose to pass Player: BLACK"));
+            .contains("No valid move, can only choose to pass Player: BLACK"));
     // If there is no valid move in the board and the user still wants to make a move, notify
     // the user.
   }
@@ -195,7 +195,7 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
 
   @Test
   public void testStartGameAssignColorCorrectly() {
-    MutableReversiModel model = new RegularReversiModel(status);
+    MutableReversiModel model = new RegularReversiModel.Builder(status).build();
     GraphicView view = new MockView(new StringBuilder());
     GraphicView view2 = new MockView(new StringBuilder());
     Controller controller = new Controller(model, view, new ReversiHumanPlayer(), status);
@@ -214,7 +214,7 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
   @Test
   public void testThrowExceptionWhenMoreThanTwoPlayersWasAdded() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel(status);
+    model = new RegularReversiModel.Builder(status).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller1 = new Controller(model, mockView1, new ReversiHumanPlayer(), status);
@@ -237,11 +237,11 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
   @Test
   public void testTryToPlaceWorksProperlyWhenPlacingValidMove() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel(status);
+    model = new RegularReversiModel.Builder(status).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller2 = new Controller(model, mockView1, new ReversiAiPlayer(new
-      CompleteStrategy(new CaptureMaxPieces())), status);
+            CompleteStrategy(new CaptureMaxPieces())), status);
     builder2 = new StringBuilder();
     mockView2 = new MockView(builder2);
     controller1 = new Controller(model, mockView2, new ReversiHumanPlayer(), status);
@@ -266,11 +266,11 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
   @Test
   public void testTryToPlaceWorksProperlyWhenNoValidMoveExist() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel(2, status);
+    model = new RegularReversiModel.Builder(status).setSize(2).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller2 = new Controller(model, mockView1, new ReversiAiPlayer(new
-      CompleteStrategy(new CaptureMaxPieces())), status);
+            CompleteStrategy(new CaptureMaxPieces())), status);
     builder2 = new StringBuilder();
     mockView2 = new MockView(builder2);
     controller1 = new Controller(model, mockView2, new ReversiHumanPlayer(), status);

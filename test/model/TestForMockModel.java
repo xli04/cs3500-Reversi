@@ -3,17 +3,12 @@ package model;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import model.Hexagon;
-import model.MockModel;
-import model.MutableReversiModel;
-import model.RegularReversiModel;
-import model.RepresentativeColor;
-import model.RowColPair;
 import strategy.CaptureMaxPieces;
 import strategy.CornerStrategy;
 import strategy.FallibleStrategy;
@@ -26,7 +21,7 @@ public class TestForMockModel {
 
   @Before
   public void setUp() {
-    model = new RegularReversiModel();
+    model = new RegularReversiModel.Builder(new ReversiModelStatus()).build();
   }
 
   /**
@@ -52,17 +47,17 @@ public class TestForMockModel {
   }
 
   /**
-   *      _ _ _ _ _ _
-   *     _ _ _ _ _ _ _
-   *    _ _ _ _ _ _ _ _
-   *   _ _ _ _ A _ _ _ _
-   *  _ _ _ B X O _ _ _ _
+   * _ _ _ _ _ _
+   * _ _ _ _ _ _ _
+   * _ _ _ _ _ _ _ _
+   * _ _ _ _ A _ _ _ _
+   * _ _ _ B X O _ _ _ _
    * _ _ _ _ O _ X _ _ _ _
-   *  _ _ _ _ X O _ _ _ _
-   *   _ _ _ _ _ _ _ _ _
-   *    _ _ _ _ _ _ _ _
-   *     _ _ _ _ _ _ _
-   *      _ _ _ _ _ _
+   * _ _ _ _ X O _ _ _ _
+   * _ _ _ _ _ _ _ _ _
+   * _ _ _ _ _ _ _ _
+   * _ _ _ _ _ _ _
+   * _ _ _ _ _ _
    * The initial board is above, point A should be the upper most left most position to choose since
    * all the move in board can flip one cell and A is the upper most one. but we lie to our strategy
    * so that A is can not flip anything thus the strategy will choose the second upper most left

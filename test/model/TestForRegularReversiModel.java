@@ -6,13 +6,6 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import model.CubeCoordinateTrio;
-import model.Direction;
-import model.Hexagon;
-import model.RepresentativeColor;
-import model.MutableReversiModel;
-import model.RegularReversiModel;
-import model.RowColPair;
 import view.ReversiTextualView;
 
 import static org.junit.Assert.assertThrows;
@@ -25,56 +18,56 @@ public class TestForRegularReversiModel {
 
   @Before
   public void setUp() {
-    model = new RegularReversiModel();
+    model = new RegularReversiModel.Builder(new ReversiModelStatus()).build();
   }
 
   @Test
   public void testTextualView() {
     ReversiTextualView view = new ReversiTextualView(model);
     Assert.assertEquals(
-        "     _ _ _ _ _ _ \n"
-        +
-        "    _ _ _ _ _ _ _ \n"
-        +
-        "   _ _ _ _ _ _ _ _ \n"
-        +
-        "  _ _ _ _ _ _ _ _ _ \n"
-        +
-        " _ _ _ _ X O _ _ _ _ \n"
-        +
-        "_ _ _ _ O _ X _ _ _ _ \n"
-        +
-        " _ _ _ _ X O _ _ _ _ \n"
-        +
-        "  _ _ _ _ _ _ _ _ _ \n"
-        +
-        "   _ _ _ _ _ _ _ _ \n"
-        +
-        "    _ _ _ _ _ _ _ \n"
-        +
-        "     _ _ _ _ _ _ ", view.toString());
+            "     _ _ _ _ _ _ \n"
+                    +
+                    "    _ _ _ _ _ _ _ \n"
+                    +
+                    "   _ _ _ _ _ _ _ _ \n"
+                    +
+                    "  _ _ _ _ _ _ _ _ _ \n"
+                    +
+                    " _ _ _ _ X O _ _ _ _ \n"
+                    +
+                    "_ _ _ _ O _ X _ _ _ _ \n"
+                    +
+                    " _ _ _ _ X O _ _ _ _ \n"
+                    +
+                    "  _ _ _ _ _ _ _ _ _ \n"
+                    +
+                    "   _ _ _ _ _ _ _ _ \n"
+                    +
+                    "    _ _ _ _ _ _ _ \n"
+                    +
+                    "     _ _ _ _ _ _ ", view.toString());
   }
 
   @Test
   public void testTextualViewForGivenSize() {
-    ReversiTextualView view = new ReversiTextualView(new RegularReversiModel(2));
+    ReversiTextualView view = new ReversiTextualView(new RegularReversiModel.Builder(new ReversiModelStatus()).setSize(2).build());
     Assert.assertEquals(" X O \n"
-        +
-        "O _ X \n"
-        +
-        " X O ", view.toString());
+            +
+            "O _ X \n"
+            +
+            " X O ", view.toString());
   }
 
   @Test
   public void testRenderForGivenSize() {
-    StringBuilder builder = new StringBuilder();
-    ReversiTextualView view = new ReversiTextualView(new RegularReversiModel(2), builder);
+    StringBuilder stringBuilder = new StringBuilder();
+    ReversiTextualView view = new ReversiTextualView(new RegularReversiModel.Builder(new ReversiModelStatus()).setSize(2).build(), stringBuilder);
     view.render();
     Assert.assertEquals(" X O \n"
-        +
-        "O _ X \n"
-        +
-        " X O ", builder.toString());
+            +
+            "O _ X \n"
+            +
+            " X O ", stringBuilder.toString());
   }
 
   @Test
@@ -83,27 +76,27 @@ public class TestForRegularReversiModel {
     ReversiTextualView view = new ReversiTextualView(model, builder);
     view.render();
     Assert.assertEquals(
-        "     _ _ _ _ _ _ \n"
-        +
-        "    _ _ _ _ _ _ _ \n"
-        +
-        "   _ _ _ _ _ _ _ _ \n"
-        +
-        "  _ _ _ _ _ _ _ _ _ \n"
-        +
-        " _ _ _ _ X O _ _ _ _ \n"
-        +
-        "_ _ _ _ O _ X _ _ _ _ \n"
-        +
-        " _ _ _ _ X O _ _ _ _ \n"
-        +
-        "  _ _ _ _ _ _ _ _ _ \n"
-        +
-        "   _ _ _ _ _ _ _ _ \n"
-        +
-        "    _ _ _ _ _ _ _ \n"
-        +
-        "     _ _ _ _ _ _ ", builder.toString());
+            "     _ _ _ _ _ _ \n"
+                    +
+                    "    _ _ _ _ _ _ _ \n"
+                    +
+                    "   _ _ _ _ _ _ _ _ \n"
+                    +
+                    "  _ _ _ _ _ _ _ _ _ \n"
+                    +
+                    " _ _ _ _ X O _ _ _ _ \n"
+                    +
+                    "_ _ _ _ O _ X _ _ _ _ \n"
+                    +
+                    " _ _ _ _ X O _ _ _ _ \n"
+                    +
+                    "  _ _ _ _ _ _ _ _ _ \n"
+                    +
+                    "   _ _ _ _ _ _ _ _ \n"
+                    +
+                    "    _ _ _ _ _ _ _ \n"
+                    +
+                    "     _ _ _ _ _ _ ", builder.toString());
   }
 
   @Test
@@ -112,51 +105,52 @@ public class TestForRegularReversiModel {
     ReversiTextualView view = new ReversiTextualView(model, builder);
     view.render();
     Assert.assertEquals(
-        "     _ _ _ _ _ _ \n"
-        +
-        "    _ _ _ _ _ _ _ \n"
-        +
-        "   _ _ _ _ _ _ _ _ \n"
-        +
-        "  _ _ _ _ _ _ _ _ _ \n"
-        +
-        " _ _ _ _ X O _ _ _ _ \n"
-        +
-        "_ _ _ _ O _ X _ _ _ _ \n"
-        +
-        " _ _ _ _ X O _ _ _ _ \n"
-        +
-        "  _ _ _ _ _ _ _ _ _ \n"
-        +
-        "   _ _ _ _ _ _ _ _ \n"
-        +
-        "    _ _ _ _ _ _ _ \n"
-        +
-        "     _ _ _ _ _ _ ", builder.toString());
+            "     _ _ _ _ _ _ \n"
+                    +
+                    "    _ _ _ _ _ _ _ \n"
+                    +
+                    "   _ _ _ _ _ _ _ _ \n"
+                    +
+                    "  _ _ _ _ _ _ _ _ _ \n"
+                    +
+                    " _ _ _ _ X O _ _ _ _ \n"
+                    +
+                    "_ _ _ _ O _ X _ _ _ _ \n"
+                    +
+                    " _ _ _ _ X O _ _ _ _ \n"
+                    +
+                    "  _ _ _ _ _ _ _ _ _ \n"
+                    +
+                    "   _ _ _ _ _ _ _ _ \n"
+                    +
+                    "    _ _ _ _ _ _ _ \n"
+                    +
+                    "     _ _ _ _ _ _ ", builder.toString());
+    model.startGame();
     model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK);
     view.render();
     Assert.assertTrue(builder.toString().contains(
-        "     _ _ _ _ _ _ \n"
-        +
-        "    _ _ _ _ _ _ _ \n"
-        +
-        "   _ _ _ _ _ _ _ _ \n"
-        +
-        "  _ _ _ _ _ _ _ _ _ \n"
-        +
-        " _ _ _ _ X X X _ _ _ \n"
-        +
-        "_ _ _ _ O _ X _ _ _ _ \n"
-        +
-        " _ _ _ _ X O _ _ _ _ \n"
-        +
-        "  _ _ _ _ _ _ _ _ _ \n"
-        +
-        "   _ _ _ _ _ _ _ _ \n"
-        +
-        "    _ _ _ _ _ _ _ \n"
-        +
-        "     _ _ _ _ _ _ "));
+            "     _ _ _ _ _ _ \n"
+                    +
+                    "    _ _ _ _ _ _ _ \n"
+                    +
+                    "   _ _ _ _ _ _ _ _ \n"
+                    +
+                    "  _ _ _ _ _ _ _ _ _ \n"
+                    +
+                    " _ _ _ _ X X X _ _ _ \n"
+                    +
+                    "_ _ _ _ O _ X _ _ _ _ \n"
+                    +
+                    " _ _ _ _ X O _ _ _ _ \n"
+                    +
+                    "  _ _ _ _ _ _ _ _ _ \n"
+                    +
+                    "   _ _ _ _ _ _ _ _ \n"
+                    +
+                    "    _ _ _ _ _ _ _ \n"
+                    +
+                    "     _ _ _ _ _ _ "));
   }
 
   /**
@@ -167,6 +161,7 @@ public class TestForRegularReversiModel {
   public void testValidPlaceMoveFlipCells() {
     Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(-1, 2)));
     Assert.assertEquals(RepresentativeColor.WHITE, model.getColorAt(new RowColPair(-1, 1)));
+    model.startGame();
     model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(-1, 2)));
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(-1, 1)));
@@ -175,22 +170,23 @@ public class TestForRegularReversiModel {
   @Test
   public void testCheckMoveInvalidCoordinators() {
     assertThrows(IllegalArgumentException.class, ()
-        -> model.checkMove(new RowColPair(0, 100), RepresentativeColor.BLACK));
+            -> model.checkMove(new RowColPair(0, 100), RepresentativeColor.BLACK));
     assertThrows(IllegalArgumentException.class, ()
-        -> model.checkMove(new RowColPair(-1, -100), RepresentativeColor.BLACK));
+            -> model.checkMove(new RowColPair(-1, -100), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testCheckMoveInvalidCoordinatorsOnExistingCells() {
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(-1, 0)));
     assertThrows(IllegalStateException.class, ()
-        -> model.checkMove(new RowColPair(-1, 0), RepresentativeColor.BLACK));
+            -> model.checkMove(new RowColPair(-1, 0), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testPlaceMoveInvalidCoordinatorsOutOfBound() {
+    model.startGame();
     assertThrows(IllegalArgumentException.class, ()
-        -> model.placeMove(new RowColPair(100, -1), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(100, -1), RepresentativeColor.BLACK));
   }
 
   /**
@@ -202,15 +198,15 @@ public class TestForRegularReversiModel {
     Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(-1, -1)));
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(-1, 0)));
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(-1, -2), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(-1, -2), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testInvalidGetColorAtThrowException() {
     assertThrows(IllegalArgumentException.class, ()
-        -> model.getColorAt(new RowColPair(-100, 1)));
+            -> model.getColorAt(new RowColPair(-100, 1)));
     assertThrows(IllegalArgumentException.class, ()
-        -> model.getColorAt(new RowColPair(0, 100)));
+            -> model.getColorAt(new RowColPair(0, 100)));
   }
 
   @Test
@@ -222,6 +218,7 @@ public class TestForRegularReversiModel {
 
   @Test
   public void testCheckPassFalseWhenThereIsValidMove() {
+    model.startGame();
     Assert.assertFalse(model.hasToPass());
     model.makePass(RepresentativeColor.BLACK);
     Assert.assertFalse(model.hasToPass());
@@ -229,6 +226,7 @@ public class TestForRegularReversiModel {
 
   @Test
   public void testGameOver() {
+    model.startGame();
     model.makePass(RepresentativeColor.BLACK);
     model.makePass(RepresentativeColor.WHITE);
     Assert.assertTrue(model.isGameOver());
@@ -236,9 +234,9 @@ public class TestForRegularReversiModel {
 
   /**
    * The row -2,-1,0 in the board looks like
-   *         "  _ _ _ _ _ _ _ _ _ \n"
-   *         " _ _ _ _ X O _ _ _ _ \n"
-   *         "_ _ _ _ O _ X _ _ _ _ \n"
+   * "  _ _ _ _ _ _ _ _ _ \n"
+   * " _ _ _ _ X O _ _ _ _ \n"
+   * "_ _ _ _ O _ X _ _ _ _ \n"
    * we can not flip the cells in all the directions except the left,
    * if we place a black cell in (-1,7) it can flip the the cell in (-1,1)
    * thus, in the left direction, it should return one and other directions
@@ -269,39 +267,40 @@ public class TestForRegularReversiModel {
   @Test
   public void testInvalidPlaceCellNoSurroundingCells() {
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(3, 0), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(3, 0), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testInvalidPlaceCellOnExistingCells() {
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(-1, 0)));
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(0, -1), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(0, -1), RepresentativeColor.BLACK));
   }
 
   /**
    * the row -1,0,1 looks like
-   *" _ _ _ _ X O _ _ _ _ "
-   *"_ _ _ _ O _ X _ _ _ _ "
-   *" _ _ _ _ X O _ _ _ _ " place a black cell in(0,0) can not flip anything.
+   * " _ _ _ _ X O _ _ _ _ "
+   * "_ _ _ _ O _ X _ _ _ _ "
+   * " _ _ _ _ X O _ _ _ _ " place a black cell in(0,0) can not flip anything.
    */
   @Test
   public void testInvalidPlaceCanNotFlipAnything() {
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(0, 0), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(0, 0), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testInvalidPlaceCanNotFormStraightLine() {
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(0, 0), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(0, 0), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testGetWinnerWhenGameIsNotOver() {
+    model.startGame();
     model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK);
     assertThrows(IllegalStateException.class, ()
-        -> model.getWinner());
+            -> model.getWinner());
   }
 
   /**
@@ -310,6 +309,7 @@ public class TestForRegularReversiModel {
    */
   @Test
   public void testPlaceMoveSuccessfullyResetThePassTime() {
+    model.startGame();
     model.makePass(RepresentativeColor.BLACK);
     model.placeMove(new RowColPair(-1, -1), RepresentativeColor.WHITE);
     model.makePass(RepresentativeColor.BLACK);
@@ -318,9 +318,10 @@ public class TestForRegularReversiModel {
 
   @Test
   public void testPlaceMoveFailedDoNotResetThePassTime() {
+    model.startGame();
     model.makePass(RepresentativeColor.BLACK);
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(0, 5), RepresentativeColor.WHITE));
+            -> model.placeMove(new RowColPair(0, 5), RepresentativeColor.WHITE));
     model.makePass(RepresentativeColor.WHITE);
     Assert.assertTrue(model.isGameOver());
   }
@@ -333,26 +334,27 @@ public class TestForRegularReversiModel {
 
   @Test
   public void testModelDisallowsInvalidSize() {
-    assertThrows(IllegalArgumentException.class, () -> new RegularReversiModel(0));
+    assertThrows(IllegalArgumentException.class, () -> new RegularReversiModel.Builder(new ReversiModelStatus()).setSize(0).build());
   }
 
   @Test
   public void testInvalidColorGetOpposite() {
     assertThrows(IllegalArgumentException.class, ()
-        -> RepresentativeColor.NONE.getOpposite());
+            -> RepresentativeColor.NONE.getOpposite());
   }
 
   @Test
   public void testCallMethodsAlreadyGameOver() {
+    model.startGame();
     model.makePass(RepresentativeColor.BLACK);
     model.makePass(RepresentativeColor.WHITE);
     Assert.assertTrue(model.isGameOver());
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(-1, -1), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(-1, -1), RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.checkMove(new RowColPair(-1, -1), RepresentativeColor.BLACK));
+            -> model.checkMove(new RowColPair(-1, -1), RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.makePass(RepresentativeColor.WHITE));
+            -> model.makePass(RepresentativeColor.WHITE));
   }
 
   /**
@@ -362,11 +364,12 @@ public class TestForRegularReversiModel {
   @Test
   public void testInvalidPlaceHasAdjacentCellsCanNotFlipAnything() {
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(0, -2), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(0, -2), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testGetWinnerBlackWinWhenGameOver() {
+    model.startGame();
     model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK);
     model.placeMove(new RowColPair(1, -2), RepresentativeColor.WHITE);
     model.placeMove(new RowColPair(2, -3), RepresentativeColor.BLACK);
@@ -378,6 +381,7 @@ public class TestForRegularReversiModel {
 
   @Test
   public void testGetWinnerTieGameWhenGameOver() {
+    model.startGame();
     model.makePass(RepresentativeColor.BLACK);
     model.makePass(RepresentativeColor.WHITE);
     Assert.assertTrue(model.isGameOver());
@@ -387,6 +391,7 @@ public class TestForRegularReversiModel {
   @Test
   public void testPlaceMoveSuccessfullyAlterTheTurn() {
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn());
+    model.startGame();
     model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.WHITE, model.getTurn());
   }
@@ -394,14 +399,16 @@ public class TestForRegularReversiModel {
   @Test
   public void testPlaceMoveFailedNotAlterTheTurn() {
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn());
+    model.startGame();
     assertThrows(IllegalArgumentException.class, ()
-        -> model.placeMove(new RowColPair(-100, -1), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(-100, -1), RepresentativeColor.BLACK));
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn());
   }
 
   @Test
   public void testMakePassAlterTheTurn() {
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn());
+    model.startGame();
     model.makePass(RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.WHITE, model.getTurn());
   }
@@ -409,6 +416,7 @@ public class TestForRegularReversiModel {
   @Test
   public void testMakePassAlterTheTurnAndEndGame() {
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn());
+    model.startGame();
     model.makePass(RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.WHITE, model.getTurn());
     model.makePass(RepresentativeColor.WHITE);
@@ -417,21 +425,23 @@ public class TestForRegularReversiModel {
 
   @Test
   public void testSomeActionNotAllowedAfterGameOver() {
+    model.startGame();
     model.makePass(RepresentativeColor.BLACK);
     model.makePass(RepresentativeColor.WHITE);
     Assert.assertTrue(model.isGameOver());
     assertThrows(IllegalStateException.class, ()
-        -> model.makePass(RepresentativeColor.BLACK));
+            -> model.makePass(RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.checkMove(new RowColPair(-1, 2), RepresentativeColor.BLACK));
+            -> model.checkMove(new RowColPair(-1, 2), RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.getTurn());
+            -> model.getTurn());
   }
 
   @Test
   public void testSomeActionAllowedAfterGameOver() {
+    model.startGame();
     model.makePass(RepresentativeColor.BLACK);
     model.makePass(RepresentativeColor.WHITE);
     Assert.assertTrue(model.isGameOver());
@@ -443,24 +453,25 @@ public class TestForRegularReversiModel {
   @Test
   public void testInvalidBoardSize() {
     assertThrows(IllegalArgumentException.class, ()
-        -> new RegularReversiModel(1));
+            -> new RegularReversiModel.Builder(new ReversiModelStatus()).setSize(1).build());
     assertThrows(IllegalArgumentException.class, ()
-        -> new RegularReversiModel(-1));
+            -> new RegularReversiModel.Builder(new ReversiModelStatus()).setSize(-1).build());
   }
 
   @Test
   public void testUserActionMustFollowTurnDuringGame() {
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn());
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(-1, -1), RepresentativeColor.WHITE));
+            -> model.placeMove(new RowColPair(-1, -1), RepresentativeColor.WHITE));
     assertThrows(IllegalStateException.class, ()
-        -> model.makePass(RepresentativeColor.WHITE));
+            -> model.makePass(RepresentativeColor.WHITE));
+    model.startGame();
     model.makePass(RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.WHITE, model.getTurn());
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.makePass(RepresentativeColor.BLACK));
+            -> model.makePass(RepresentativeColor.BLACK));
   }
 
   @Test
@@ -475,6 +486,7 @@ public class TestForRegularReversiModel {
   public void testDeepCopy() {
     Map<RowColPair, Hexagon> board = model.getBoard();
     Assert.assertEquals(RepresentativeColor.NONE, board.get(new RowColPair(-1, 2)).getColor());
+    model.startGame();
     model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.NONE, board.get(new RowColPair(-1, 2)).getColor());
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(-1, 2)));

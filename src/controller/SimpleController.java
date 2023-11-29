@@ -1,16 +1,16 @@
 package controller;
 
-import java.util.ArrayList;
 import java.util.Scanner;
+
 import model.MutableReversiModel;
 import model.RegularReversiModel;
 import model.RepresentativeColor;
 import model.ReversiModelStatus;
+import model.RowColPair;
 import strategy.CompleteStrategy;
 import strategy.InfallibleStrategy;
 import strategy.MinimaxStrategy;
 import view.ReversiTextualView;
-import model.RowColPair;
 
 /**
  * A simple controller, used to test and let others understand how this code works easier.
@@ -27,7 +27,7 @@ public class SimpleController {
    */
   public static void main(String[] args) {
     strategyCompetition(new CompleteStrategy(new MinimaxStrategy()),
-        new CompleteStrategy(new MinimaxStrategy()));
+            new CompleteStrategy(new MinimaxStrategy()));
   }
 
   /**
@@ -38,8 +38,7 @@ public class SimpleController {
    */
   public static void strategyCompetition(InfallibleStrategy strategy1,
                                          InfallibleStrategy strategy2) {
-    MutableReversiModel model = new RegularReversiModel(
-        new ReversiModelStatus());
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus()).build();
     model.startGame();
     ReversiTextualView view = new ReversiTextualView(model);
     while (!model.isGameOver()) {
@@ -69,8 +68,7 @@ public class SimpleController {
    * Interact with the controller by typing command.
    */
   public static void tryToPlay() {
-    MutableReversiModel model = new RegularReversiModel(
-        new ReversiModelStatus());
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus()).build();
     ReversiTextualView view = new ReversiTextualView(model);
     Scanner scanner = new Scanner(System.in);
     while (!model.isGameOver()) {

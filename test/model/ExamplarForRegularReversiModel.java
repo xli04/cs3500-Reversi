@@ -15,7 +15,8 @@ import view.ReversiTextualView;
 public class ExamplarForRegularReversiModel {
   @Test
   public void testGeneralUnderstanding() {
-    MutableReversiModel model = new RegularReversiModel();
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus()).build();
+    model.startGame();
     Assert.assertEquals(6, model.getSize()); // the default size and side length of the board is 6
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn()); // Player Black moves first
     ReversiTextualView view = new ReversiTextualView(model);

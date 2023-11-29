@@ -10,21 +10,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import model.Hexagon;
-import model.MockModel;
-import model.MutableReversiModel;
-import model.ReadOnlyReversiModel;
-import model.RegularReversiModel;
-import model.RepresentativeColor;
-import model.RowColPair;
 import strategy.AvoidCellsNextToCornersStrategy;
 import strategy.CaptureMaxPieces;
 import strategy.CompleteStrategy;
 import strategy.CompositeStrategy;
 import strategy.CornerStrategy;
+import strategy.FallibleStrategy;
 import strategy.InfallibleStrategy;
 import strategy.MinimaxStrategy;
-import strategy.FallibleStrategy;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Test for the strategies.
  */
-public class TestStrategyForGameInProcess {
+public class TestStrategyForGameInProgress {
   /**
    * make the board with the given size as the side length.
    *
@@ -65,17 +58,17 @@ public class TestStrategyForGameInProcess {
   }
 
   /**
-   *      _ _ _ _ _ _
-   *     _ _ _ _ _ _ _
-   *    _ _ _ _ _ _ _ _
-   *   _ _ _ _ X _ _ _ _
-   *  _ _ _ _ O X X _ _ _
+   * _ _ _ _ _ _
+   * _ _ _ _ _ _ _
+   * _ _ _ _ _ _ _ _
+   * _ _ _ _ X _ _ _ _
+   * _ _ _ _ O X X _ _ _
    * _ _ _ _ O _ X _ _ _ _
-   *  _ _ _ _ O X _ _ _ _
-   *   _ _ _ _ O _ _ _ _
-   *    _ _ _ O _ _ _ _
-   *     _ _ O _ _ _ _
-   *      _ _ _ _ _ _
+   * _ _ _ _ O X _ _ _ _
+   * _ _ _ _ O _ _ _ _
+   * _ _ _ O _ _ _ _
+   * _ _ O _ _ _ _
+   * _ _ _ _ _ _
    * The initial board is above, there are two points that can get the same score,
    * (-1,2) and (5,-4), since (5,-4) is close to the corner, we should choose the
    * (-1,2) in order to block another player.
@@ -95,23 +88,24 @@ public class TestStrategyForGameInProcess {
     board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.BLACK));
     board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.BLACK));
     InfallibleStrategy avoidCorner = new CompleteStrategy(new AvoidCellsNextToCornersStrategy());
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(6).setTurn(RepresentativeColor.BLACK).build();
     RowColPair pair = avoidCorner.choosePosition(model, RepresentativeColor.BLACK);
     Assert.assertEquals(new RowColPair(1, -2), pair);
   }
 
   /**
-   *      _ _ _ _ _ _
-   *     _ _ _ _ X _ _
-   *    _ _ _ _ O _ _ _
-   *   _ _ _ _ O _ _ _ _
-   *  _ _ _ _ O X _ _ _ _
+   * _ _ _ _ _ _
+   * _ _ _ _ X _ _
+   * _ _ _ _ O _ _ _
+   * _ _ _ _ O _ _ _ _
+   * _ _ _ _ O X _ _ _ _
    * _ _ _ _ O _ _ _ _ _ _
-   *  _ _ _ A X _ _ _ _ _
-   *   _ _ _ O _ _ _ _ _
-   *    _ _ O _ _ _ _ _
-   *     _ O O _ _ _ _
-   *      B _ _ _ _ _
+   * _ _ _ A X _ _ _ _ _
+   * _ _ _ O _ _ _ _ _
+   * _ _ O _ _ _ _ _
+   * _ O O _ _ _ _
+   * B _ _ _ _ _
    * The board is looks like above, even though place in the A position can flip more cells,
    * B is in the corner, thus it can generate more benefit since the corner cell can not
    * be changed.
@@ -132,7 +126,9 @@ public class TestStrategyForGameInProcess {
     board.put(new RowColPair(-3, 2), new Hexagon(RepresentativeColor.WHITE));
     board.put(new RowColPair(-4, 3), new Hexagon(RepresentativeColor.BLACK));
     InfallibleStrategy cornerFirst = new CompleteStrategy(new CornerStrategy());
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(6).setTurn(RepresentativeColor.BLACK).build();
+    model.startGame();
     RowColPair nextPosition = cornerFirst.choosePosition(model, RepresentativeColor.BLACK);
     Assert.assertEquals(new RowColPair(5, -5), nextPosition);
   }
@@ -144,23 +140,23 @@ public class TestStrategyForGameInProcess {
   @Test
   public void testForStrategyReturnCorrectPositionSameValueUpperLeftMost() {
     InfallibleStrategy getHigherScore = new CompleteStrategy(new CaptureMaxPieces());
-    MutableReversiModel model = new RegularReversiModel();
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus()).build();
     Assert.assertEquals(new RowColPair(-2, 1),
-        getHigherScore.choosePosition(model, RepresentativeColor.BLACK));
+            getHigherScore.choosePosition(model, RepresentativeColor.BLACK));
   }
 
   /**
-   *      _ _ _ _ _ _
-   *     _ _ _ _ X _ _
-   *    _ _ _ _ O _ _ _
-   *   _ _ _ _ O _ _ _ _
-   *  _ _ _ _ O X _ _ _ _
+   * _ _ _ _ _ _
+   * _ _ _ _ X _ _
+   * _ _ _ _ O _ _ _
+   * _ _ _ _ O _ _ _ _
+   * _ _ _ _ O X _ _ _ _
    * _ _ _ _ O _ _ _ _ _ _
-   *  _ _ _ A X _ _ _ _ _
-   *   _ _ _ O _ _ _ _ _
-   *    _ _ O _ _ _ _ _
-   *     _ O O _ _ _ _
-   *      B _ _ _ _ _
+   * _ _ _ A X _ _ _ _ _
+   * _ _ _ O _ _ _ _ _
+   * _ _ O _ _ _ _ _
+   * _ O O _ _ _ _
+   * B _ _ _ _ _
    * The board is looks like above, in the A position can flip more cells.
    */
   @Test
@@ -178,24 +174,25 @@ public class TestStrategyForGameInProcess {
     board.put(new RowColPair(4, -4), new Hexagon(RepresentativeColor.WHITE));
     board.put(new RowColPair(-3, 2), new Hexagon(RepresentativeColor.WHITE));
     board.put(new RowColPair(-4, 3), new Hexagon(RepresentativeColor.BLACK));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(6).setTurn(RepresentativeColor.BLACK).build();
     InfallibleStrategy strategy = new CompleteStrategy(new CaptureMaxPieces());
     RowColPair nextPosition = strategy.choosePosition(model, RepresentativeColor.BLACK);
     Assert.assertEquals(new RowColPair(1, -2), nextPosition);
   }
 
   /**
-   *      _ _ _ _ _ _
-   *     _ _ _ _ _ _ _
-   *    _ _ _ _ _ _ _ _
-   *   _ _ _ _ X _ _ _ _
-   *  _ _ _ _ O X X _ _ _
+   * _ _ _ _ _ _
+   * _ _ _ _ _ _ _
+   * _ _ _ _ _ _ _ _
+   * _ _ _ _ X _ _ _ _
+   * _ _ _ _ O X X _ _ _
    * _ _ _ _ O _ X _ _ _ _
-   *  _ _ _ _ O X _ _ _ _
-   *   _ _ _ _ O _ _ _ _
-   *    _ _ _ O _ _ _ _
-   *     _ _ O _ _ _ _
-   *      _ _ _ _ _ _
+   * _ _ _ _ O X _ _ _ _
+   * _ _ _ _ O _ _ _ _
+   * _ _ _ O _ _ _ _
+   * _ _ O _ _ _ _
+   * _ _ _ _ _ _
    * The initial board is above, can not place the cell in the corner
    * thus use the back up plan avoid corner strategy.
    */
@@ -215,26 +212,27 @@ public class TestStrategyForGameInProcess {
     board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.BLACK));
     InfallibleStrategy avoidCorner = new CompleteStrategy(new AvoidCellsNextToCornersStrategy());
     FallibleStrategy avoidCornerCombineCorner = new CompositeStrategy(new CornerStrategy(),
-        new AvoidCellsNextToCornersStrategy());
+            new AvoidCellsNextToCornersStrategy());
     InfallibleStrategy complete = new CompleteStrategy(avoidCornerCombineCorner);
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(6).setTurn(RepresentativeColor.BLACK).build();
     RowColPair avoidCornerPair = avoidCorner.choosePosition(model, RepresentativeColor.BLACK);
     RowColPair cornerPair = complete.choosePosition(model, RepresentativeColor.BLACK);
     Assert.assertEquals(avoidCornerPair, cornerPair);
   }
 
   /**
-   *      O O O O X A
-   *     _ _ X _ O _ _
-   *    B X X X X O X X
-   *   _ _ _ _ X _ O _ _
-   *  _ _ _ X X X _ _ _ _
+   * O O O O X A
+   * _ _ X _ O _ _
+   * B X X X X O X X
+   * _ _ _ _ X _ O _ _
+   * _ _ _ X X X _ _ _ _
    * _ _ _ _ X _ X _ _ _ _
-   *  _ _ _ C X O _ _ _ _
-   *   _ _ _ _ _ _ _ _ _
-   *    _ _ _ _ _ _ _ _
-   *     _ _ _ _ _ _ _
-   *      _ _ _ _ _ _
+   * _ _ _ C X O _ _ _ _
+   * _ _ _ _ _ _ _ _ _
+   * _ _ _ _ _ _ _ _
+   * _ _ _ _ _ _ _
+   * _ _ _ _ _ _
    * The board is shown above, placing at position A can build a line in that row which can not
    * be modified anymore, even if we do not place at A in this turn, it's still unlikely our
    * opposite can occupied the that row. even though placing at C can flip 5 cells, playing
@@ -268,24 +266,26 @@ public class TestStrategyForGameInProcess {
     board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.BLACK));
     board.put(new RowColPair(1, -1), new Hexagon(RepresentativeColor.BLACK));
     board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.WHITE));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(6).setTurn(RepresentativeColor.BLACK).build();
+    model.startGame();
     InfallibleStrategy player = new CompleteStrategy(new MinimaxStrategy());
     RowColPair pair = player.choosePosition(model, RepresentativeColor.WHITE);
     Assert.assertEquals(new RowColPair(-5, 5), pair);
   }
 
   /**
-   *      O O O O O O
-   *     C _ O _ O _ O
-   *    _ X O X O O O O
-   *   _ _ O _ O _ O _ O
-   *  _ _ A X O X X X _ _
+   * O O O O O O
+   * C _ O _ O _ O
+   * _ X O X O O O O
+   * _ _ O _ O _ O _ O
+   * _ _ A X O X X X _ _
    * _ _ _ _ O _ X _ D _ _
-   *  _ _ X X X X X _ _ _
-   *   _ _ _ _ _ _ B _ _
-   *    _ _ _ _ _ _ _ _
-   *     _ _ _ _ _ _ _
-   *      _ _ _ _ _ _
+   * _ _ X X X X X _ _ _
+   * _ _ _ _ _ _ B _ _
+   * _ _ _ _ _ _ _ _
+   * _ _ _ _ _ _ _
+   * _ _ _ _ _ _
    * The initial board is shown above, the minimax strategy will choose position for white cell,
    * For position B, it can flip the 3 cells, which is the option that can flip the most cells,
    * For position C, it can flip 1 cell, but it is also close to the corner which means it can not
@@ -296,7 +296,6 @@ public class TestStrategyForGameInProcess {
    * the same line with A is not likely not be flipped. Under this circumstance, place in the
    * position A is the best choice since it can Extend a stable line and prevent opponents from
    * flipping our cells.
-   *
    */
   @Test
   public void testMinimaxShowItsIntelligence() {
@@ -335,24 +334,26 @@ public class TestStrategyForGameInProcess {
     board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.BLACK));
     board.put(new RowColPair(1, 1), new Hexagon(RepresentativeColor.BLACK));
     InfallibleStrategy strategy = new CompleteStrategy(new MinimaxStrategy());
-    ReadOnlyReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(6).setTurn(RepresentativeColor.BLACK).build();
+    model.startGame();
     RowColPair pair = strategy.choosePosition(model, RepresentativeColor.WHITE);
     Assert.assertEquals(new RowColPair(-1, -2), pair);
   }
 
 
   /**
-   *      _ _ _ _ _ _
-   *     _ A _ _ _ _ _
-   *    _ _ O _ _ _ _ _
-   *   _ _ _ O _ _ _ _ _
-   *  _ _ _ _ X _ _ _ _ _
+   * _ _ _ _ _ _
+   * _ A _ _ _ _ _
+   * _ _ O _ _ _ _ _
+   * _ _ _ O _ _ _ _ _
+   * _ _ _ _ X _ _ _ _ _
    * _ _ _ _ _ O _ _ _ _ _
-   *   _ _ _ _ _ B _ _ _
-   *   _ _ _ _ _ _ _ _ _
-   *    _ _ _ _ _ _ _ _
-   *    _ _ _ _ _ _ _
-   *      _ _ _ _ _ _
+   * _ _ _ _ _ B _ _ _
+   * _ _ _ _ _ _ _ _ _
+   * _ _ _ _ _ _ _ _
+   * _ _ _ _ _ _ _
+   * _ _ _ _ _ _
    * There are two valid move in this board, but since we are using the avoidCellNextToCorner
    * strategy, the only valid move is B, but since we lie to the strategy to told it we can
    * not place on the B position, the strategy can not find a valid move.
@@ -364,7 +365,9 @@ public class TestStrategyForGameInProcess {
     board.put(new RowColPair(-2, 0), new Hexagon(RepresentativeColor.WHITE));
     board.put(new RowColPair(-1, 0), new Hexagon(RepresentativeColor.BLACK));
     board.put(new RowColPair(0, 0), new Hexagon(RepresentativeColor.WHITE));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(6).setTurn(RepresentativeColor.BLACK).build();
+    model.startGame();
     FallibleStrategy strategy = new AvoidCellsNextToCornersStrategy();
     StringBuilder builder = new StringBuilder();
     MockModel mock = new MockModel(model, builder, List.of(new RowColPair(1, 0)));
@@ -381,15 +384,16 @@ public class TestStrategyForGameInProcess {
   public void testCornerPlayerChecksAllCornerMoves() {
     Map<RowColPair, Hexagon> board = makeBoard(3);
     List<RowColPair> cornerPoints = Arrays.asList(new RowColPair(-2, 0),
-        new RowColPair(-2, 2),
-        new RowColPair(2, -2),
-        new RowColPair(2, 0),
-        new RowColPair(0, 2),
-        new RowColPair(0, -2));
+            new RowColPair(-2, 2),
+            new RowColPair(2, -2),
+            new RowColPair(2, 0),
+            new RowColPair(0, 2),
+            new RowColPair(0, -2));
     for (RowColPair point : cornerPoints) {
       board.replace(point, new Hexagon(RepresentativeColor.NONE));
     }
-    MutableReversiModel delegate = new RegularReversiModel(board, 3, RepresentativeColor.BLACK);
+    MutableReversiModel delegate = new RegularReversiModel.Builder(new ReversiModelStatus())
+            .setBoard(board).setSize(3).setTurn(RepresentativeColor.BLACK).build();
     StringBuilder builder = new StringBuilder();
     MockModel mock = new MockModel(delegate, builder, new ArrayList<>());
 
@@ -404,7 +408,7 @@ public class TestStrategyForGameInProcess {
     //confirm that the strategy did not check any other non-corner move
     for (RowColPair pair : delegate.getBoard().keySet()) {
       boolean containsRowColPair = output.contains(String.format(
-          "Checking" + "(" + pair.getRow() + "," + pair.getCol() + ")"));
+              "Checking" + "(" + pair.getRow() + "," + pair.getCol() + ")"));
       if (cornerPoints.contains(pair)) {
         assertTrue(containsRowColPair);
       } else {

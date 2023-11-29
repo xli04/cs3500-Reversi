@@ -21,7 +21,7 @@ public class ReversiGame {
    */
   public static void main(String[] args) {
     ModelStatus status = new ReversiModelStatus();
-    RegularReversiModel model = new RegularReversiModel(status);
+    RegularReversiModel model = new RegularReversiModel.Builder(status).build();
     Player aiPlayer1 = new ReversiAiPlayer(new CompleteStrategy(new MinimaxStrategy()));
     Player humanPlayer1 = new ReversiHumanPlayer();
     ReversiGraphicView view = new ReversiGraphicView(model);
