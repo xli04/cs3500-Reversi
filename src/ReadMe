@@ -18,19 +18,20 @@
     some form of strategy to select their moves)
 
  2. Quick Start
-A user may get started using our controller codebase by interacting with our a graphic view GUI. Once the
-    game is begun, players will be able to interact with the view by selecting a tile for which to
-    place their color. When a tile is selected, its display color will become Cyan, indicating
-    that this is their selection. Tiles can be unselected and selected by clicking out of bounds,
-    or by clicking to other tiles. When a user wants to make move, they can click the enter key
-    when they have a selected tile. If the move is valid, it will go through and the corresponding
+A user may get started using our controller codebase by interacting with one of our view interface
+implementations, such as our GUI. Once the game is begun, players will be able to interact with our GUI
+by selecting a tile for which to place their color. When a tile is selected, its display
+color will become Cyan, indicating  that this is their selection. Tiles can be unselected and selected
+by clicking out of bounds,or by clicking to other tiles. When a user wants to make move, they can click
+ the enter key when they have a selected tile. If the move is valid, it will go through and the corresponding
     internal game logic and external view of the game will be updated, with the selected tile
     being changed to the color of the player who just made the move. If the move is invalid, they
     will know this because the actual color of the selected tile will not be changed to the color
-    of the player whose turn it is. What's more there will be a message to notify the user their
+    of the player whose turn it is. What's more is there will be a message to notify the user their
     move is invalid. For players interacting with other forms of views, like
     textual views, and we had a game in progress called 'game', a sample user interaction may
-    look like this: “game.placeMove(new RowColPair(3,-1), RepresentativeColor.WHITE)"
+    look like this: “game.placeMove(new RowColPair(3,-1), RepresentativeColor.WHITE)". The controller
+    would then refresh the view, which, via dynamic dispatch, would call the render() for the textual view.
 
 A user may get help by click the hint button, the valid position and the number of the cell can be
     flipped when the user placed a cell here will be marked on that particular hexagon these hints
@@ -46,18 +47,61 @@ A user may get help by click the hint button, the valid position and the number 
      event of a pressed key
      -The GUI view translates the low level event of the key press from user clicked at
       (3, -1) and press enter into a high level event in that is a request to place a move, as
-      outlined in the features interface.
-    -The controller will check if the move is valid. Since it is, it will tell its controller manager
-    to broadcast the move to all of the controllers that are register / subscribed with the manager
-    -The controllers for each player in the game will be managed by the same manager, so each player's controller
-    will make the actual move on the model, and then make a callback to the each player's view that is controlled
-    by the controller to update itself.
-    -The view manager will let the view to update itself, by repainting itself with the updated model.
+      outlined in the features interface. This high-level event would be broadcast to all of the
+      view's feature subscribers
+      -Since the controller implements the features interface, its callback that the user is trying
+      to make a move would get triggered.
+    -The controller will check if the move is valid. Since it is, try to apply the move to the model.
+    If the model accepts the move as valid, the model will apply it. The model will then notify
+    all of its listeners that it has been modified.
+    -Since the controllers all listen to the model, the controllers would tell each of their respective
+    views to refresh, which might involve repainting for GUIs or rendering for textual views. Once all
+     the views are refreshed, the changes to the board would be visible to both players in the game,
+     even though only one of the players made the move.
 
 The Game in the jar file is set to a human player against another human player and the player who placing for
     black cell will goes first.
 
  3. Key Components
+ Interactions between components
+Main        |         Model         |           Each Controller...  |           Each View         |  Player      |
+__________________________________________________________________________________________________________________
+config      | addListeners() <------|------ sets itself as listener |                             | AI players    |
+step        | ReadOnlyModel <-------|-------------------------------|--------receives instance of | are assigned  |
+(before     | MutableModel <--------|-----receives instance of      |                             | a strategy,   |
+startGame() |                       |     receives instance of------|---------->GUIView           |human players  |
+is called   |                       |     sets itself as a listener---------->addFeatures()       |are each assigned|
+            |                       |                               |                             | one view and  |
+            |                       |                               |                             |one controller |
+____________|_______________________|_______________________________|_____________________________|_______________|
+startGame() |model broadcasts to all|                               |                             |               |
+is called on|of its listeners that--|------>each controller updates |                             |                |
+the model   |it has been changed-   |     its internal logic        |                             |                |
+            |                       |           ↓                   |                             |                |
+            |                       |     each controller tells its |                             |                |
+            |                       |       corresponding view-----|----->each view repaints------|->each player   |
+            |                       |        to refresh            |                              | has a GUI they |                            |
+            |                       |                              |                              | can interact w/|
+            |                       |                              |                              |                |
+___________________________________________________________________________________________________________________|
+after       | move/pass applied<----|-----controller notified of <--|-------low level event<------|clicks a button |
+            |  ↓                    |    features event, tries to   |   converted to features     |or presses a key |
+startGame() |  ↓                    |      make the move/pass       |     event, broadcasted to   |to make a move  |
+is called   |model broadcasts to all|                               |     features listeners      |       ↑        |
+            |of its listeners that--|------>each controller updates |                             |       ↑        |
+            |it has been changed-   |     its internal logic        |                             |       ↑        |
+            |                       |           ↓                   |                             |       ↑        |
+            |                       |     each controller tells its |                             |       ↑        |
+            |                       |       corresponding view-----|----->each view repaints------|->each player   |
+            |                       |        to refresh             |    and displays             | sees an updated|
+            |                       |                              |      relevant                | view of board  |
+___________________________________________________________________________________________________________________
+***NOTE: Eventually, the controller, when updating itself after the model notifies the controller
+that the model has been changed, will realize in that the game is over. When this occurs,
+the player will stop being able to make moves, since the controlller will not relay
+features events to the model anymore. ****
+
+
 The View
  our view Represents a graphic view for the reversi game, it will contains a board to show the
  current states for the board of game and a panel that shows the current turn in the game and
@@ -80,7 +124,9 @@ The controller
  Represents an asynchronous controller for a game of reversi. Controllers are event-driven and
  respond to whatever event happens at a given time. The job of controllers are to control the
  flow of Reversi Games by determining when and how to update the model, as well as how and when to
- update the graphic view that they use.
+ update the view that they use. Controllers opearte on the interface level, so they will refresh
+ their views in a way that is abstracted into the specific implementation. A GUIview implementation
+ might refresh by repainting, whereas a textual view might refresh by render()ing again.
 
 KeyBoard And Mouse Lock
  Once the players in this game is one human player and one Ai player, our controller will let the view and
@@ -88,17 +134,19 @@ KeyBoard And Mouse Lock
  a cell as selected nor actual make an action for ai player. This will prevent the human player from
  bothering the ai player.
 
-Start Game and List<Controller> in the model
+Start Game and List<ModelListener> in the model
  Since there should be a clear distinction between “setting everything up” and “actually playing the game”.
  our view and controller can paint the board before the game started. the start game method will first set the
  player who will place first to black and notify all the views and controllers that the game is started, the
  message related to the game state like the current turn, current score.etc will be shown and the player can
- start to place the cell on the board.
+ start to place the cell on the board. Whenever the model knows it is changed (for example it successfully
+ starts the game or makes a move), the model broadcasts to all its listneers that it has been changed.
+ Each listener decides for themselves what to do when the model is changed.
 
 MockView
  We have a MockView in the view package that used for test only, Since we only want to test if the view interact
- with other components correctly as we expected, it will only take a view manager and a string builder as the
- parameter, since we don't want the view actually draw the stuffs when we test it. The StringBuilder is used to
+ with other components correctly as we expected, it will only take a string builder as the
+ parameter, since we don't want the view actually draw the stuffs when we test it. The StringBuilder serves as a log and is used to
  help us determine if the view interact with the other components as we expected. For example, if the one of the
  play took an action, the controller will call the view to let it toggle the turn, at this time, we will add a
  message "You have toggle the turn to the given color" to show that the view interact with our controller correctly.
@@ -128,11 +176,16 @@ MockView
 
  4. Key Subcomponents
 
- For the view manager, whenever the model is updated, the view manager will notify all the views that
- observe the model to repaint the board in order for each player to have an updated view of the board.
+ For each game, each human player will have its own view implementation (ex. a GUI view or a
+ textual view), which will have its own controller. It is the responsibility of each
+ controller to update its corresponding view when the controller sees fit for updates.
 
- For the controllers manager, controllers that update the model will be notified to update the game state.
- Updating the game state includes...
+
+ Whenever a change occurs in the model (for example, the game is started or a move/pass is made),
+ the model will broadcast that it has been changed to all of its Model Listeners, and the
+ controllers that listen to model will be notified that the model has been changed and the
+ controller will update itself.
+ Updating the controller includes...
  -Updating the current score for the black and white players
  -Updating whose turn it
  -Updating whether the player who will play in the  next turn is a human player or not
@@ -140,6 +193,9 @@ MockView
   notifying the model that the player that must pass (since they have no valid moves) .
  -Checking if the player who will play in next turn is an Ai player, and if this is the case, asking the player
  to choose for the position and place it.
+ -Refreshing the view that is managed by that controller. The refresh is at the interface level,
+ so it leverages dynamic dispatch so that specific view implementation can refresh in the way
+ that it sees fit.
 
  For the model status, we have four values to represent the current status for the game
  END = The game has ended by 2 consecutive passes.
@@ -169,16 +225,9 @@ MockView
       We have a Controller class that represents an event-driven asynchronous GUI Controller.
       The Controller serves to control the flow of Reversi Games by determining when and how to
       update the model, as well as how and when to update the GUI view that they use.
-       We have a manager interface, which represents a Manager for a model of Reversi. Managers
-       represent a type of observer, and the manager notifies all observers of the given type
-        whenever an interesting event occurs on the model.observers of a given type can be updated
-         when an event that they care about occurs. We have a manager for our controller and
-         that
       -View → contains different classes that help display our game to the players. The view provides
         interfaces for players to specify their desired move, and to observe the state of the game at
-        any time. The view also contains the view manager class, which raises events to all the views
-         that it manages. Views can subsrcibe to be managed by this manager. Whenever the game state
-          is updated, the view manager is called-back, and it notifies all its view subscribers to update their display.
+        any time.
       -Strategy -> contains different classes that help a player select a move, by using a specific
       strategy. The strategy package outlines how we can compose strategies, as well as contains
       specific implementations for different fallible and infallible strategies.
