@@ -1,7 +1,7 @@
 package model;
 
 /**
- * An interface ModelListener that used to represents a type of the listener to the model
+ * An interface ModelListener that used to represent a type of the listener to the model
  * they will get notified once the model was changed.
  */
 public interface ModelListener {

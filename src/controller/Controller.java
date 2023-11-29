@@ -4,7 +4,6 @@ import java.util.Optional;
 import model.ModelStatus;
 import model.MutableReversiModel;
 import model.Player;
-import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
 import view.Features;
@@ -25,10 +24,10 @@ public final class Controller implements Features {
   /**
    * Construct the controller with given parameters.
    *
-   * @param model the current model
+   * @param model       the current model
    * @param graphicView the current view
-   * @param player the player that will interact with this controller
-   * @param status the status that represents the most recent states of game
+   * @param player      the player that will interact with this controller
+   * @param status      the status that represents the most recent states of game
    */
   public Controller(MutableReversiModel model, GraphicView graphicView, Player player,
                     ModelStatus status) {
@@ -62,9 +61,10 @@ public final class Controller implements Features {
       graphicView.showMessage("Game is over Winner is " + winner);
       return;
     }
+
+    boolean yourTurn = model.getTurn() == player.getColor();
     graphicView.resetSelectedPosition();
     graphicView.setColor(player.getColor());
-    boolean yourTurn = model.getTurn() == player.getColor();
     graphicView.toggleTurn(model.getTurn(), yourTurn);
     graphicView.setHasToPassWarning(status.getStatus() == ModelStatus.Status.BLOCKED, yourTurn);
   }
@@ -122,7 +122,7 @@ public final class Controller implements Features {
       }
       if (status.getStatus() == ModelStatus.Status.BLOCKED) {
         graphicView.showMessage("No valid move, can only choose to pass " + "Player: "
-            + player.getColor());
+                + player.getColor());
         return;
       }
       model.placeMove(pair, player.getColor());
@@ -137,7 +137,7 @@ public final class Controller implements Features {
         position = "(" + pair.getRow() + "," + pair.getCol() + ")";
       }
       graphicView.showMessage("Can not place here " + position + " " + " Player: "
-          + model.getTurn());
+              + model.getTurn());
     }
   }
 

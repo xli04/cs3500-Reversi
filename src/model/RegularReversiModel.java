@@ -19,110 +19,115 @@ public final class RegularReversiModel implements MutableReversiModel {
   //INVARIANT: passTimes can not be larger than 2.
   private int passTimes;
   //INVARIANT: turn can only be white or black.
-  private RepresentativeColor turn = null;
-  private List<ModelListener> listeners;
+  private RepresentativeColor turn;
+  private final List<ModelListener> listeners;
   private boolean hasGameStarted = false;
   private final ModelStatus status;
 
   /**
-   * initialize the game with the given size. the 2 should be the smallest size for a board
-   * to put in all the pre-positioned cells.
+   * initialize the game with the given configurations from the Builder.
+   * A private constructor is used to prevent direct instantiation and
+   * ensure that this occurs in the builder.
    *
-   * @param size size of the board
-   * @param status the status that represents the most recent states of game
+   * @param builder the builder
    */
-  public RegularReversiModel(int size, ModelStatus status) {
-    if (size < 2) {
-      throw new IllegalArgumentException("Invalid board size");
-    }
-    board = new HashMap<>();
-    passTimes = 0;
-    this.size = size;
-    this.listeners = new ArrayList<>();
-    this.status = status;
-    setEntireBoardToBlankCells(size);
-    setBoardToStartingPosition();
-  }
-
-  /**
-   * initialize the game with the given size. the 2 should be the smallest size for a board
-   * to put in all the pre-positioned cells. Used to test the functionality of model.
-   *
-   * @param size size of the board
-   */
-  RegularReversiModel(int size) {
-    if (size < 2) {
-      throw new IllegalArgumentException("Invalid board size");
-    }
-    this.hasGameStarted = true;
-    board = new HashMap<>();
-    passTimes = 0;
-    this.size = size;
-    this.listeners = new ArrayList<>();
-    setEntireBoardToBlankCells(size);
-    setBoardToStartingPosition();
-    turn = RepresentativeColor.BLACK;
-    status = new ReversiModelStatus();
-    listeners = new ArrayList<>();
-  }
-
-  /**
-   * Initialize standard Reversi Game with side length 6 and 6 pre-positioned cells
-   * 3 black and 3 white. Used to test the functionality of the model.
-   */
-  RegularReversiModel() {
-    this.hasGameStarted = true;
-    board = new HashMap<>();
-    passTimes = 0;
-    this.size = DEFAULT_SIZE;
-    this.listeners = new ArrayList<>();
-    turn = RepresentativeColor.BLACK;
-    status = new ReversiModelStatus();
-    setEntireBoardToBlankCells(size);
-    setBoardToStartingPosition();
-    listeners = new ArrayList<>();
-  }
-
-  /**
-   * Initialize standard Reversi Game with side length 6 and 6 pre-positioned cells
-   * 3 black and 3 white.
-   *
-   * @param status the status that represents the most recent states of game
-   */
-  public RegularReversiModel(ModelStatus status) {
-    passTimes = 0;
-    board = new HashMap<>();
-    this.size = DEFAULT_SIZE;
-    this.listeners = new ArrayList<>();
-    this.status = status;
-    setEntireBoardToBlankCells(DEFAULT_SIZE);
-    setBoardToStartingPosition();
-  }
-
-  /**
-   * Test-focused constructor used to test game logic in rigged positions for the purpose of
-   * examining rigged models, the boards must be at least 2 x 2 and turn must be black ior white.
-   * They can violate other logical rules (like not starting from
-   * starting position, or starting completely empty, since they are only used for testing.
-   *
-   * @param board the rigged board from which to construct this instance from.
-   * @param size  the size to construct the new board to
-   * @param turn  the color whose turn it is
-   */
-  RegularReversiModel(Map<RowColPair, Hexagon> board, int size, RepresentativeColor turn) {
-    if (board == null || size < 2 || (turn != RepresentativeColor.WHITE
-        && turn != RepresentativeColor.BLACK)) {
+  private RegularReversiModel(Builder builder) {
+    if (builder.board == null || builder.size < 2 || (builder.turn != RepresentativeColor.WHITE
+            && builder.turn != RepresentativeColor.BLACK)) {
       throw new IllegalArgumentException(
-        "Error occurred when trying to initialize Reversi Model from rigged board"
+              "Error occurred when trying to initialize Reversi Model from rigged board"
       );
     }
-    this.hasGameStarted = true;
-    this.board = board;
-    passTimes = 0;
-    this.turn = turn;
-    this.size = size;
-    status = new ReversiModelStatus();
-    listeners = new ArrayList<>();
+    board = builder.board;
+    passTimes = builder.passTimes;
+    this.size = builder.size;
+    this.status = builder.status;
+    this.turn = builder.turn;
+    this.hasGameStarted = builder.hasGameStarted;
+    this.listeners = new ArrayList<>();
+    setEntireBoardToBlankCells(size);
+    setBoardToStartingPosition();
+  }
+
+  /**
+   * Represents a configurable builder for a Regular Reversi Model
+   */
+  public static class Builder {
+    //Required fields
+    private ModelStatus status;
+
+    //Optional fields - initialized to default values
+    private int size = DEFAULT_SIZE;
+    private Map<RowColPair, Hexagon> board = new HashMap<>();
+    private int passTimes = 0;
+    private RepresentativeColor turn = RepresentativeColor.BLACK;
+    private boolean hasGameStarted = false;
+
+    /**
+     * Constructs the builder with the given status. Since status is the only required parameter
+     * for a game of Reversi, the Builder need only take in this value.
+     *
+     * @param status the current status for the game
+     */
+    public Builder(ModelStatus status) {
+      this.status = status;
+    }
+
+    /**
+     * Test-focused constructor the game with the given size. the 2 should be the smallest size for a board
+     * to put in all the pre-positioned cells. Used to test the functionality of model.
+     * The values will be the defualt ones. For a standard Reversi Game, the default values are
+     * side length 6 and 6 pre-positioned cells with 3 black and 3 white. Since it is only
+     * test-focused, there are no required arguments. This constructor is also used for
+     * deepCopy()
+     */
+    Builder() {
+    }
+
+    /**
+     * A setter that updates the size. Since size is intended to be configurable by the client,
+     * it is public
+     *
+     * @param size the desired size for our Reversi Model builder
+     * @return this Builder, to allow for chained building.
+     */
+    public Builder setSize(int size) {
+      this.size = size;
+      return this;
+    }
+
+    /**
+     * The following fields should only be configured for testing purposes so these setters are
+     * package-private. They are also used for deepCopy()
+     **/
+    Builder setBoard(Map<RowColPair, Hexagon> board) {
+      this.board = board;
+      return this;
+    }
+
+    Builder setPassTimes(int passTimes) {
+      this.passTimes = passTimes;
+      return this;
+    }
+
+    Builder setTurn(RepresentativeColor color) {
+      this.turn = color;
+      return this;
+    }
+
+    Builder setGameStarted(boolean hasGameStarted) {
+      this.hasGameStarted = hasGameStarted;
+      return this;
+    }
+
+    /**
+     * Builds a Regular Reversi Model with the configurations of this builder.
+     *
+     * @return the immutable regular reversi model.
+     */
+    public RegularReversiModel build() {
+      return new RegularReversiModel(this);
+    }
   }
 
   /**
@@ -134,11 +139,11 @@ public final class RegularReversiModel implements MutableReversiModel {
    * left, the r will increase, if the cell go right, the r will decrease. for the q, the leftCol,
    * it will increase when the col go left. and for the s, the rightCol, it will increase
    * when the col go right.
-   *        (-2,0,2) (-2,1,1) (-2,2,0)
-   *    (-1,-1,2) (-1,0,1) (-1,1,0) (-1,-2,-1)
+   * (-2,0,2) (-2,1,1) (-2,2,0)
+   * (-1,-1,2) (-1,0,1) (-1,1,0) (-1,-2,-1)
    * (0,-2,2) (0,-1,1) (0,0,0) (0,1,-1) (0,2,-2)
-   *    (1,-2,1) (1,-1,0) (1,0,-1) (1,1,-2)
-   *       (2,-2,0) (2,-1,-1) (2,0,-2)
+   * (1,-2,1) (1,-1,0) (1,0,-1) (1,1,-2)
+   * (2,-2,0) (2,-1,-1) (2,0,-2)
    *
    * @param size the size of the board
    */
@@ -207,7 +212,7 @@ public final class RegularReversiModel implements MutableReversiModel {
    * to let the view repaint the board and update the controllers to show the current state of the
    * game.
    *
-   * @param pair the row-col pair
+   * @param pair          the row-col pair
    * @param currentPlayer the player that wants to place a move
    * @throws IllegalArgumentException If the coordinators are invalid
    * @throws IllegalStateException    If we can not place the given color cell in given position
@@ -259,9 +264,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     }
     turn = turn.getOpposite();
     status.updateStatus(this);
-    for (ModelListener listener : listeners) {
-      listener.update();
-    }
+    notifyAllListenersOfModelChange();
   }
 
   /**
@@ -309,9 +312,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     passTimes++;
     turn = turn.getOpposite();
     status.updateStatus(this);
-    for (ModelListener listener : listeners) {
-      listener.update();
-    }
+    notifyAllListenersOfModelChange();
   }
 
   /**
@@ -322,7 +323,7 @@ public final class RegularReversiModel implements MutableReversiModel {
   private void checkIfGameStarted() {
     if (!hasGameStarted) {
       throw new IllegalStateException("Unable to query the model before the game "
-        + "has started");
+              + "has started");
     }
   }
 
@@ -446,7 +447,8 @@ public final class RegularReversiModel implements MutableReversiModel {
 
   @Override
   public MutableReversiModel getDeepCopy(RepresentativeColor color) {
-    return new RegularReversiModel(this.getBoard(), size, color);
+    return new RegularReversiModel.Builder(status).setSize(size).setBoard(board).setTurn(turn)
+            .setGameStarted(hasGameStarted).setPassTimes(passTimes).build();
   }
 
   @Override
@@ -460,6 +462,10 @@ public final class RegularReversiModel implements MutableReversiModel {
     this.hasGameStarted = true;
     turn = RepresentativeColor.BLACK;
     status.updateStatus(this);
+    notifyAllListenersOfModelChange();
+  }
+
+  private void notifyAllListenersOfModelChange() {
     for (ModelListener listener : listeners) {
       listener.update();
     }
@@ -474,8 +480,8 @@ public final class RegularReversiModel implements MutableReversiModel {
    */
   private CubeCoordinateTrio findAdjacentCells(CubeCoordinateTrio current, Direction direction) {
     return new CubeCoordinateTrio(current.getRow() + direction.getRowOffset(),
-      current.getLeftCol() + direction.getLeftColOffset(),
-      current.getRightCol() + direction.getRightColOffset());
+            current.getLeftCol() + direction.getLeftColOffset(),
+            current.getRightCol() + direction.getRightColOffset());
   }
 
   @Override
@@ -483,7 +489,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     Map<RowColPair, Hexagon> copy = new HashMap<>();
     for (RowColPair pair : board.keySet()) {
       copy.put(new RowColPair(pair.getRow(), pair.getCol()),
-          new Hexagon(board.get(pair).getColor()));
+              new Hexagon(board.get(pair).getColor()));
     }
     return copy;
   }

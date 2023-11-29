@@ -6,7 +6,7 @@ import java.util.Optional;
 import strategy.InfallibleStrategy;
 
 /**
- * A ReversiPlayer interface, represents ai player in the reversi game.
+ * A ReversiPlayer interface, represents ai player in the reversi game. Ai
  */
 public final class ReversiAiPlayer implements Player {
   private RepresentativeColor color;
@@ -29,7 +29,7 @@ public final class ReversiAiPlayer implements Player {
    *
    * @param color the given color
    * @throws IllegalStateException player's color can not modified during the game
-   *         once it was signed
+   *                               once it was signed
    */
   @Override
   public void assignColor(RepresentativeColor color) {
