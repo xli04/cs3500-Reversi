@@ -253,7 +253,6 @@ Changes for part 3:
  Also, we added another method in to the readonly model called addListener, because we think listen will not change
  the model itself, and this method is used to register the controller as a listener to the model
 
-//TODO: include builder pattern info
 
 --------------------------------------------------HW6----------------------------------------------------------------------------------------------------
 1. Overview

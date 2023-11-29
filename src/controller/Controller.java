@@ -4,10 +4,9 @@ import java.util.Optional;
 import model.ModelStatus;
 import model.MutableReversiModel;
 import model.Player;
-import model.RepresentativeColor;
 import model.RowColPair;
 import view.Features;
-import view.GraphicView;
+import view.Iview;
 
 /**
  * Represents an asynchronous controller for a game of reversi. Controllers are event-driven
@@ -17,31 +16,27 @@ import view.GraphicView;
  */
 public final class Controller implements Features {
   private final MutableReversiModel model;
-  private final GraphicView graphicView;
+  private final Iview view;
   private final Player player;
   private final ModelStatus status;
 
   /**
    * Construct the controller with given parameters.
    *
-   * @param model       the current model
-   * @param graphicView the current view
-   * @param player      the player that will interact with this controller
-   * @param status      the status that represents the most recent states of game
+   * @param model the current model
+   * @param view the current view
+   * @param player the player that will interact with this controller
+   * @param status the status that represents the most recent states of game
    */
-  public Controller(MutableReversiModel model, GraphicView graphicView, Player player,
+  public Controller(MutableReversiModel model, Iview view, Player player,
                     ModelStatus status) {
     this.model = model;
-    this.graphicView = graphicView;
-    graphicView.addFeatures(this);
-    graphicView.display();
+    this.view = view;
+    this.view.addFeatures(this);
+    this.view.display();
     this.player = player;
-    boolean yourTurn = model.getTurn() == player.getColor();
-    if (model.getTurn() != null) {
-      graphicView.toggleTurn(model.getTurn(), yourTurn);
-    }
     if (player.isAiPlayer()) {
-      graphicView.lockMouseForNonHumanPlayer();
+      this.view.lockMouseForNonHumanPlayer();
     }
     this.status = status;
   }
@@ -53,20 +48,7 @@ public final class Controller implements Features {
    * over message and the winner in theis game.
    */
   public void update() {
-    graphicView.resetPanel(model);
-    if (status.getStatus() == ModelStatus.Status.END) {
-      RepresentativeColor winner = model.getWinner();
-      boolean win = winner == player.getColor();
-      graphicView.setGameOverState(model.getWinner(), win);
-      graphicView.showMessage("Game is over Winner is " + winner);
-      return;
-    }
-
-    boolean yourTurn = model.getTurn() == player.getColor();
-    graphicView.resetSelectedPosition();
-    graphicView.setColor(player.getColor());
-    graphicView.toggleTurn(model.getTurn(), yourTurn);
-    graphicView.setHasToPassWarning(status.getStatus() == ModelStatus.Status.BLOCKED, yourTurn);
+    view.update(model, player.getColor());
   }
 
   /**
@@ -92,10 +74,10 @@ public final class Controller implements Features {
         if (pair.isPresent()) {
           placeMove(pair.get());
         } else {
-          graphicView.showMessage("Some thing wrong with the Ai strategy");
+          view.showMessage("Some thing wrong with the Ai strategy");
         }
       } catch (IllegalStateException e) {
-        graphicView.showMessage("Some thing wrong with the Ai strategy");
+        view.showMessage("Some thing wrong with the Ai strategy");
       }
     }
   }
@@ -121,12 +103,11 @@ public final class Controller implements Features {
         return;
       }
       if (status.getStatus() == ModelStatus.Status.BLOCKED) {
-        graphicView.showMessage("No valid move, can only choose to pass " + "Player: "
-                + player.getColor());
+        view.showMessage("No valid move, can only choose to pass " + "Player: "
+            + player.getColor());
         return;
       }
       model.placeMove(pair, player.getColor());
-      graphicView.resetSelectedPosition();
     } catch (IllegalStateException | IllegalArgumentException e) {
       String position = "";
       // if the human player does not select anything and press enter to attempt a placing
@@ -136,8 +117,8 @@ public final class Controller implements Features {
       } else {
         position = "(" + pair.getRow() + "," + pair.getCol() + ")";
       }
-      graphicView.showMessage("Can not place here " + position + " " + " Player: "
-              + model.getTurn());
+      view.showMessage("Can not place here " + position + " " + " Player: "
+          + model.getTurn());
     }
   }
 
@@ -158,9 +139,8 @@ public final class Controller implements Features {
         return;
       }
       model.makePass(player.getColor());
-      graphicView.resetSelectedPosition();
     } catch (IllegalStateException e) {
-      graphicView.showMessage("Can not take action right now " + "Player: " + player.getColor());
+      view.showMessage("Can not take action right now " + "Player: " + player.getColor());
     }
   }
 
@@ -172,7 +152,7 @@ public final class Controller implements Features {
     if (player.isAiPlayer()) {
       return;
     }
-    graphicView.showHints(player.getColor());
+    view.showHints(player.getColor());
   }
 
   /**

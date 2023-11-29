@@ -9,7 +9,7 @@ import model.RowColPair;
  * things we expected. it will give feedback to determine if the controller interact with
  * the view correctly.
  */
-public class MockView implements GraphicView {
+public class MockView implements Iview {
   private final StringBuilder builder;
 
   /**
@@ -26,18 +26,15 @@ public class MockView implements GraphicView {
     builder.append("display").append("\n");
   }
 
-  @Override
-  public RowColPair getSelectedPosition() {
+  private RowColPair getSelectedPosition() {
     return null;
   }
 
-  @Override
-  public void resetSelectedPosition() {
+  private void resetSelectedPosition() {
     builder.append("reset selectedPosition").append("\n");
   }
 
-  @Override
-  public void resetPanel(ReadOnlyReversiModel model) {
+  private void resetPanel(ReadOnlyReversiModel model) {
     builder.append("Update the view").append("\n");
   }
 
@@ -61,13 +58,11 @@ public class MockView implements GraphicView {
     builder.append("show hints").append("\n");
   }
 
-  @Override
-  public void setGameOverState(RepresentativeColor winner, boolean winOrNot) {
+  private void setGameOverState(RepresentativeColor winner, boolean winOrNot) {
     builder.append("Show game over").append("\n");
   }
 
-  @Override
-  public void setHasToPassWarning(boolean hasToPass, boolean isYourTurn) {
+  private void setHasToPassWarning(boolean hasToPass, boolean isYourTurn) {
     builder.append("Set Warning: ").append(hasToPass).append("\n");
   }
 
@@ -77,7 +72,11 @@ public class MockView implements GraphicView {
   }
 
   @Override
-  public void toggleTurn(RepresentativeColor color, boolean isYourTurn) {
+  public void update(ReadOnlyReversiModel model, RepresentativeColor player) {
+    builder.append("Updated");
+  }
+
+  private void toggleTurn(RepresentativeColor color, boolean isYourTurn) {
     builder.append("You have toggle the turn to ").append(color).append("\n");
   }
 }

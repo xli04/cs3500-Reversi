@@ -2,7 +2,6 @@ package model;
 
 import java.util.Objects;
 import java.util.Optional;
-
 import strategy.InfallibleStrategy;
 
 /**
