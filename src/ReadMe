@@ -140,7 +140,7 @@ Start Game and List<ModelListener> in the model
  player who will place first to black and notify all the views and controllers that the game is started, the
  message related to the game state like the current turn, current score.etc will be shown and the player can
  start to place the cell on the board. Whenever the model knows it is changed (for example it successfully
- starts the game or makes a move), the model broadcasts to all its listneers that it has been changed.
+ starts the game or makes a move), the model broadcasts to all its listeners that it has been changed.
  Each listener decides for themselves what to do when the model is changed.
 
 MockView
@@ -197,7 +197,12 @@ MockView
  so it leverages dynamic dispatch so that specific view implementation can refresh in the way
  that it sees fit.
 
- For the model status, we have four values to represent the current status for the game
+ For the model status, we have A ReversiModelStatus class represents the current status for the game model,
+ once the player placed a move or made a pass or the start the game, the status of the game will be updated
+ in order to reflect the most recent status. so that in the controller, we will also take in a model status
+ as the parameter in order to track the status of the model more effectively. we initialize the status to
+ hasNotStart since every time when start the game, the status will be updated and also, players can not place
+ move or make pass before the game was started. we have four values to represent the current status for the game
  END = The game has ended by 2 consecutive passes.
  InProgress = the game has started and there are still legal moves on the board (at least
  one legal move for black or for white).
@@ -205,13 +210,6 @@ MockView
  Blocked = no valid moves, but the game is not over yet since the game has no passed.
  Every time the player take an action(ex. place a move, make a pass or start the game), the status will
  update itself so that we can always get the most recent status for our game.
-
- Model Status: we have A ReversiModelStatus class represents the current status for the game model, once the player
- placed a move or made a pass or the start the game, the status of the game will be updated in order to reflect the
- most recent status. so that in the controller, we will also take in a model status as the parameter in order to track
- the status of the model more effectively. we initialize the status to hasNotStart since every time when start the game,
- the status will be updated and also, players can not place move or make pass before the game was started.
-
 
 5. Source Organization
     -In the src directory, we can find 3 packages
@@ -251,8 +249,9 @@ Changes for part 3:
  player who goes first to black, and notify the controllers and views that care about this model that the game is started.
 
  Also, we added another method in to the readonly model called addListener, because we think listen will not change
- the model itself, and this method is used to register the controller as a listener to the model
-
+ the model itself, and this method is used to register the controller as a listener to the model. And in the place
+ move and make pass method, we added the functionality that so that the model can publich the notification to the
+ controllers.
 
 --------------------------------------------------HW6----------------------------------------------------------------------------------------------------
 1. Overview

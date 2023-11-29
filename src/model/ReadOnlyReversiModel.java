@@ -2,8 +2,6 @@ package model;
 
 import java.util.Map;
 
-import controller.Controller;
-
 /**
  * Represents a Reversi Model that can only be queried. Read-only reversi models can be queried
  * for game-logic and game state-related information for reversi games.

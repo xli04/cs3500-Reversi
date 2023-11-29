@@ -2,8 +2,6 @@ package strategy;
 
 import java.util.Optional;
 
-import javax.swing.*;
-
 import model.MutableReversiModel;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;

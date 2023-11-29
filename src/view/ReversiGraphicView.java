@@ -3,6 +3,7 @@ package view;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JFrame;
+
 import model.ReadOnlyReversiModel;
 import model.RowColPair;
 import java.awt.Color;
@@ -19,7 +20,7 @@ import model.RepresentativeColor;
  * and white players, and the hasToPassWarning. It also has a hint button used to determin
  * whether the player wants to get some hints.
  */
-public class ReversiGraphicView extends JFrame implements GraphicView {
+public class ReversiGraphicView extends JFrame implements Iview {
   private final ReversiBoardPanel panel;
   private final JLabel whiteScore;
   private final JLabel blackScore;
@@ -89,14 +90,21 @@ public class ReversiGraphicView extends JFrame implements GraphicView {
     this.setVisible(true);
   }
 
-  @Override
-  public RowColPair getSelectedPosition() {
+  /**
+   * Get the user's current selected position in the board.
+   *
+   * @return the coordinators that chosen by the user
+   */
+  private RowColPair getSelectedPosition() {
     return panel.getSelectedPosition();
   }
 
-
-  @Override
-  public void resetPanel(ReadOnlyReversiModel model) {
+  /**
+   * update the current game state to the drawing board.
+   *
+   * @param model the current model
+   */
+  private void resetPanel(ReadOnlyReversiModel model) {
     panel.resetHexGrid(model);
     resetScore(model.getScore(RepresentativeColor.BLACK),
         model.getScore(RepresentativeColor.WHITE));
@@ -148,8 +156,14 @@ public class ReversiGraphicView extends JFrame implements GraphicView {
     blackScore.setText("Black: " + black);
   }
 
-  @Override
-  public void setHasToPassWarning(boolean hasToPass, boolean isYourTurn) {
+  /**
+   * If the there is no valid move in current turn, and it this player's turn to make move,
+   * notify the player.
+   *
+   * @param hasToPass whether there is valid move in current turn
+   * @param isYourTurn the current turn in model
+   */
+  private void setHasToPassWarning(boolean hasToPass, boolean isYourTurn) {
     if (hasToPass && isYourTurn) {
       hasToPassWarning.setText("You can only pass");
       hasToPassWarning.setForeground(Color.RED);
@@ -158,8 +172,13 @@ public class ReversiGraphicView extends JFrame implements GraphicView {
     }
   }
 
-  @Override
-  public void toggleTurn(RepresentativeColor color, boolean isYourTurn) {
+  /**
+   * notify the who's turn it is, if it this player's turn, notify the player.
+   *
+   * @param color the current turn in model
+   * @param isYourTurn whether is this player's turn
+   */
+  private void toggleTurn(RepresentativeColor color, boolean isYourTurn) {
     if (isYourTurn) {
       turn.setText("Current turn: " + color.getName() + " Is Your turn");
     } else {
@@ -168,7 +187,30 @@ public class ReversiGraphicView extends JFrame implements GraphicView {
   }
 
   @Override
-  public void setGameOverState(RepresentativeColor winner, boolean winOrNot) {
+  public void update(ReadOnlyReversiModel model, RepresentativeColor player) {
+    resetPanel(model);
+    resetSelectedPosition();
+    if (model.isGameOver()) {
+      RepresentativeColor winner = model.getWinner();
+      boolean win = winner == player;
+      setGameOverState(model.getWinner(), win);
+      showMessage("Game is over Winner is " + winner);
+      return;
+    }
+    resetSelectedPosition();
+    setColor(player);
+    boolean yourTurn = model.getTurn() == player;
+    toggleTurn(model.getTurn(), yourTurn);
+    setHasToPassWarning(model.hasToPass(), yourTurn);
+  }
+
+  /**
+   * Set the game over message for the users and notify them who is the winner.
+   *
+   * @param winner the winner
+   * @param winOrNot whether this player win the game
+   */
+  private void setGameOverState(RepresentativeColor winner, boolean winOrNot) {
     hasToPassWarning.setText("");
     if (winOrNot) {
       turn.setText("Game is over, winner is " + winner + " You win!!");
@@ -187,13 +229,22 @@ public class ReversiGraphicView extends JFrame implements GraphicView {
     panel.setMouseLock(true);
   }
 
+  /**
+   * display the message to notify the users include invalid move and
+   * game is over with the winner.
+   *
+   * @param s the message that to be showed
+   */
   @Override
   public void showMessage(String s) {
     JOptionPane.showMessageDialog(null, s);
   }
 
-  @Override
-  public void resetSelectedPosition() {
+  /**
+   * after the user successfully place a cell in the selected position,
+   * reset the select position to null.
+   */
+  private void resetSelectedPosition() {
     panel.resetSelectedPosition();
   }
 

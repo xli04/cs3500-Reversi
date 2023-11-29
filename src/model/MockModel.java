@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import controller.Controller;
-
 /**
  * a Mock model, represents a mock of the regular model, used to test if the strategy did the
  * things we expected. it will give feedback which pair does the strategy visited and also
@@ -106,7 +104,7 @@ final class MockModel implements MutableReversiModel {
 
   @Override
   public void addListener(ModelListener listener) {
-
+    builder.append("add listener");
   }
 
   @Override

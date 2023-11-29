@@ -19,18 +19,18 @@ import strategy.CaptureMaxPieces;
 import strategy.CompleteStrategy;
 import strategy.MinimaxStrategy;
 import view.MockView;
-import view.GraphicView;
+import view.Iview;
 
 /**
  * A test class for the if the controller interact with the view and model as we expected.
  */
 public class TestInteractionsBetweenControllerAndViewAndModel {
   Controller controller1;
-  GraphicView mockView1;
+  Iview mockView1;
   MutableReversiModel model;
   StringBuilder builder1;
   Controller controller2;
-  GraphicView mockView2;
+  Iview mockView2;
   StringBuilder builder2;
   ModelStatus status;
 
@@ -196,8 +196,8 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
   @Test
   public void testStartGameAssignColorCorrectly() {
     MutableReversiModel model = new RegularReversiModel(status);
-    GraphicView view = new MockView(new StringBuilder());
-    GraphicView view2 = new MockView(new StringBuilder());
+    Iview view = new MockView(new StringBuilder());
+    Iview view2 = new MockView(new StringBuilder());
     Controller controller = new Controller(model, view, new ReversiHumanPlayer(), status);
     Controller controller2 = new Controller(model, view2, new ReversiHumanPlayer(), status);
     ControllerListeners listeners = new ControllerListeners();
@@ -222,7 +222,7 @@ public class TestInteractionsBetweenControllerAndViewAndModel {
     mockView2 = new MockView(builder2);
     controller2 = new Controller(model, mockView2, new ReversiHumanPlayer(), status);
     StringBuilder builder3 = new StringBuilder();
-    GraphicView mockView3 = new MockView(builder3);
+    Iview mockView3 = new MockView(builder3);
     Controller controller3 = new Controller(model, mockView3, new ReversiHumanPlayer(), status);
     ControllerListeners listeners = new ControllerListeners();
     listeners.register(controller1);
