@@ -18,9 +18,11 @@ public final class CornerStrategy extends AbstractStrategy implements FallibleSt
   @Override
   public Optional<RowColPair> choosePosition(ReadOnlyReversiModel model,
                                              RepresentativeColor player) {
-    List<RowColPair> cornerPoints =
-        getCornerPoints(model);
+    List<RowColPair> cornerPoints = getCornerPoints(model);
     for (RowColPair position : cornerPoints) {
+      if (model.getColorAt(position) != RepresentativeColor.NONE) {
+        continue;
+      }
       Map<Direction, Integer> value = model.checkMove(position, player);
       int pointsCanGet = 0;
       for (Integer i : value.values()) {
@@ -29,6 +31,23 @@ public final class CornerStrategy extends AbstractStrategy implements FallibleSt
       if (pointsCanGet > 0) {
         return Optional.of(position);
       }
+    }
+    Map<RowColPair, Integer> pairs = findAvailablePosition(model, player);
+    RowColPair pair = null;
+    int value = -1;
+    for (RowColPair position : pairs.keySet()) {
+      if (pair == null) {
+        pair = position;
+        value = pairs.get(position);
+      } else {
+        if (value < pairs.get(position)) {
+          pair = position;
+          value = pairs.get(position);
+        }
+      }
+    }
+    if (pair != null) {
+      return Optional.of(pair);
     }
     return Optional.empty();
   }

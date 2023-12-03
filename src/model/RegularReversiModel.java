@@ -11,7 +11,7 @@ import java.util.Map;
  * a line with opposite color cells. The user may choose to pass if there is no
  * valid move or they just want to do it.
  */
-public final class RegularReversiModel implements MutableReversiModel {
+public class RegularReversiModel implements MutableReversiModel {
   private static final int DEFAULT_SIZE = 6;
   //INVARIANT: size is greater than 1.
   private final int size;
@@ -31,7 +31,7 @@ public final class RegularReversiModel implements MutableReversiModel {
    * @param size size of the board
    * @param status the status that represents the most recent states of game
    */
-  private RegularReversiModel(int size, ModelStatus status) {
+  protected RegularReversiModel(int size, ModelStatus status) {
     if (size < 2) {
       throw new IllegalArgumentException("Invalid board size");
     }
@@ -270,7 +270,7 @@ public final class RegularReversiModel implements MutableReversiModel {
       throw new IllegalArgumentException("invalid coordinators");
     }
     if (board.get(pair).getColor() != RepresentativeColor.NONE) {
-      throw new IllegalStateException("Can only place on exist cell");
+      throw new IllegalStateException("Can only place on available cell");
     }
   }
 
@@ -441,7 +441,7 @@ public final class RegularReversiModel implements MutableReversiModel {
 
   @Override
   public MutableReversiModel getDeepCopy(RepresentativeColor color) {
-    return new RegularReversiModel(this.getBoard(), size, color);
+    return new RegularReversiModel(this.getCurrentBoard(), size, color);
   }
 
   @Override
@@ -474,7 +474,7 @@ public final class RegularReversiModel implements MutableReversiModel {
   }
 
   @Override
-  public Map<RowColPair, Hexagon> getBoard() {
+  public Map<RowColPair, Hexagon> getCurrentBoard() {
     Map<RowColPair, Hexagon> copy = new HashMap<>();
     for (RowColPair pair : board.keySet()) {
       copy.put(new RowColPair(pair.getRow(), pair.getCol()),

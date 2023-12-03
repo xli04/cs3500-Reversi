@@ -11,7 +11,7 @@ import model.RowColPair;
  * class used to display the model in textual. using _ for empty cells,
  * X for black player, and O for white player.
  */
-public class ReversiTextualView implements TextView {
+public class ReversiTextualView implements IView {
   private final ReadOnlyReversiModel model;
 
   private final Appendable out;
@@ -52,7 +52,7 @@ public class ReversiTextualView implements TextView {
    */
   @Override
   public String toString() {
-    Map<RowColPair, Hexagon> board = model.getBoard();
+    Map<RowColPair, Hexagon> board = model.getCurrentBoard();
     StringBuilder builder = new StringBuilder();
     int size = model.getSize();
     int row = 2 * size - 1;
@@ -119,8 +119,13 @@ public class ReversiTextualView implements TextView {
     drawGraph(builder, color);
   }
 
-  @Override
-  public void render() {
+  /**
+   * Renders a model in some manner (e.g. as text, or as graphics, etc.).
+   *
+   * @throws IOException if the rendering fails for some reason
+   * @throws IllegalArgumentException if there is no appendable object
+   */
+  private void render() {
     if (out == null) {
       throw new IllegalArgumentException();
     }
@@ -129,5 +134,48 @@ public class ReversiTextualView implements TextView {
     } catch (IOException e) {
       throw new IllegalArgumentException();
     }
+  }
+
+  @Override
+  public void display() {
+    render();
+  }
+
+  @Override
+  public void addFeatures(Features features) {
+    // no features needed for textual view.
+  }
+
+  @Override
+  public void showMessage(String s) {
+    if (out == null) {
+      System.out.println(s);
+    } else {
+      try {
+        out.append(s);
+      } catch (IOException e) {
+        throw new IllegalArgumentException();
+      }
+    }
+  }
+
+  @Override
+  public void lockInteractionWithViewForNonHumanPlayer() {
+    // no lock needed for textual view because the no button to click.
+  }
+
+  @Override
+  public void showHints(RepresentativeColor color) {
+    // temporary not implement.
+  }
+
+  @Override
+  public void setColor(RepresentativeColor color) {
+    // no need to set color since the textual view do not have panel.
+  }
+
+  @Override
+  public void update(ReadOnlyReversiModel model, RepresentativeColor player) {
+    render();
   }
 }

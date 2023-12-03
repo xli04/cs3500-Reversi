@@ -1,11 +1,9 @@
+import Adapter.*;
+import Adapter.Strategy.*;
+import Provider.src.cs3500.reversi.view.ViewFeatures;
 import controller.Controller;
 import controller.ControllerListeners;
-import model.ModelStatus;
-import model.Player;
-import model.RegularReversiModel;
-import model.ReversiAiPlayer;
-import model.ReversiHumanPlayer;
-import model.ReversiModelStatus;
+import model.*;
 import strategy.AvoidCellsNextToCornersStrategy;
 import strategy.CaptureMaxPieces;
 import strategy.CompleteStrategy;
@@ -13,6 +11,7 @@ import strategy.CompositeStrategy;
 import strategy.CornerStrategy;
 import strategy.InfallibleStrategy;
 import strategy.MinimaxStrategy;
+import view.IView;
 import view.ReversiGraphicView;
 
 /**
@@ -61,9 +60,11 @@ public class ReversiGame {
       }
     }
     ModelStatus status = new ReversiModelStatus();
-    RegularReversiModel model = new RegularReversiModel.ModelBuilder().setStatus(status).build();
-    ReversiGraphicView view = new ReversiGraphicView(model);
-    ReversiGraphicView view2 = new ReversiGraphicView(model);
+    CombineModel model = new CombineModel.ModelBuilder().setSize(6).setStatus(status).build();
+    IView view = new ReversiGraphicView(model);
+    ViewFeatures features = new ProviderFeatures(model, player2);
+    ProviderGraphicView view2 = new ProviderGraphicView(model);
+    view2.addFeatureListener(features);
     Controller controller = new Controller(model, view, player1, status);
     Controller controller2 = new Controller(model, view2, player2, status);
     ControllerListeners listeners = new ControllerListeners();
@@ -89,20 +90,29 @@ public class ReversiGame {
      * positions first.
      */
     MEDIUM(new CompleteStrategy(new CompositeStrategy(new CornerStrategy(),
-      new CaptureMaxPieces()))),
+        new CaptureMaxPieces()))),
 
     /**
      * For the medium plus, it not only has the behavior for the medium strategy,
      * it also AvoidCellsNextToCorners.
      */
     MEDIUMPLUS(new CompleteStrategy(new CompositeStrategy(new CompositeStrategy(
-      new CornerStrategy(), new AvoidCellsNextToCornersStrategy()), new CaptureMaxPieces()))),
+        new CornerStrategy(), new AvoidCellsNextToCornersStrategy()), new CaptureMaxPieces()))),
 
     /**
      * for the hard level, this strategy is minimax ,
      * which means it will simulate the action and then take the best action.
      */
-    HARD(new CompleteStrategy(new MinimaxStrategy()));
+    HARD(new CompleteStrategy(new MinimaxStrategy())),
+
+    PROVIDEREASY(new ProviderCompleteStrategy(new ProviderLongestPathStrategy())),
+
+    PROVIDERMEDIUM(new CompleteStrategy(new ProviderFallBackStrategy( new ProviderCornersStrategy(),
+            new ProviderLongestPathStrategy()))),
+
+    PROVIDERHARD(new CompleteStrategy(new ProviderFallBackStrategy(new ProviderCornersStrategy(),
+            new ProvideAvoidingNextToCornersStrategy())));
+
     private final InfallibleStrategy strategy;
 
     /**

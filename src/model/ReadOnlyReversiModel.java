@@ -12,7 +12,7 @@ public interface ReadOnlyReversiModel {
    *
    * @return the current board
    */
-  Map<RowColPair, Hexagon> getBoard();
+  Map<RowColPair, Hexagon> getCurrentBoard();
 
   /**
    * check if the game is over, if the both players pass in a row or the board is full.

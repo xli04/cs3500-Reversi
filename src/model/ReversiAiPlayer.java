@@ -7,7 +7,7 @@ import strategy.InfallibleStrategy;
 /**
  * A ReversiPlayer interface, represents ai player in the reversi game.
  */
-public final class ReversiAiPlayer implements Player {
+public class ReversiAiPlayer implements Player {
   private RepresentativeColor color;
   private final InfallibleStrategy strategy;
 

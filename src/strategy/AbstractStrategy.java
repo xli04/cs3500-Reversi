@@ -47,7 +47,7 @@ public abstract class AbstractStrategy {
   protected Map<RowColPair, Integer> findAvailablePosition(ReadOnlyReversiModel model,
                                                            RepresentativeColor color) {
     Map<RowColPair, Integer> positionToFlippedCardCount = new HashMap<>();
-    Map<RowColPair, Hexagon> map = model.getBoard();
+    Map<RowColPair, Hexagon> map = model.getCurrentBoard();
     for (RowColPair pair : map.keySet()) {
       try {
         Map<Direction, Integer> directionToFlippedCardCount = model.checkMove(pair, color);

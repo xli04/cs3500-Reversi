@@ -161,7 +161,7 @@ public class ReversiBoardPanel extends JPanel {
    * @param model the current model state
    */
   public void resetHexGrid(ReadOnlyReversiModel model) {
-    hexGrid.update(model.getBoard());
+    hexGrid.update(model.getCurrentBoard());
     repaint();
   }
 

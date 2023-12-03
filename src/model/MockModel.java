@@ -58,8 +58,8 @@ final class MockModel implements MutableReversiModel {
   }
 
   @Override
-  public Map<RowColPair, Hexagon> getBoard() {
-    return model.getBoard();
+  public Map<RowColPair, Hexagon> getCurrentBoard() {
+    return model.getCurrentBoard();
   }
 
   @Override

@@ -18,6 +18,10 @@
     some form of strategy to select their moves)
 
  2. Quick Start
+ User can choose the type of players in the reversi game by themselves by entering two additional strings
+  after type the java -jar NameOfJARFile.jar. ex. java -jar NameOfJARFile.jar human human means this game
+  will be played by two human players, there are four types of ai players offered, easy, medium, mediumplus
+  and hard.
  Player can select/deselect the cell by CLICKING the hexagon they want to select, and if this is in their
     turn, the message"it's your turn" will be showed in the north panel net to the current turn
     they can choose to press ENTER to place a cell in the position they selected or press SPACE
@@ -69,9 +73,6 @@ A user may get help by click the hint button, the valid position and the number 
     views to refresh, which might involve repainting for GUIs or rendering for textual views. Once all
      the views are refreshed, the changes to the board would be visible to both players in the game,
      even though only one of the players made the move.
-
-The Game in the jar file is set to a human player against another human player and the player who placing for
-    black cell will goes first.
 
  3. Key Components
  Interactions between components
@@ -591,7 +592,7 @@ a. For the board, Our game uses cube coordinate system, we choose to use the map
     the col go left. and for the s, the rightCol, it will increase when the col go right.
 
            (-2,0,2) (-2,1,1) (-2,2,0)
-      (-1,-1,2) (-1,0,1) (-1,1,0) (-1,-2,-1)
+      (-1,-1,2) (-1,0,1) (-1,1,0) (-1,2,-1)
     (0,-2,2) (0,-1,1) (0,0,0) (0,1,-1) (0,2,-2)
         (1,-2,1) (1,-1,0) (1,0,-1) (1,1,-2)
           (2,-2,0) (2,-1,-1) (2,0,-2)

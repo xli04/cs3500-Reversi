@@ -44,7 +44,7 @@ public final class HexGrid {
     this.model = model;
     width = preferWidth;
     height = preferHeight;
-    hexagons = model.getBoard();
+    hexagons = model.getCurrentBoard();
     center = new HashMap<>();
     this.size = size;
     number = new HashMap<>();
