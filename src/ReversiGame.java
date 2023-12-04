@@ -1,9 +1,20 @@
-import Adapter.*;
-import Adapter.Strategy.*;
-import Provider.src.cs3500.reversi.view.ViewFeatures;
+import adapter.CombineModel;
+import adapter.ProviderAiPlayer;
+import adapter.ProviderFeatures;
+import adapter.ProviderGraphicView;
+import adapter.ProviderHumanPlayer;
+import adapter.strategy.ProviderCornersStrategy;
+import adapter.strategy.ProviderLongestPathStrategy;
+import adapter.strategy.ProviderFallBackStrategy;
+import adapter.strategy.ProviderCompleteStrategy;
+import adapter.strategy.ProvideAvoidingNextToCornersStrategy;
 import controller.Controller;
 import controller.ControllerListeners;
-import model.*;
+import model.ModelStatus;
+import model.Player;
+import model.ReversiAiPlayer;
+import model.ReversiHumanPlayer;
+import model.ReversiModelStatus;
 import strategy.AvoidCellsNextToCornersStrategy;
 import strategy.CaptureMaxPieces;
 import strategy.CompleteStrategy;
@@ -34,7 +45,7 @@ public class ReversiGame {
    */
   public static void main(String[] args) {
     Player player1 = new ReversiHumanPlayer();
-    Player player2 = new ReversiHumanPlayer();
+    Player player2 = new ProviderHumanPlayer();
     if (args.length != 2) {
       throw new IllegalArgumentException("Reversi game must has two players");
     }
@@ -42,11 +53,19 @@ public class ReversiGame {
       Player player = new ReversiHumanPlayer();
       String type = args[i].toUpperCase();
       if (type.equals("HUMAN")) {
-        player = new ReversiHumanPlayer();
+        if (i == 0) {
+          player = new ReversiHumanPlayer();
+        } else {
+          player = new ProviderHumanPlayer();
+        }
       } else {
         try {
           InfallibleStrategy strategy = Difficulty.valueOf(type).getStrategy();
-          player = new ReversiAiPlayer(strategy);
+          if (i == 0) {
+            player = new ReversiAiPlayer(strategy);
+          } else {
+            player = new ProviderAiPlayer(strategy);
+          }
         } catch (IllegalArgumentException e) {
           throw new IllegalArgumentException("No such type of game player supported");
         }
@@ -62,9 +81,7 @@ public class ReversiGame {
     ModelStatus status = new ReversiModelStatus();
     CombineModel model = new CombineModel.ModelBuilder().setSize(6).setStatus(status).build();
     IView view = new ReversiGraphicView(model);
-    ViewFeatures features = new ProviderFeatures(model, player2);
-    ProviderGraphicView view2 = new ProviderGraphicView(model);
-    view2.addFeatureListener(features);
+    ProviderGraphicView view2 = new ProviderGraphicView(model, new ProviderFeatures(model, player2));
     Controller controller = new Controller(model, view, player1, status);
     Controller controller2 = new Controller(model, view2, player2, status);
     ControllerListeners listeners = new ControllerListeners();
@@ -105,11 +122,23 @@ public class ReversiGame {
      */
     HARD(new CompleteStrategy(new MinimaxStrategy())),
 
+    /**
+     * for the provider easy, this strategy is easiest strategy from the provider's
+     * strategies.
+     */
     PROVIDEREASY(new ProviderCompleteStrategy(new ProviderLongestPathStrategy())),
 
-    PROVIDERMEDIUM(new CompleteStrategy(new ProviderFallBackStrategy( new ProviderCornersStrategy(),
+    /**
+     * for the provider medium, this strategy is combination of corner strategy and
+     * the strategy that find the position that can get the highest points.
+     */
+    PROVIDERMEDIUM(new CompleteStrategy(new ProviderFallBackStrategy(new ProviderCornersStrategy(),
             new ProviderLongestPathStrategy()))),
 
+    /**
+     * for the provider hard, this strategy is the combination of CornersStrategy and
+     * the strategy that AvoidingNextToCorners.
+     */
     PROVIDERHARD(new CompleteStrategy(new ProviderFallBackStrategy(new ProviderCornersStrategy(),
             new ProvideAvoidingNextToCornersStrategy())));
 

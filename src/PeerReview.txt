@@ -1,0 +1,25 @@
+How flexible are the interfaces you were given?
+    The interfaces that i was given is pretty flexible, since most of the methods they given share the
+same functionality with the current code i have. And the methods in the interface is pretty general
+and they are all necessary to support the code like placeTurn or pass and get board etc. And for the view
+the provider's view is encapsulated pretty well so that we only need to use a adapter pattern to make
+sure their view will work properly with our view and controller.
+
+
+How capable are the views?
+
+
+How convenient was it to reuse their code?
+    For the controller and view, it is pretty convenient since many methods are sharing the same logic.
+For the strategy, there is fewer things that can be improved, first, in the AvoidCellsNextToCornersStrategy
+the providers are using position(0,0,0) to represents default position which means no valid move, but the
+truth is sometimes it works pretty good if this strategy does not return (0,0,0), but since the providers
+are using this position as default position, so it may be returned by the method, that is to say, position
+(0,0,0) sometime will represent a position that chosen by strategy or a way to show that the the strategy can
+not find a position to move. However, our coordinator converting method knows nothing about this, so we have
+to add a check before the AvoidCellsNextToCornersStrategy return a position to make sure it will return a valid
+position, rather than a position that seems correctly but actually it is invalid.
+
+
+How cleanly written and well-documented was their code?
+If you needed to request changes from them, what were they and why were they needed?

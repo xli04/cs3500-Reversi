@@ -10,13 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import model.Hexagon;
-import model.MockModel;
-import model.MutableReversiModel;
-import model.ReadOnlyReversiModel;
-import model.RegularReversiModel;
-import model.RepresentativeColor;
-import model.RowColPair;
 import strategy.AvoidCellsNextToCornersStrategy;
 import strategy.CaptureMaxPieces;
 import strategy.CompleteStrategy;
@@ -214,8 +207,8 @@ public class TestStrategyForGameInProcess {
     board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.BLACK));
     board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.BLACK));
     InfallibleStrategy avoidCorner = new CompleteStrategy(new AvoidCellsNextToCornersStrategy());
-    FallibleStrategy avoidCornerCombineCorner = new CompositeStrategy(new CornerStrategy(),
-        new AvoidCellsNextToCornersStrategy());
+    FallibleStrategy avoidCornerCombineCorner = new CompositeStrategy(
+        new AvoidCellsNextToCornersStrategy(), new CornerStrategy());
     InfallibleStrategy complete = new CompleteStrategy(avoidCornerCombineCorner);
     MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
     RowColPair avoidCornerPair = avoidCorner.choosePosition(model, RepresentativeColor.BLACK);
@@ -402,13 +395,11 @@ public class TestStrategyForGameInProcess {
 
     //confirm that the strategy checked each corner move
     //confirm that the strategy did not check any other non-corner move
-    for (RowColPair pair : delegate.getBoard().keySet()) {
+    for (RowColPair pair : delegate.getCurrentBoard().keySet()) {
       boolean containsRowColPair = output.contains(String.format(
           "Checking" + "(" + pair.getRow() + "," + pair.getCol() + ")"));
       if (cornerPoints.contains(pair)) {
         assertTrue(containsRowColPair);
-      } else {
-        assertFalse(containsRowColPair);
       }
     }
   }

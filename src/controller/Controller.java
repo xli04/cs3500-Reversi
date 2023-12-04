@@ -14,7 +14,7 @@ import view.IView;
  * control the flow of Reversi Games by determining when and how to update the model, as well
  * as how and when to update the GUI view that they use.
  */
-public final class Controller implements Features {
+public class Controller implements Features {
   private final MutableReversiModel model;
   private final IView view;
   private final Player player;
