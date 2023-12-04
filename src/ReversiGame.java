@@ -35,7 +35,12 @@ import view.ReversiGraphicView;
  * piece, medium is based on the easy strategy and it will also prefer to take the corner
  * positions first. For the medium plus, it not only has the behavior for the medium strategy,
  * it also AvoidCellsNextToCorners Finally, for the hard level, this strategy is minimax ,
- * which means it will simulate the action and then take the best action.
+ * which means it will simulate the action and then take the best action. We also support the
+ * strategy from our provider's code, for the providereasy, this strategy is easiest strategy
+ * from the provider's strategies. for the provider medium, this strategy is combination of
+ * corner strategy and the strategy that find the position that can get the highest points.
+ * for the provider hard, this strategy is the combination of CornersStrategy and the strategy
+ * that AvoidingNextToCorners.
  */
 public class ReversiGame {
   /**
@@ -44,6 +49,8 @@ public class ReversiGame {
    * @param args the default constructor
    */
   public static void main(String[] args) {
+    ModelStatus status = new ReversiModelStatus();
+    CombineModel model = new CombineModel.ModelBuilder().setSize(6).setStatus(status).build();
     Player player1 = new ReversiHumanPlayer();
     Player player2 = new ProviderHumanPlayer();
     if (args.length != 2) {
@@ -61,10 +68,10 @@ public class ReversiGame {
       } else {
         try {
           InfallibleStrategy strategy = Difficulty.valueOf(type).getStrategy();
-          if (i == 0) {
+          if (type.contains("PROVIDER")) {
+              player = new ProviderAiPlayer(strategy, model);
+            } else {
             player = new ReversiAiPlayer(strategy);
-          } else {
-            player = new ProviderAiPlayer(strategy);
           }
         } catch (IllegalArgumentException e) {
           throw new IllegalArgumentException("No such type of game player supported");
@@ -78,10 +85,8 @@ public class ReversiGame {
         player2 = player;
       }
     }
-    ModelStatus status = new ReversiModelStatus();
-    CombineModel model = new CombineModel.ModelBuilder().setSize(6).setStatus(status).build();
     IView view = new ReversiGraphicView(model);
-    ProviderGraphicView view2 = new ProviderGraphicView(model, new ProviderFeatures(model, player2));
+    IView view2 = new ProviderGraphicView(model, new ProviderFeatures(model, player2));
     Controller controller = new Controller(model, view, player1, status);
     Controller controller2 = new Controller(model, view2, player2, status);
     ControllerListeners listeners = new ControllerListeners();

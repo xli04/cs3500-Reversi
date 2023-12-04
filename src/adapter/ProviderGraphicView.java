@@ -1,8 +1,5 @@
 package adapter;
 
-import java.util.Map;
-
-import model.Player;
 import reversi.provider.model.GamePiece;
 import reversi.provider.model.PlayerTurn;
 import reversi.provider.view.BasicReversiView;
@@ -25,8 +22,8 @@ public class ProviderGraphicView extends BasicReversiView implements IView {
    * @param model takes in a ReadOnlyReversiModel to allow the view to access information about the
    *              current state of the model.
    */
-  public ProviderGraphicView(reversi.provider.model.ReadOnlyReversiModel model, ViewFeatures features)
-  {
+  public ProviderGraphicView(reversi.provider.model.ReadOnlyReversiModel model,
+                             ViewFeatures features) {
     super(model);
     this.features = features;
   }
@@ -74,8 +71,8 @@ public class ProviderGraphicView extends BasicReversiView implements IView {
       PlayerTurn turn = piece == GamePiece.BLACK ? PlayerTurn.BLACK : PlayerTurn.WHITE;
       super.showGameOverMessage(turn, piece);
     }
-    if (model.getTurn() == player) {
-      super.notifyPlayer();
-    }
+//    if (!model.isGameOver() && model.getTurn() == player) {
+//      super.notifyPlayer();
+//    }
   }
 }

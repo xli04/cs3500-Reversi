@@ -33,10 +33,4 @@ public class ProviderHumanPlayer extends ReversiHumanPlayer implements Player {
   public boolean isAi() {
     return false;
   }
-
-
-  private CellPosition convertBack(RowColPair pair) {
-    CubeCoordinateTrio trio = pair.convertToCube();
-    return new CellPosition(-trio.getRow(), -trio.getRightCol(), trio.getLeftCol());
-  }
 }

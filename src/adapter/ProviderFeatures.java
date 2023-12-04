@@ -4,13 +4,8 @@ import reversi.provider.model.CellPosition;
 import reversi.provider.model.PlayerTurn;
 import reversi.provider.model.ReversiModel;
 import reversi.provider.view.ViewFeatures;
-import controller.Controller;
-import model.ModelStatus;
-import model.MutableReversiModel;
 import model.Player;
 import model.RepresentativeColor;
-import model.RowColPair;
-import view.IView;
 
 /**
  * ProviderController represents an adapter pattern with provider's ViewFeatures with our
@@ -32,12 +27,16 @@ public class ProviderFeatures implements ViewFeatures {
 
   @Override
   public void passTurn() {
-    model.passTurn();
+    if (!model.isGameOver()) {
+      model.passTurn();
+    }
   }
 
   @Override
   public void playTurn(CellPosition cell) {
-    model.playTurn(cell);
+    if (!model.isGameOver()) {
+      model.playTurn(cell);
+    }
   }
 
   @Override
@@ -46,9 +45,5 @@ public class ProviderFeatures implements ViewFeatures {
       return PlayerTurn.BLACK;
     }
     return PlayerTurn.WHITE;
-  }
-
-  private RowColPair convert(CellPosition position) {
-    return new RowColPair(-position.getX(), position.getZ());
   }
 }

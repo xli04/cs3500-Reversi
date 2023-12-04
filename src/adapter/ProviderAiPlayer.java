@@ -1,5 +1,7 @@
 package adapter;
 
+import java.util.Optional;
+
 import reversi.provider.controller.Player;
 import reversi.provider.model.CellPosition;
 import reversi.provider.model.PlayerTurn;
@@ -17,18 +19,24 @@ import strategy.InfallibleStrategy;
  */
 public class ProviderAiPlayer extends ReversiAiPlayer implements Player {
 
+  private final ReadOnlyReversiModel model;
+
   /**
    * Construct the current player with the strategy the player will use for choose next move.
    *
    * @param strategy the strategy
    */
-  public ProviderAiPlayer(InfallibleStrategy strategy) {
+  public ProviderAiPlayer(InfallibleStrategy strategy, ReadOnlyReversiModel model) {
     super(strategy);
+    this.model = model;
   }
 
   @Override
   public CellPosition takeTurn(ReversiModel model) {
-    return convertBack(super.chooseNextMove((ReadOnlyReversiModel) model).get());
+    // basically, this method will not be used since we will use the chooseNextMove
+    // inside of the controller directly.
+    Optional<RowColPair> pair =super.chooseNextMove(this.model);
+    return pair.map(this::convertBack).orElse(null);
   }
 
   @Override

@@ -138,6 +138,7 @@ public class Controller implements Features {
       }
       model.makePass(player.getColor());
     } catch (IllegalStateException e) {
+      e.printStackTrace();
       view.showMessage("Can not take action right now " + "Player: " + player.getColor());
     }
   }
