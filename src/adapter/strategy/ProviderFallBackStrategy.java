@@ -6,28 +6,33 @@ import reversi.provider.model.CellPosition;
 import reversi.provider.model.PlayerTurn;
 import reversi.provider.model.ReversiModel;
 import reversi.provider.strategy.FallbackStrategy;
-import reversi.provider.strategy.ReversiStrategy;
 import model.Direction;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
+import reversi.provider.strategy.LongestPath;
 import strategy.FallibleStrategy;
 
 /**
  * ProviderFallBackStrategy represents an adapter pattern with provider's
  * FallbackStrategy with our strategy interface.
  */
-public class ProviderFallBackStrategy extends FallbackStrategy implements FallibleStrategy {
+public class ProviderFallBackStrategy implements FallibleStrategy {
+
+  private final FallbackStrategy strategy;
+  private final ReversiModel model;
+
 
   /**
    * Constructs a fallback strategy AI.
    *
-   * @param firstStrategy  the first strategy to be played
-   * @param secondStrategy to second strategy to be played if the first one fails
+   * @param strategy  the first strategy to be played
    */
-  public ProviderFallBackStrategy(ReversiStrategy firstStrategy, ReversiStrategy secondStrategy) {
-    super(firstStrategy, secondStrategy);
+  public ProviderFallBackStrategy(FallbackStrategy strategy, ReversiModel model) {
+    this.strategy = strategy;
+    this.model = model;
   }
+
 
   @Override
   public Optional<RowColPair> choosePosition(ReadOnlyReversiModel model,
@@ -35,7 +40,7 @@ public class ProviderFallBackStrategy extends FallbackStrategy implements Fallib
     PlayerTurn turn = player == RepresentativeColor.WHITE ? PlayerTurn.WHITE : PlayerTurn.BLACK;
     CellPosition cell;
     try {
-      cell = super.chooseCellPosition((ReversiModel) model, turn);
+      cell = strategy.chooseCellPosition(this.model, turn);
     } catch (IllegalStateException e) {
       return Optional.empty();
     }
@@ -46,7 +51,8 @@ public class ProviderFallBackStrategy extends FallbackStrategy implements Fallib
       value += i;
     }
     if (value == 0) {
-      ProviderLongestPathStrategy strategy = new ProviderLongestPathStrategy();
+      ProviderLongestPathStrategy strategy =
+          new ProviderLongestPathStrategy(this.model);
       return strategy.choosePosition(model, player);
     }
     return Optional.of(convert(cell));

@@ -16,13 +16,20 @@ import strategy.FallibleStrategy;
  * ProvideAvoidingNextToCornersStrategy represents an adapter pattern with provider's
  * AvoidingNextToCorners with our strategy interface.
  */
-public class ProvideAvoidingNextToCornersStrategy extends AvoidingNextToCorners
-    implements FallibleStrategy {
+public class ProvideAvoidingNextToCornersStrategy implements FallibleStrategy {
+  private final AvoidingNextToCorners strategy;
+  private final ReversiModel model;
+
+  public ProvideAvoidingNextToCornersStrategy(ReversiModel model) {
+    this.strategy = new AvoidingNextToCorners();
+    this.model = model;
+  }
+
   @Override
   public Optional<RowColPair> choosePosition(ReadOnlyReversiModel model,
                                              RepresentativeColor player) {
     PlayerTurn turn = player == RepresentativeColor.WHITE ? PlayerTurn.WHITE : PlayerTurn.BLACK;
-    Optional<CellPosition> cell = super.chooseCellPosition((ReversiModel) model, turn);
+    Optional<CellPosition> cell = strategy.chooseCellPosition(this.model, turn);
     if (cell.isPresent()) {
       Map<Direction, Integer> move = model.checkMove(convert(cell.get()), model.getTurn());
       int value = 0;

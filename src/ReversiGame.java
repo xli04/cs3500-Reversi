@@ -1,27 +1,17 @@
-import adapter.CombineModel;
-import adapter.ProviderAiPlayer;
-import adapter.ProviderFeatures;
-import adapter.ProviderGraphicView;
-import adapter.ProviderHumanPlayer;
-import adapter.strategy.ProviderCornersStrategy;
-import adapter.strategy.ProviderLongestPathStrategy;
-import adapter.strategy.ProviderFallBackStrategy;
-import adapter.strategy.ProviderCompleteStrategy;
-import adapter.strategy.ProvideAvoidingNextToCornersStrategy;
+import adapter.AdapterModel;
+import adapter.ProviderViewFeatures;
+import adapter.AdapterGraphicView;
 import controller.Controller;
 import controller.ControllerListeners;
 import model.ModelStatus;
+import model.MutableReversiModel;
 import model.Player;
+import model.RegularReversiModel;
 import model.ReversiAiPlayer;
 import model.ReversiHumanPlayer;
 import model.ReversiModelStatus;
-import strategy.AvoidCellsNextToCornersStrategy;
-import strategy.CaptureMaxPieces;
-import strategy.CompleteStrategy;
-import strategy.CompositeStrategy;
-import strategy.CornerStrategy;
+import reversi.provider.view.BasicReversiView;
 import strategy.InfallibleStrategy;
-import strategy.MinimaxStrategy;
 import view.IView;
 import view.ReversiGraphicView;
 
@@ -50,9 +40,11 @@ public class ReversiGame {
    */
   public static void main(String[] args) {
     ModelStatus status = new ReversiModelStatus();
-    CombineModel model = new CombineModel.ModelBuilder().setSize(6).setStatus(status).build();
+    MutableReversiModel model = new RegularReversiModel.ModelBuilder().setStatus(status).build();
+    AdapterModel adapt = new AdapterModel(model);
     Player player1 = new ReversiHumanPlayer();
-    Player player2 = new ProviderHumanPlayer();
+    Player player2 = new ReversiHumanPlayer();
+    DifficultyCreator creator = new DifficultyCreator(adapt);
     if (args.length != 2) {
       throw new IllegalArgumentException("Reversi game must has two players");
     }
@@ -63,16 +55,12 @@ public class ReversiGame {
         if (i == 0) {
           player = new ReversiHumanPlayer();
         } else {
-          player = new ProviderHumanPlayer();
+          player = new ReversiHumanPlayer();
         }
       } else {
         try {
-          InfallibleStrategy strategy = Difficulty.valueOf(type).getStrategy();
-          if (type.contains("PROVIDER")) {
-              player = new ProviderAiPlayer(strategy, model);
-            } else {
-            player = new ReversiAiPlayer(strategy);
-          }
+          InfallibleStrategy strategy = creator.getDifficultyCorrespondingStrategy(type);
+          player = new ReversiAiPlayer(strategy);
         } catch (IllegalArgumentException e) {
           throw new IllegalArgumentException("No such type of game player supported");
         }
@@ -86,7 +74,8 @@ public class ReversiGame {
       }
     }
     IView view = new ReversiGraphicView(model);
-    IView view2 = new ProviderGraphicView(model, new ProviderFeatures(model, player2));
+    IView view2 = new AdapterGraphicView(new BasicReversiView(adapt),
+        new ProviderViewFeatures(adapt, player2));
     Controller controller = new Controller(model, view, player1, status);
     Controller controller2 = new Controller(model, view2, player2, status);
     ControllerListeners listeners = new ControllerListeners();
@@ -96,76 +85,5 @@ public class ReversiGame {
     model.startGame();
   }
 
-  /**
-   * Represent a difficult for the strategies.
-   */
-  public enum Difficulty {
-
-    /**
-     * our most simple strategy, it will only looking for the position that can capture most
-     * * piece.
-     */
-    EASY(new CompleteStrategy(new CaptureMaxPieces())),
-
-    /**
-     * medium is based on the easy strategy and it will also prefer to take the corner
-     * positions first.
-     */
-    MEDIUM(new CompleteStrategy(new CompositeStrategy(new CornerStrategy(),
-        new CaptureMaxPieces()))),
-
-    /**
-     * For the medium plus, it not only has the behavior for the medium strategy,
-     * it also AvoidCellsNextToCorners.
-     */
-    MEDIUMPLUS(new CompleteStrategy(new CompositeStrategy(new CompositeStrategy(
-        new CornerStrategy(), new AvoidCellsNextToCornersStrategy()), new CaptureMaxPieces()))),
-
-    /**
-     * for the hard level, this strategy is minimax ,
-     * which means it will simulate the action and then take the best action.
-     */
-    HARD(new CompleteStrategy(new MinimaxStrategy())),
-
-    /**
-     * for the provider easy, this strategy is easiest strategy from the provider's
-     * strategies.
-     */
-    PROVIDEREASY(new ProviderCompleteStrategy(new ProviderLongestPathStrategy())),
-
-    /**
-     * for the provider medium, this strategy is combination of corner strategy and
-     * the strategy that find the position that can get the highest points.
-     */
-    PROVIDERMEDIUM(new CompleteStrategy(new ProviderFallBackStrategy(new ProviderCornersStrategy(),
-            new ProviderLongestPathStrategy()))),
-
-    /**
-     * for the provider hard, this strategy is the combination of CornersStrategy and
-     * the strategy that AvoidingNextToCorners.
-     */
-    PROVIDERHARD(new CompleteStrategy(new ProviderFallBackStrategy(new ProviderCornersStrategy(),
-            new ProvideAvoidingNextToCornersStrategy())));
-
-    private final InfallibleStrategy strategy;
-
-    /**
-     * Every level of difficulty will has a corresponding strategy.
-     *
-     * @param strategy the corresponding strategy
-     */
-    Difficulty(InfallibleStrategy strategy) {
-      this.strategy = strategy;
-    }
-
-    /**
-     * get the corresponding strategy fo this difficulty.
-     *
-     * @return the corresponding strategy
-     */
-    public InfallibleStrategy getStrategy() {
-      return strategy;
-    }
-  }
 
 }

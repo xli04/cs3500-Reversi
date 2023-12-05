@@ -1,5 +1,13 @@
 --------------------------------------------------HW8-----------------------------------------------------------------
-
+    All the features that in the provider's code works pretty well with our code include notify the view to repain,
+notify the user when is their turn, game is over and they can not plac a cell here. In order to let their view and
+strategy works with out view and controller and strategy correctly, first, we made a combine model, which used the
+method in our model to implement the method in provider's interface so that this combine model will not only be the
+type of our model but also a type of their model.
+For the view features, we have
+created a class and implement their feature interface with will take two parameters, a model and a player so that
+in the logic of key press and mouse click listener in provider's code, these listeners can interact with our new model
+correctly.
 
 --------------------------------------------------HW7-----------------------------------------------------------------
  1. Overview

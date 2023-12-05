@@ -16,12 +16,21 @@ import strategy.FallibleStrategy;
  * ProviderCornersStrategy represents an adapter pattern with provider's
  * Corners with our strategy interface.
  */
-public class ProviderCornersStrategy extends Corners implements FallibleStrategy {
+public class ProviderCornersStrategy implements FallibleStrategy {
+  private final Corners strategy;
+  private final ReversiModel model;
+
+  public ProviderCornersStrategy(ReversiModel model) {
+    this.strategy = new Corners();
+    this.model = model;
+  }
+
+
   @Override
   public Optional<RowColPair> choosePosition(ReadOnlyReversiModel model,
                                              RepresentativeColor player) {
     PlayerTurn turn = player == RepresentativeColor.WHITE ? PlayerTurn.WHITE : PlayerTurn.BLACK;
-    Optional<CellPosition> cell = super.chooseCellPosition((ReversiModel) model, turn);
+    Optional<CellPosition> cell = strategy.chooseCellPosition(this.model, turn);
     if (cell.isPresent()) {
       Map<Direction, Integer> move = model.checkMove(convert(cell.get()), model.getTurn());
       int value = 0;
@@ -33,7 +42,8 @@ public class ProviderCornersStrategy extends Corners implements FallibleStrategy
       }
     }
     if (cell.isEmpty()) {
-      ProviderLongestPathStrategy strategy = new ProviderLongestPathStrategy();
+      ProviderLongestPathStrategy strategy =
+          new ProviderLongestPathStrategy(this.model);
       return strategy.choosePosition(model, player);
     }
     return cell.map(this::convert);

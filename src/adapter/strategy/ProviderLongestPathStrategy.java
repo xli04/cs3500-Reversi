@@ -16,12 +16,20 @@ import strategy.FallibleStrategy;
  * ProviderLongestPathStrategy represents an adapter pattern with provider's
  * LongestPath with our strategy interface.
  */
-public class ProviderLongestPathStrategy extends LongestPath implements FallibleStrategy {
+public class ProviderLongestPathStrategy implements FallibleStrategy {
+  private final LongestPath strategy;
+  private final ReversiModel model;
+
+  public ProviderLongestPathStrategy(ReversiModel model) {
+    this.strategy = new LongestPath();
+    this.model = model;
+  }
+
   @Override
   public Optional<RowColPair> choosePosition(ReadOnlyReversiModel model,
                                              RepresentativeColor player) {
     PlayerTurn turn = player == RepresentativeColor.WHITE ? PlayerTurn.WHITE : PlayerTurn.BLACK;
-    Optional<CellPosition> cell = super.chooseCellPosition((ReversiModel) model, turn);
+    Optional<CellPosition> cell = strategy.chooseCellPosition(this.model, turn);
     if (cell.isPresent()) {
       Map<Direction, Integer> move = model.checkMove(convert(cell.get()), model.getTurn());
       int value = 0;

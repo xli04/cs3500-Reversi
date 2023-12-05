@@ -11,16 +11,17 @@ import model.RepresentativeColor;
  * ProviderController represents an adapter pattern with provider's ViewFeatures with our
  * controller so that we don't need to modify our controller.
  */
-public class ProviderFeatures implements ViewFeatures {
+public class ProviderViewFeatures implements ViewFeatures {
   private final ReversiModel model;
   private final Player player;
+
   /**
    * Construct the controller with given parameters.
    *
    * @param model  the current model
    * @param player the player that will interact with this controller
    */
-  public ProviderFeatures(ReversiModel model, Player player) {
+  public ProviderViewFeatures(ReversiModel model, Player player) {
     this.model = model;
     this.player = player;
   }

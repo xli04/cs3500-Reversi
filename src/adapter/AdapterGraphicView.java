@@ -13,34 +13,34 @@ import view.IView;
  * ProviderGraphicView represents an adapter pattern that using the provider's BasicReversiView
  * logic with our view interface so that provider's view can be used in our controller.
  */
-public class ProviderGraphicView extends BasicReversiView implements IView {
+public class AdapterGraphicView implements IView {
   private final ViewFeatures features;
+  private final BasicReversiView view;
 
   /**
    * Constructs a ReversiView with the given ReadOnlyReversiModel.
    *
-   * @param model takes in a ReadOnlyReversiModel to allow the view to access information about the
-   *              current state of the model.
+   * @param features the features that will be added in this view.
    */
-  public ProviderGraphicView(reversi.provider.model.ReadOnlyReversiModel model,
-                             ViewFeatures features) {
-    super(model);
+  public AdapterGraphicView(BasicReversiView view, ViewFeatures features) {
+    this.view = view;
     this.features = features;
   }
 
   @Override
   public void display() {
-    super.display(true);
+    view.display(true);
   }
 
   @Override
   public void addFeatures(Features features) {
     // the provider features will be added in to provider's view in the main.
-    super.addFeatureListener(this.features);
+    view.addFeatureListener(this.features);
   }
 
   @Override
   public void showMessage(String s) {
+    // the logic of showing message is in provider's view.
   }
 
   @Override
@@ -60,7 +60,7 @@ public class ProviderGraphicView extends BasicReversiView implements IView {
 
   @Override
   public void update(ReadOnlyReversiModel model, RepresentativeColor player) {
-    super.update();
+    view.update();
     if (model.isGameOver()) {
       GamePiece piece = GamePiece.BLACK;
       if (model.getWinner() == RepresentativeColor.WHITE) {
@@ -69,10 +69,10 @@ public class ProviderGraphicView extends BasicReversiView implements IView {
         piece = GamePiece.EMPTY;
       }
       PlayerTurn turn = piece == GamePiece.BLACK ? PlayerTurn.BLACK : PlayerTurn.WHITE;
-      super.showGameOverMessage(turn, piece);
+      view.showGameOverMessage(turn, piece);
     }
-//    if (!model.isGameOver() && model.getTurn() == player) {
-//      super.notifyPlayer();
-//    }
+    if (!model.isGameOver() && model.getTurn() == player) {
+      view.notifyPlayer();
+    }
   }
 }

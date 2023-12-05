@@ -31,7 +31,7 @@ public final class RegularReversiModel implements MutableReversiModel {
    * @param size size of the board
    * @param status the status that represents the most recent states of game
    */
-  private RegularReversiModel(int size, ModelStatus status) {
+  protected RegularReversiModel(int size, ModelStatus status) {
     if (size < 2) {
       throw new IllegalArgumentException("Invalid board size");
     }
