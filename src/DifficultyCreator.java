@@ -92,7 +92,7 @@ public class DifficultyCreator {
      * the strategy that AvoidingNextToCorners.
      */
     PROVIDERHARD(new CompleteStrategy(new ProviderFallBackStrategy(new FallbackStrategy(new Corners(),
-      new AvoidingNextToCorners()),model)));
+      new AvoidingNextToCorners()), model)));
 
     private final InfallibleStrategy strategy;
 
