@@ -1,0 +1,220 @@
+____________________________________________________________________________________________________
+                               _____                         _
+                              |  __ \                       (_)
+                              | |__) |_____   _____ _ __ ___ _
+                              |  _  // _ \ \ / / _ \ '__/ __| |
+                              | | \ \  __/\ V /  __/ |  \__ \ |
+                              |_|  \_\___| \_/ \___|_|  |___/_|
+____________________________________________________________________________________________________
+
+Gameplay Overview:
+
+Reversi is a two-player game that is played with a grid of cells. Each player has either black or
+white game pieces. The pieces are small discs that are black on one side and white on the other. The
+game begins with an equal amount of black and white pieces in the center of the board which looks
+like this, with black as X and white as 0:
+                                              _ _ _
+                                             _ X O _
+                                            _ O _ X _
+                                             _ X O _
+                                              _ _ _
+
+Black goes first and can either play a move or pass their turn. Black can move anywhere on the board
+where there is at least one adjacent white disc, there can be more in a row, and at the end of the
+white discs there must be a black disc. There cannot be any empty spaces in between any of the discs
+or the move is not valid. This is the same for white. A player must pass if they have no valid move
+that they can make. The game is over once the board has been completely filled, the board is all one
+color, or both of the players pass there turn in a row.
+
+Code Overview:
+
+This code is aiming to create an accurate representation of the game explained above. It assumes a
+working knowledge of how classes and interfaces work. It contains all the necessary elements to play
+the game, it allows the game to be created and played and it provides methods that allow for
+observations about the game state to be made. At this point the code does not have a way for players
+to interact or view the game other than in a test class where the turn methods can be called and a
+text view of the model can also be called.
+
+Quick Start:
+
+Below is a snippet of code that shows how the game can be played-
+
+@Test
+public void testExampleGamePlay() {
+  ReversiModel test = new BasicReversi();
+  test.startGame(4);
+  TextualView textView = new ReversiTextView(test);
+
+  test.playTurn(new CellPosition(-1, -1, -2)); // Black Move
+  test.playTurn(new CellPosition(-1, 2, 1)); // White Move
+  test.playTurn(new CellPosition(1, 1, 2)); // Black Move
+  test.playTurn(new CellPosition(-1, -2, -3)); // White Move
+  test.playTurn(new CellPosition(-2, 1, -1)); // Black Move
+  test.playTurn(new CellPosition(2, -1, 1)); // White Move
+  test.playTurn(new CellPosition(1, -2, -1)); // Black Move
+
+  System.out.println(textView);
+}
+
+Output-
+               _ _ _ _
+              _ _ O _ _
+             _ X X X X _
+            _ _ X _ O _ _
+             O O X X O _
+              _ _ X _ _
+               _ _ _ _
+
+Key Components:
+
+The key components in the code are the model and the view. The model is driven by a controller that
+will be added later on, and the view is driven by the data in the model. The model is what allows
+the game to be played and the view is what allows the game to be seen.
+
+Key Subcomponents:
+
+The Model
+    The first major element in the model is the ReversiModel interface. This interface represents a
+    game of reversi, it contains all of the methods that any version of the game would need to run
+    correctly.
+    The next element is the BasicReversi class that implements the ReversiModel interface, this
+    represents a very basic game of reversi. There are no rule deviations and this is the base for
+    any other future versions of reversi. The most important methods within the class are:
+    startGame, isGameOver, passTurn, and playTurn
+    These methods allow the game to be started, they allow the players to pass or play their turn
+    and they determine when the game is over and stop allowing the players to take turns.
+    Within the Basic Reversi there are two different Enums used. The first is PlayerTurn, this
+    represents whose turn it currently is, whether it is black or white and this is only changed in
+    the passTurn and playTurn methods. The second is GamePiece, this represents the piece that is in
+    a cell, the options are black, white, or empty. The black and white pieces are the discs and
+    empty represents a cell that has not been filled with a piece yet.
+    The last important thing in the model is the CellPosition class, this is referred to as a cell
+    or CellPosition in different places within the code. This class represents a spot on the board
+    where a player can make a move. All pieces on the board are in a cell, this is represented in
+    the board in the BasicReversi class the piece that is in the cell is not a part of the
+    CellPosition class.
+The View
+    The main elements in the view are the TextualView interface and the ReversiTextView class that
+    implements the TextualView interface. The interface only has one method which is toString. This
+    method allows a textual representation of the current state of the game to be seen. The textual
+    representation that the toString method creates has been shown above in the Quick Start section.
+
+Source Organization:
+
+The majority of the code can be found in the cs3500.reversi package withing the src directory. All
+components of the model: ReversiModel, BasicReversi, PlayerTurn, GamePiece, and CellPosition can be
+found within cs3500.reversi.model. All components of the view: TextualView and ReversiTextView can
+be found withing cs3500.reversi.view. Any tests run on the code can be found in the test directory
+under TestModel.
+
+Changes to Part 2
+
+The Model
+    In the model we added another interface called ReadOnlyReversiModel. This interface only
+    contains observations about our model, such as the board length and different information about
+    each cell based on the coordinates given. Then, we extended our ReversiModel interface to have
+    all the methods in ReadOnlyReversiModel, but also contain methods that will update and change
+    the model.
+    Within ReadOnlyReversiModel, we moved any methods from ReversiModel that were only observations.
+    Additionally, we added a few more methods, such as playerContainsLegalMove, getPlayerScore,
+    coordinateContainsLegalMove, and contentOfAGivenCell. These methods were not initially added
+    since we had not quite considered what information we would need when building the model. Most
+    of them take in a coordinate and return some type of information about that coordinate, which
+    will be useful when trying to display the model, and knowing whether we need to draw a piece
+    and what color it will be.
+The View
+    In the view we have changed from a textual based view to a visual on using the JSwing library.
+    We have added 4 new classes/interfaces to the view: HexagonButton, JReversiPanel,
+    BasicReversiView, and ReversiView. Currently the ReversiView interface does not have any methods
+    other than display because we are not entirely sure what all our interface will need to
+    accomplish. In the next assignment we plan to add the needed methods and implement them in our
+    ReversiView class which implements this interface.
+    The next important class is the BasicReversiView class, this class extends JFrame and allows us
+    to add a JPanel to the frame so we can display our Reversi game board. This class also handles
+    key events so we are able to press "P" to pass a turn and "m" to move a piece to a certain cell.
+    The next class is our JReversiPanel, this class is where the game board is actually created. Our
+    board is created by drawing and filling a list of HexagonButtons that contain information about
+    what color it is and the game piece that it currently has, if any. It also handle mouse clicks,
+    it highlights a clicked hexagon cyan and then turns it back to gray if clicked again, if another
+    cell is clicked, or if the click is not on the game board. This class displays the current state
+    of our model by updating the game pieces in the HexagonButtons.
+    The HexagonButton class is extremely important in the creation of our view because it contains
+    the path of the hexagon, the game piece in the hexagon, and the starting x and y position of the
+    path of the hexagon. This x and y components are particularly important because they allow all
+    of the hexagons to be created all at once then drawn all at once. This is because the path of
+    the hexagon in the HexagonButton contain the coordinates of where is should be in the JPanel, so
+    after their creation we do not have to worry about placing them in the correct position on the
+    JPanel.
+The Strategy
+    For the strategy, we created a interface called ReversiStrategy that represents the strategy
+    that the player can implement to play against an AI. This interface only contains one method,
+    which returns the CellPosition of where the called strategy will move.
+    Currently, there are three different types of strategies that can be played. The first and most
+    common one is LongestPath, where the method will return the longest possible path that the AI
+    can find, left-upmost if there are multiple. The Corners class checks each of the corners to see
+    if they can be played, since those are the best moves in the game. The last class is avoiding
+    any spots next to the corners; however, this class does not fully work correctly, and we will be
+    modifying it as we add more to the Strategy class.
+The Controller
+    The interface in the controller currently is Player, which represents a player of the game. The
+    method within it is take turn, allowing the player to take their turn.
+    The only classes in controller at the moment is BasicPlayer, which represents one player of the
+    game. This player can either be a person trying to play and interact with the game, or can
+    include a type of strategy to play against.
+
+Changes to Part 3:
+
+The Model
+    In our model we added a new interface called ModelFeatures which allowed for us to add our
+    controller as a listener in our model. Our model features interface has methods that when called
+    let the controller know what state the model is in. It allows the controller to send updates to
+    our view based on changes in our model for example taking a turn, will let the controller know
+    that the turn has been taken, the board needs to be updated, and if the game is over or not.
+    This function was added in a helper method that switches the player turn, and when the turn
+    switches it sends information to our controller.
+    We also added the addFeatureListener method to out ReadOnlyReversiModel so we could add out
+    controller as a listener. We also added one more observer method that gets the current player.
+The View
+    In our view we added a new interface called ViewFeatures which allowed for events that happened
+    within our view to send signals to our controller to update our model if needed.
+    We also added several methods to the ReversiView interface, one of which was addFeatureListener
+    so we could add our controllers as listeners for the View. We also added a method to update the
+    board, and methods that notified the players about states in the game. We have a notification
+    for if it is their turn, black gets the notification first at the start of the game, unless
+    black is an ai and white is human then white will receive the notification. We also have invalid
+    move popups that say if the attempted move is invalid. We also added a game over message, it
+    shows up on both views no matter if the player is an ai or not it indicates who won and who
+    lost. For example if black won then on the black view it would show up as Black won! and on the
+    white view it would show up as White lost.
+    We also updated BasicReversiView to send information back to the controller and we updated it so
+    that when a move is made the view gets updated immediately.
+    The last part of view that was updated was the JReversiPanel, we just made it so if it is not
+    the players turn or if the game is over then they could not attempt to make any moves.
+    Another aspect in our view that we included last time is that when it is a player's turn and
+    they are clicking cells and highlighting them cyan, if a cell already has a game piece in it the
+    cell cannot be clicked. This prevents players from trying to make a move in a cell that already
+    has a piece, which would be invalid.
+The Strategy
+    The strategy originally returned null when there was no move that could be played, but we
+    changed it to return an optional move. To do this, we added another interface called
+    FinalReversiStrategy that would take in a strategy, and either return the CellPosition of where
+    to be moved, or throw an exception that would be caught later and interpreted as a passTurn.
+    The strategy to avoiding next to corners is now fully functional; however, it acts as its own
+    strategy, as for it does not need a fallback like going for the corners does. It will find the
+    most optimal path (longest path), but it will avoid any cell next to a corner, even if there are
+    no other moves. Another class that we created in the FallbackStrategy, which takes in two
+    strategies, and if the first one does not return a CellPosition, then it will call the next one.
+    This is useful for strategies such as corners, which only checks the corners, then to use a
+    strategy such as longest path which will find an option, unless there are none to play.
+The Controller
+    In our controller we added the controller class that connects the model and the view together.
+    It implements the ViewFeatures interface and the ModelFeatures interface so that it can listen
+    to event in both the model and the views and act as a go between for them. It also includes a
+    method that allows for an ai to play rather than a human as the inputs are different for them.
+    It does however update the view in the same manner whether or not the player is human or ai,
+    with one exception, it blocks the notification for a players turn if it is an ai because an ai
+    will automatically play when it is their turn, there is not waiting to find out if it is their
+    turn or waiting to make the move, so ai does not need that notification. Another choice we made
+    was to not block the game over message if it is an ai playing, this is because the ai does not
+    make any moves once the game is over so both the ai and humans should be notified, our game over
+    message is a simple popup that indicated to the view if that player won or lost.
