@@ -11,7 +11,7 @@ import java.util.Map;
  * a line with opposite color cells. The user may choose to pass if there is no
  * valid move or they just want to do it.
  */
-public class RegularReversiModel implements MutableReversiModel {
+public final class RegularReversiModel implements MutableReversiModel {
   private static final int DEFAULT_SIZE = 6;
   //INVARIANT: size is greater than 1.
   private final int size;
@@ -31,7 +31,7 @@ public class RegularReversiModel implements MutableReversiModel {
    * @param size size of the board
    * @param status the status that represents the most recent states of game
    */
-  protected RegularReversiModel(int size, ModelStatus status) {
+  private RegularReversiModel(int size, ModelStatus status) {
     if (size < 2) {
       throw new IllegalArgumentException("Invalid board size");
     }
