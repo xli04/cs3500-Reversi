@@ -39,11 +39,14 @@ public class ReversiGame {
    * @param args the default constructor
    */
   public static void main(String[] args) {
+    //create a model of our type and give it to the adapter
     ModelStatus status = new ReversiModelStatus();
     MutableReversiModel model = new RegularReversiModel.ModelBuilder().setStatus(status).build();
     AdapterModel adapt = new AdapterModel(model);
     Player player1 = new ReversiHumanPlayer();
     Player player2 = new ReversiHumanPlayer();
+    //difficulty creator takes in the adapter model whose delegate is our model
+    //allows their strategy to use our model
     DifficultyCreator creator = new DifficultyCreator(adapt);
     if (args.length != 2) {
       throw new IllegalArgumentException("Reversi game must has two players");
@@ -52,11 +55,7 @@ public class ReversiGame {
       Player player = new ReversiHumanPlayer();
       String type = args[i].toUpperCase();
       if (type.equals("HUMAN")) {
-        if (i == 0) {
-          player = new ReversiHumanPlayer();
-        } else {
-          player = new ReversiHumanPlayer();
-        }
+        player = new ReversiHumanPlayer();
       } else {
         try {
           InfallibleStrategy strategy = creator.getDifficultyCorrespondingStrategy(type);
@@ -73,9 +72,13 @@ public class ReversiGame {
         player2 = player;
       }
     }
+    //Provider view features is an implementation of their features
     IView view = new ReversiGraphicView(model);
     IView view2 = new AdapterGraphicView(new BasicReversiView(adapt),
         new ProviderViewFeatures(adapt, player2));
+    //we are using their view to implement our adapter view so that their view
+    //is a type of our view Iview, so that the controller can work both
+    //views
     Controller controller = new Controller(model, view, player1, status);
     Controller controller2 = new Controller(model, view2, player2, status);
     ControllerListeners listeners = new ControllerListeners();

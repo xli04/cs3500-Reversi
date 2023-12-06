@@ -1,14 +1,369 @@
 --------------------------------------------------HW8-----------------------------------------------------------------
-    All the features that in the provider's code works pretty well with our code include notify the view to repain,
+    All the features that in the provider's code works pretty well with our code include notify the view to repaint,
 notify the user when is their turn, game is over and they can not plac a cell here. In order to let their view and
-strategy works with out view and controller and strategy correctly, first, we made a combine model, which used the
-method in our model to implement the method in provider's interface so that this combine model will not only be the
-type of our model but also a type of their model.
+strategy works with out view and controller and strategy correctly, first, we made an adpater model,
+ which uses a concrete implemenation of our model interface as an adptee / delegate and implements the
+  provider's model interface.
+
 For the view features, we have
 created a class and implement their feature interface with will take two parameters, a model and a player so that
 in the logic of key press and mouse click listener in provider's code, these listeners can interact with our new model
 correctly.
 
+ Overview
+    The goal of our codebase is to allow games of reversi that follow the rules of Regular Reversi
+    to be played between two players. There is no pre-requisite knowledge required beyond
+    understanding how to make moves and how to play games of Reversi. Our code is intended for
+    extensibility, so that new features, like configurable hotkeys personalized for each player
+    can be easily added without changing our code very much. Our components (view, controller,
+    and model) are decoupled from implementations as much as model and are dependent on interfaces,
+    so any model, view, or controller, or combination thereof, that sticks with our interface
+    should be able to work with our game of reversi. This means that our code is designed to support
+    future new ways of viewing games of reversi and new ways (for example new rules, new start
+    positions, new board sizes, new ways to determine things like score and isGameOver, etc.) of
+    modeling games of Reversi. Another feature of our code base is that its components are swappable.
+    We are able to allow one game of reversi to be played on the same model with two different views.
+    Even if the view is from a different code base, thanks to adapters, we were able to translate
+    the new view's code to work with our model.
+
+    Some assumptions that we make in our codebase:
+    -Players can be either human players (that will make their move by interacting with our view,
+    via command line arguments, GUI buttons, or other mechanisms), or AI Players (that will use
+    some form of strategy to select their moves)
+
+ 2. Quick Start
+ User can choose the type of players in the reversi game by themselves by entering two additional strings
+  after type the java -jar NameOfJARFile.jar. ex. java -jar NameOfJARFile.jar human human means this game
+  will be played by two human players, there are four types of ai players offered, easy, medium, mediumplus
+  and hard.
+ Player can select/deselect the cell by CLICKING the hexagon they want to select, and if this is in their
+    turn, the message"it's your turn" will be showed in the north panel net to the current turn
+    they can choose to press ENTER to place a cell in the position they selected or press SPACE
+    to pass the turn. If the move is invalid, the player will receive a message to notify them, and if
+    in this turn, there is no valid move for the current user, a warning will be showed in the north panel
+    next to the current turn that this player can only pass, under this circumstance, if the player still wants
+    to place a move, that player will be notified that can only choose to pass. Once one of the player take an
+    action, the up to dated states of game will be updated to the north panel include the current score for
+    both player and the curren turn and the board will be repaint to show the most recent states for the model.
+    If the game is over, both of the players will be notified that game is over with the winner of this game.
+
+A user may get started using our controller codebase by interacting with one of our view interface
+    implementations. Once the game is begun, players will be able to interact with our GUI
+    by selecting a tile for which to place their color. When a tile is selected, its display
+    color will become Cyan, indicating  that this is their selection. Tiles can be unselected and selected
+    by clicking out of bounds,or by clicking to other tiles. When a user wants to make move, they can click
+    the enter key when they have a selected tile. If the move is valid, it will go through and the corresponding
+    internal game logic and external view of the game will be updated, with the selected tile
+    being changed to the color of the player who just made the move. If the move is invalid, they
+    will know this because the actual color of the selected tile will not be changed to the color
+    of the player whose turn it is. What's more is there will be a message to notify the user their
+    move is invalid. For players interacting with other forms of views, like
+    textual views, and we had a game in progress called 'game', a sample user interaction may
+    look like this: “game.placeMove(new RowColPair(3,-1), RepresentativeColor.WHITE)". The controller
+    would then refresh the view, which, via dynamic dispatch, would call the render() for the textual view.
+
+A user may get help by click the hint button, the valid position and the number of the cell can be
+    flipped when the user placed a cell here will be marked on that particular hexagon these hints
+    will only be shown when the current turn is same as the color that the player placing for, ex
+    black player cannot see the hints for white player, and if black player click the hint button,
+    the white player still can not see the hints. If the user do not need the hints anymore, just
+    reclick the hint button, the board will be repainted and the hints will be erased.
+
+    If a user wants to make the legal move at (3, -1) in white as described above, by clicking
+    on the tile in our GUI view,
+    the path of callbacks and delegation will be as follows:
+    -ReversiGUIView is listening for low-level events like Key-press. This triggers the low-level
+     event of a pressed key
+     -The GUI view translates the low level event of the key press from user clicked at
+      (3, -1) and press enter into a high level event in that is a request to place a move, as
+      outlined in the features interface. This high-level event would be broadcast to all of the
+      view's feature subscribers
+      -Since the controller implements the features interface, its callback that the user is trying
+      to make a move would get triggered.
+    -The controller will check if the move is valid. Since it is, try to apply the move to the model.
+    If the model accepts the move as valid, the model will apply it. The model will then notify
+    all of its listeners that it has been modified.
+    -Since the controllers all listen to the model, the controllers would tell each of their respective
+    views to refresh, which might involve repainting for GUIs or rendering for textual views. Once all
+     the views are refreshed, the changes to the board would be visible to both players in the game,
+     even though only one of the players made the move.
+
+ 3. Key Components
+ Interactions between components
+Main        |         Model         |           Each Controller...  |           Each View         |  Player      |
+__________________________________________________________________________________________________________________
+config      | addListeners() <------|------ sets itself as listener |                             | AI players    |
+step        | ReadOnlyModel <-------|-------------------------------|--------receives instance of | are assigned  |
+(before     | MutableModel <--------|-----receives instance of      |                             | a strategy,   |
+startGame() |                       |     receives instance of------|---------->GUIView           |human players  |
+is called   |                       |     sets itself as a listener---------->addFeatures()       |are each assigned|
+            |                       |                               |                             | one view and  |
+            |                       |                               |                             |one controller |
+____________|_______________________|_______________________________|_____________________________|_______________|
+startGame() |model broadcasts to all|                               |                             |               |
+is called on|of its listeners that--|------>each controller updates |                             |                |
+the model   |it has been changed-   |     its internal logic        |                             |                |
+            |                       |           ↓                   |                             |                |
+            |                       |     each controller tells its |                             |                |
+            |                       |       corresponding view-----|----->each view repaints------|->each player   |
+            |                       |        to refresh            |                              | has a GUI they |                            |
+            |                       |                              |                              | can interact w/|
+            |                       |                              |                              |                |
+___________________________________________________________________________________________________________________|
+after       | move/pass applied<----|-----controller notified of <--|-------low level event<------|clicks a button |
+            |  ↓                    |    features event, tries to   |   converted to features     |or presses a key |
+startGame() |  ↓                    |      make the move/pass       |     event, broadcasted to   |to make a move  |
+is called   |model broadcasts to all|                               |     features listeners      |       ↑        |
+            |of its listeners that--|------>each controller updates |                             |       ↑        |
+            |it has been changed-   |     its internal logic        |                             |       ↑        |
+            |                       |           ↓                   |                             |       ↑        |
+            |                       |     each controller tells its |                             |       ↑        |
+            |                       |       corresponding view-----|----->each view repaints------|->each player   |
+            |                       |        to refresh             |    and displays             | sees an updated|
+            |                       |                              |      relevant                | view of board  |
+___________________________________________________________________________________________________________________
+***NOTE: Eventually, the controller, when updating itself after the model notifies the controller
+that the model has been changed, will realize in that the game is over. When this occurs,
+the player will stop being able to make moves, since the controlller will not relay
+features events to the model anymore. ****
+
+Interactions with adapters
+Suppose we have a game between 2 human players: player A (which uses our code base's view) and player
+B (whose view has been provided and integrated into our codebase with an adapter)
+The communication looks like this:
+
+Player A
+- Has a GUI view implementation that is already compatible with our Regular Reversi Model (let's call it view A)
+- When Player A makes a move...
+1. Player clicks a button to try to make a move
+2. view interprets a low-level event from its button / action listeners
+3. view translate the low-level event of the key being pressed into a request to make a move, this
+is a features method, features event gets triggered
+4. Controller is a features implementer, so it listens for features events. So, the controller gets
+notified that the player is trying to make a move
+5. controller tries to apply the move to the model
+6. if the move is legal, the model will make the move→
+7. The model knows it has been updated, since the model just made a move. Now the model will broadcast
+to all of its listeners that a move has been made
+8. Player A's  controllers listens to the model, controller A will be notified that the model has
+changed
+9. Controller A will update internal logic (if they keep track of turn, game state, etc. , for
+example re-checking if game is over)
+10. Controller A will update its  IView implementation (our view , so now both views are updated by
+one player making a move
+
+Player B
+- Has an adapter for a view implementation that is made by our provider (let's call it view B)
+- When Player B makes a move...
+1. Player does the low level event to try to make a move (we don't know if it is a button press,
+mouse click, key press, etc.)
+***ADAPTER***
+Our AdapterGraphicView translates serves as an adapter from their GUI implementation into an
+IVIew (our view interface implemenation). It uses the plaery B's view as the delegate, so the
+adapter's delegate is implicitly changed
+2. view interprets a low-level event from its button / action listeners via the providers' view
+features
+3. view translate the low-level event of the key being pressed into a request to make a move, this
+is a features method, features event gets triggered
+***ADAPTER**
+Our Provider's GUI implementaion is a delegate adaptee for our AdapterGraphicView. So, the reference of
+AdapterGraphicView is queried which then triggers its features object adapter: ProviderViewFeatures
+(our provider's features). These features relay our adapterGraphicView's feature events directly
+to the model.
+4. The AdapterModel gets updated in some way by the ProviderViewFeatures. This adapter uses our model as
+an adaptee / delegate. The model that gets passed as the delegate for our AdapterModel is the same model
+being used for player A. This ensures that each player can have their own view but they still share
+ the same model. Even though there are 2 model classes: our model and the adapter model,
+  the adapter model's delegate adaptee is the same model as ours and they are both referencing the
+  same object, so the same model is shared
+5. We have controller B which is an instance of our controller that contains an Iview implementatino
+ that happens to be the AdapterGraphicView, but all the controller knows is that it is an IView.
+ The controller B tries to apply the move to the model adapter by using its MutableModel implementation,
+ whcih happens to be an adapter model instnace, which delegates to the same model mentioned above,
+ a reference to our model (the same model shared by each player in the game)
+6. if the move is legal, the model will make the move→
+7. The model knows it has been updated, since the model just made a move. Now the model will broadcast
+to all of its listeners that a move has been made, which are the provider's model features
+8. Player B's  controllers listens to the model, controller B will be notified that the model has
+changed
+9. Controller B will update internal logic (if they keep track of turn, game state, etc. , for
+example re-checking if game is over)
+10. Controller B will update its  IView implementation (our provider view adapter , so now both views
+ are updated by one player making a move
+
+
+The IView
+ our Iview Represents a view for the reversi game, it contains several common methods that all the views
+ may share. For example, update is used to repaint the board to the player once the model was changed, and
+ show message is used to notify the user if the move is invalid or they can only choose to pass.
+
+Graphic View
+ our Graphic view contains a board to show the current states for the board of game and a panel that s
+ hows the current turn in the game and score for both black and white players, and the hasToPassWarning.
+ It also has a hint button used to determine whether the player wants to get some hints. if the current
+ turn matched with player's represent color we will notify the user it's your turn to place. If the game
+ is over, we will also congratulate the winner.
+
+Features
+ we used a Features Interface in order to translate these low-level events into actions
+ that can be taken care of in the Controller. This allows our controllers to be decoupled from
+ views, and be able to be flexibile with any view implementations, This also allows the controller
+ to not be closely tied to a specific library - like Java Swing, which is good for future extension
+ and separating the roles of the View and Controller from each other. the controller registered itself
+ as a listener to both of the model of view, so that the user can interact with view to make actions
+ in the in the model according to the controller, and once the model was changed, the controller can notify
+ the view to repaint the board.
+
+The controller
+ Represents an asynchronous controller for a game of reversi. Controllers are event-driven and
+ respond to whatever event happens at a given time. The job of controllers are to control the
+ flow of Reversi Games by determining when and how to update the model, as well as how and when to
+ update the view that they use. Controllers opearte on the interface level, so they will refresh
+ their views in a way that is abstracted into the specific implementation. A GUIview implementation
+ might refresh by repainting, whereas a textual view might refresh by render()ing again.
+
+KeyBoard And Mouse Lock
+ Once the players in this game is one human player and one Ai player, our controller will let the view and
+ HexGrid to lock the key board and mouse events for the ai player, so that the human player can not mark
+ a cell as selected nor actual make an action for ai player. This will prevent the human player from
+ bothering the ai player.
+
+Start Game and List<ModelListener> in the model
+ Since there should be a clear distinction between “setting everything up” and “actually playing the game”.
+ our view and controller can paint the board before the game started. the start game method will first set the
+ player who will place first to black and notify all the views and controllers that the game is started, the
+ message related to the game state like the current turn, current score.etc will be shown and the player can
+ start to place the cell on the board. Whenever the model knows it is changed (for example it successfully
+ starts the game or makes a move), the model broadcasts to all its listeners that it has been changed.
+ Each listener decides for themselves what to do when the model is changed.
+
+MockView
+ We have a MockView in the view package that used for test only, Since we only want to test if the view interact
+ with other components correctly as we expected, it will only take a string builder as the
+ parameter, since we don't want the view actually draw the stuffs when we test it. The StringBuilder serves as a log and is used to
+ help us determine if the view interact with the other components as we expected. For example, if the one of the
+ play took an action, the controller will call the view to let it toggle the turn, at this time, we will add a
+ message "You have toggle the turn to the given color" to show that the view interact with our controller correctly.
+
+ Player
+ For the players, we have two classes to represent two different kinds of players, human player and Ai player
+ and they share a common player interface which contains a very important methods isAiPlayer() this is used to
+ ask the player to choose for the next move if it is an ai player since human player will interact with the view
+ and press keys to place move and make pass. And fot the method in the player to let the player choose the next
+ move, we set the return value to Optional<RowColPair> so that for our human player is can return optional.empty
+ rather than null, and our controller do not need to handle null values.
+ The logic of take actions for players is if the current turn matched player's represent color, then that player
+ can do all the actions (ex. placing move, selecting cell, making pass, show hints) and if the current turn doo not
+ matched player's represent color, then that player can only mark the cell, all the other commands will be rejected.
+ The player will not know their color when they joined the game, they will get assigned color when the startGame()
+ method got called, the player that first join the game will play for the black cell, the player that second join
+ the game will play for white cell, since our current game can only has two players, only two kinds of color will be
+ assigned to the players.
+
+***Hint Button***
+ We add a hint button in to our north panel, the logic of this hint button is first we will find all the position
+ that can make a move with the current player's color and store the position and the cell that placing here can
+ flip as a Map<RowColPair, Integer>, then we will based on this position and integers to draw a number on that position
+ means the cells that can be flipped if you place here. If the player click the button, controller will show
+ show the hints for the players, and if they click the button again, the controller will let the view hide the hints.
+ What' more, the show hints or not is independent for each players, that is, if the black player choose to show
+ the hints, the controller will not show the hints for white player and the view will not show the show the hints for
+ players if this is not their turn. The painting logic for the hints is, we will drawing the number on the
+ cell that can make a valid move, since this hint will only be drawn on an empty cell, that for sure, we don't need to
+ worry about the number was covered by the black circle, which used to mark this cell as been occupied by black player.
+
+ 4. Key Subcomponents
+
+ For each game, each human player will have its own view implementation (ex. a GUI view or a
+ textual view), which will have its own controller. It is the responsibility of each
+ controller to update its corresponding view when the controller sees fit for updates.
+
+
+ Whenever a change occurs in the model (for example, the game is started or a move/pass is made),
+ the model will broadcast that it has been changed to all of its Model Listeners, and the
+ controllers that listen to model will be notified that the model has been changed and the
+ controller will update itself.
+ Updating the controller includes...
+ -Updating the current score for the black and white players
+ -Updating whose turn it
+ -Updating whether the player who will play in the  next turn is a human player or not
+ -Checking if there are no valid move on the board, and if this is the case,
+  notifying the model that the player that must pass (since they have no valid moves) .
+ -Checking if the player who will play in next turn is an Ai player, and if this is the case, asking the player
+ to choose for the position and place it.
+ -Refreshing the view that is managed by that controller. The refresh is at the interface level,
+ so it leverages dynamic dispatch so that specific view implementation can refresh in the way
+ that it sees fit.
+
+ For the model status, we have A ReversiModelStatus class represents the current status for the game model,
+ once the player placed a move or made a pass or the start the game, the status of the game will be updated
+ in order to reflect the most recent status. so that in the controller, we will also take in a model status
+ as the parameter in order to track the status of the model more effectively. we initialize the status to
+ hasNotStart since every time when start the game, the status will be updated and also, players can not place
+ move or make pass before the game was started. we have four values to represent the current status for the game
+ END = The game has ended by 2 consecutive passes.
+ InProgress = the game has started and there are still legal moves on the board (at least
+ one legal move for black or for white).
+ HasNotStarted = startGame() has not been called yet.
+ Blocked = no valid moves, but the game is not over yet since the game has no passed.
+ Every time the player take an action(ex. place a move, make a pass or start the game), the status will
+ update itself so that we can always get the most recent status for our game.
+
+ In order to keep the human players away from bothering the ai players, we added some functionality to
+ lock the mouse event and key board event for ai player, so the human player can never mark a hexagon
+ or even actually take an action for ai players.
+
+We used an adapter pattern in order to integrate our library with our provider's library. Each library
+defines different interfaces that are technically different, but functionally similar. They are both
+libraries that use the MVC to play games of Reversi. We used adapter's to translate
+between the provider workalike equivalnet and our workalike equivalent. Our adapters favor composition
+over inheritance and impl. the target interface and use an underlying adaptee as a delegate. Each
+method from the target interface is translated into something that the adaptee knows how to do.
+If we have an object of type adaptee (for example our model) and the target is our provider's model
+interface, we want to be able to use our model in  a context where an object implementing their model
+interface is needed. The methods in our model and their model interface are close enough in
+functinoality since they both make moves, make passes, get some information about the game state, and
+set the game up for games of Reversi. We have classes like our AdapterModel that serve as a our model
+to provider model interface adapter. Our adapter model implements the proivder interface and uses a stored
+instance of our model to delegate to. If another component in our code like the view or
+controller want an instance of their model, then we can use one of our model implemenation in its
+place via the adapter.
+
+
+5. Source Organization
+    -In the src directory, we can find 3 packages
+      -Model → This package contains the interface and domain logic relative to the rules of Reversi
+        games, as well as other structures that our reversi models use to represent different features
+        of the game. For instance, our model holds the Direction class that is used to handle checking
+        if moves exist and executing moves on a certain direction.  This package also contains a Mock
+        model. This mock model is used to confirm that strategies are using the proper inputs in
+        order to check moves.
+      -Controller→ contains different classes that help run the brains of our reversi game.
+      We have a Controller class that represents an event-driven asynchronous GUI Controller.
+      The Controller serves to control the flow of Reversi Games by determining when and how to
+      update the model, as well as how and when to update the GUI view that they use.
+      -View → contains different classes that help display our game to the players. The view provides
+        interfaces for players to specify their desired move, and to observe the state of the game at
+        any time.
+      -Strategy -> contains different classes that help a player select a move, by using a specific
+      strategy. The strategy package outlines how we can compose strategies, as well as contains
+      specific implementations for different fallible and infallible strategies.
+      -Test: in the test directory, we may find a few packages:
+          Model, controller, and view packages:
+              Contains tests for components and their respective subcomponents whose package-visible
+              functionality that isn’t part of their public interfaces
+          (no package) / the default package:
+              Contains tests for the publicly visible signatures of our public interfaces
+              This will be the home for unit tests for individual components as well as integration
+              tests to measure communication between components (e.g. Between the view and controller)
+              Also Contains tests for our strategies, to see if they do in fact consider the values
+              of different moves and uphold their class signatures. For example, our fallible classes
+              should throw an exception when their strategy move type does not exist for a given
+              board state.
+
+Changes for part 4
+//TODO: Finish
+Changed the difficultyCreator class from an enum
 --------------------------------------------------HW7-----------------------------------------------------------------
  1. Overview
     The goal of our codebase is to allow games of reversi that follow the rules of Regular Reversi

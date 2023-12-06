@@ -3,18 +3,18 @@ package adapter;
 import java.util.HashMap;
 import java.util.Map;
 
+import model.CubeCoordinateTrio;
+import model.Direction;
+import model.Hexagon;
 import model.MutableReversiModel;
+import model.RepresentativeColor;
+import model.RowColPair;
 import reversi.provider.controller.Player;
 import reversi.provider.model.CellPosition;
 import reversi.provider.model.GamePiece;
 import reversi.provider.model.ModelFeatures;
 import reversi.provider.model.PlayerTurn;
 import reversi.provider.model.ReversiModel;
-import model.CubeCoordinateTrio;
-import model.Direction;
-import model.Hexagon;
-import model.RepresentativeColor;
-import model.RowColPair;
 
 /**
  * Combine model, represents a adapter pattern on our model and provider's model, the key
@@ -23,6 +23,7 @@ import model.RowColPair;
  */
 public class AdapterModel implements ReversiModel {
   private final MutableReversiModel model;
+
   /**
    * initialize the game with the given size. the 2 should be the smallest size for a board
    * to put in all the pre-positioned cells.
@@ -85,10 +86,7 @@ public class AdapterModel implements ReversiModel {
   @Override
   public int getPlayerScore(Player player) {
     PlayerTurn piece = player.getPlayer();
-    if (piece == PlayerTurn.BLACK) {
-      return model.getScore(RepresentativeColor.BLACK);
-    }
-    return model.getScore(RepresentativeColor.WHITE);
+    return model.getScore(translateTurnToRepColor(piece));
   }
 
   @Override
@@ -110,7 +108,7 @@ public class AdapterModel implements ReversiModel {
     } else if (color == RepresentativeColor.WHITE) {
       return GamePiece.WHITE;
     }
-    return GamePiece.BLACK;
+    return GamePiece.EMPTY;
   }
 
   @Override
@@ -181,5 +179,13 @@ public class AdapterModel implements ReversiModel {
   private CellPosition convertBack(RowColPair pair) {
     CubeCoordinateTrio trio = pair.convertToCube();
     return new CellPosition(-trio.getRow(), -trio.getRightCol(), trio.getLeftCol());
+  }
+
+  /**
+   *
+   */
+  private RepresentativeColor translateTurnToRepColor(PlayerTurn turn) {
+    //the only possible values for player turn are black and white
+    return turn == PlayerTurn.BLACK ? RepresentativeColor.BLACK : RepresentativeColor.WHITE;
   }
 }
