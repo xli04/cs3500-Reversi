@@ -5,7 +5,6 @@ pretty general and they are all necessary to support the code like placeTurn or 
 For the view,the provider's view is encapsulated pretty well so that we only need to use an adapter pattern to make
 sure their view will work properly with our view and controller.
 
-
 How capable are the views?
     The provider's view is very capable, their view is a recognizable reversi board and updates correctly.
 In addition, the methods in their view are also very general. All codes related to repaint board can
@@ -16,21 +15,17 @@ How convenient was it to reuse their code?
 For the strategy, we had a some suggestions for some improvements.
 -First, in the AvoidCellsNextToCornersStrategy the providers are using position(0,0,0) to represent
  a position with no valid moves. Using a magic number like this makes some sense in that it is
- well documented and works for their existing implemetation of the model, 0,0,0 is the middle of the
- board which will never be a valid move, since for reversi boards that use hexagons with consistent
- side lengths and the specific starting set up of the game involve this position never being a legal move.
- However, this tightly couples the strategy to a specific way of implementing the reversi model.
-    -This could lead to future bugs in the code if...
-    -If we change the starting position so that now 0,0,0 is a legal move
-    -If we change where 0,0,0 is and define it to be another place (like the left corner) rather
-    than the middle (where it is right now)
-    -If we change coordinate systems, like to use a row-col format, the code will no longer compile
+ well documented and works for their existing implementation of the model, 0,0,0 may be valid move
+ some time,
+ However, It's not about if the (0,0,0) is a valid move, it's about some time their strategy will
+ return this real position as a type to represent there is no valid move, since it is an actual point,
+ it can be execute by the model, thus this will cause an error.
  -Essentialy, it works pretty good if this strategy does not return (0,0,0), but since the providers
-are using this position as default position, so it may be returned by the method, that is to say, position
-(0,0,0) sometime will represent a position that chosen by strategy or a way to show that the the strategy can
-not find a position to move. However, our coordinator converting method knows nothing about this, so we have
-to add a check before the AvoidCellsNextToCornersStrategy return a position to make sure it will return a valid
-position, rather than a position that seems correctly but actually it is invalid.
+ are using this position as default position, so it may be returned by the method, that is to say, position
+ (0,0,0) sometime will represent a position that chosen by strategy or a way to show that the the strategy can
+ not find a position to move. However, our coordinator converting method knows nothing about this, so we have
+ to add a check before the AvoidCellsNextToCornersStrategy return a position to make sure it will return a valid
+ position, rather than a position that seems correctly but actually it is invalid.
 
 How cleanly written and well-documented was their code?
     For the view part, the javadoc is pretty straightforward and clear, we can understand their code easily,
@@ -48,11 +43,11 @@ lead to bugs or unexpected actions to occur.
 -Some ideas that can be considered for addressing this can be..
  -add a check inside the features so that only if the game is in process, the feature will execute
  the command in to make pass, otherwise the feature will not pass the call back to the controller
-  -inside the key listener, add a check to ensure no actionsb allowed after game is over.
+  -inside the key listener, add a check to ensure no actions be allowed after game is over.
 
 -We noticed our provider's strategy classes hold an instance of their mutable reversi model interface,
 called ReversiModel
--Some ideas to adress this are instead providing the strategy classes with a Read Only model interface
+-Some ideas to address this are instead providing the strategy classes with a Read Only model interface
 This is because if we have a strategy that is needs to query the model, we donâ€™t necessarily want
  our strategy to have full access to the model. This would allow a strategy to be able to call
   mutator methods, like placeCell() or startGame(). There is no reason for the strategy to be
@@ -64,7 +59,7 @@ This is because if we have a strategy that is needs to query the model, we donâ€
   "Calls the update method on the view that will update the view to have the current state of the
    model".
 - Some ideas we had were to try and incorporate more decoupling between the view and model components,
-as well as more separation of responsibilites.
+as well as more separation of responsibilities.
 One idea with the observer pattern is that the sender class (the model in this case) does not know or
 care the type of observer it has. All it knows is that the receiver class (the view in this case) wants
 to be notified whenever interesting events occur. The model's interesting events are in when its internal

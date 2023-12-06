@@ -7,14 +7,14 @@ we used Features to fully decouple the controller from our view, this made for e
 we had to do was use adapters to make sure that our provider's view honored our Iview interface,
 since our controller has just stores some type of Iview for our view. A lot of design principels
 like preferring interface types to concrete classes and making sure to be able to have Liskov
-subsitution (a subclass wherever the superclass / interface can go) we were able to use to our
+substitution (a subclass wherever the superclass / interface can go) we were able to use to our
 favor so that our code was more flexible and extensible. This is a benefit that we would not really
 have gotten to see until this assignment, since it forced us to get familiar with and integrate code
 from an unfamiliar codebase. A lot of the design patterns seemed to click, like minimizing access,
 favoring composition over inheritance, and others. When we were going about creating adapters,
-we had already made our model interface's concrete implemenation final, so it catered towards
+we had already made our model interface's concrete implementation final, so it catered towards
 using composition over inheritance and having the adapter implement their model interface
-and then use a concrete implemenation of our model as an adaptee / delegate.
+and then use a concrete implementation of our model as an adaptee / delegate.
 
 I think the most important lesson I learned from this experience is that when programming, especially
 when designing programs, don’t just think about making parts run successfully in your own code, but
@@ -28,7 +28,7 @@ Therefore, in the future of my programming career, I think I will consider my de
 What was your experience like with your providers?
     Well, the experience with the providers is pretty great, they always reply to my questions on time,and
 will explain why their design is look like this way. meanwhile, when i was confused about their coordinate
-system, they do helped me to understand it. It was cool to be able to practice proffesionalism and
+system, they do helped me to understand it. It was cool to be able to practice professionalism and
 communicating with partners that we did not know as well. When we are in co-op environments, there
-will defeintly be lots of unfamiliar code and deadlines that will need to be met, so this good
+will defiantly be lots of unfamiliar code and deadlines that will need to be met, so this good
 to practice and gain some experience.
