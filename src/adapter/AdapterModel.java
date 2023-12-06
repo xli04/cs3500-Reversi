@@ -3,7 +3,6 @@ package adapter;
 import java.util.HashMap;
 import java.util.Map;
 
-import model.CubeCoordinateTrio;
 import model.Direction;
 import model.Hexagon;
 import model.MutableReversiModel;
@@ -46,31 +45,19 @@ public class AdapterModel implements ReversiModel {
 
   @Override
   public GamePiece winner() {
-    RepresentativeColor color = model.getWinner();
-    if (color == RepresentativeColor.WHITE) {
-      return GamePiece.WHITE;
-    } else if (color == RepresentativeColor.BLACK) {
-      return GamePiece.BLACK;
-    }
-    return GamePiece.EMPTY;
+    return ProviderTranslator.convertColorToProviderColor(model.getWinner());
   }
 
   @Override
   public Map<CellPosition, GamePiece> getBoard() {
     Map<RowColPair, Hexagon> ourBoard = model.getCurrentBoard();
-    Map<CellPosition, GamePiece> board = new HashMap<>();
+    Map<CellPosition, GamePiece> providerBoard = new HashMap<>();
     for (RowColPair pair : ourBoard.keySet()) {
-      GamePiece piece;
-      if (ourBoard.get(pair).getColor() == RepresentativeColor.BLACK) {
-        piece = GamePiece.BLACK;
-      } else if (ourBoard.get(pair).getColor() == RepresentativeColor.WHITE) {
-        piece = GamePiece.WHITE;
-      } else {
-        piece = GamePiece.EMPTY;
-      }
-      board.put(convertBack(pair), piece);
+      GamePiece piece = ProviderTranslator.convertColorToProviderColor(
+              ourBoard.get(pair).getColor());
+      providerBoard.put(ProviderTranslator.convertToCellPosition(pair), piece);
     }
-    return board;
+    return providerBoard;
   }
 
   @Override
@@ -91,37 +78,21 @@ public class AdapterModel implements ReversiModel {
 
   @Override
   public boolean coordinateContainsLegalMove(CellPosition cell) {
-    Map<Direction, Integer> map = model.checkMove(convert(cell), model.getTurn());
-    for (int i : map.values()) {
-      if (i > 0) {
-        return true;
-      }
-    }
-    return false;
+    return ProviderTranslator.countMoves(model,cell) > 0;
   }
 
   @Override
   public GamePiece contentOfGivenCell(CellPosition cell) {
-    RepresentativeColor color = model.getColorAt(convert(cell));
-    if (color == RepresentativeColor.BLACK) {
-      return GamePiece.BLACK;
-    } else if (color == RepresentativeColor.WHITE) {
-      return GamePiece.WHITE;
-    }
-    return GamePiece.EMPTY;
+    RepresentativeColor color = model.getColorAt(ProviderTranslator.convertToRowColPair(cell));
+    return ProviderTranslator.convertColorToProviderColor(color);
   }
 
   @Override
   public int pathLength(CellPosition cell) {
-    int value = 0;
-    if (model.getColorAt(convert(cell)) != RepresentativeColor.NONE) {
+    if (model.getColorAt(ProviderTranslator.convertToRowColPair(cell)) != RepresentativeColor.NONE) {
       return 0;
     }
-    Map<Direction, Integer> map = model.checkMove(convert(cell), model.getTurn());
-    for (int i : map.values()) {
-      value += i;
-    }
-    return value;
+    return ProviderTranslator.countMoves(model, cell);
   }
 
   @Override
@@ -154,31 +125,7 @@ public class AdapterModel implements ReversiModel {
 
   @Override
   public void playTurn(CellPosition cell) {
-    model.placeMove(convert(cell), model.getTurn());
-  }
-
-  /**
-   * Convert from provider's coordinators system to our coordinator system by reversing their
-   * x as the coordinator to represent our row and their z to represent our col.
-   *
-   * @param position the position in provider's coordinator system
-   * @return the position in our coordinator system
-   */
-  private RowColPair convert(CellPosition position) {
-    return new RowColPair(-position.getX(), position.getZ());
-  }
-
-  /**
-   * Convert from our coordinators system to provider's coordinator system by reversing the
-   * row int cubetrio system as their x, reversing right col as their y, using left col as
-   * their z.
-   *
-   * @param pair the position in our coordinator system
-   * @return the position in provider's coordinator system
-   */
-  private CellPosition convertBack(RowColPair pair) {
-    CubeCoordinateTrio trio = pair.convertToCube();
-    return new CellPosition(-trio.getRow(), -trio.getRightCol(), trio.getLeftCol());
+    model.placeMove(ProviderTranslator.convertToRowColPair(cell), model.getTurn());
   }
 
   /**

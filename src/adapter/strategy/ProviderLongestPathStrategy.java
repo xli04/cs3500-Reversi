@@ -2,14 +2,16 @@ package adapter.strategy;
 
 import java.util.Map;
 import java.util.Optional;
-import reversi.provider.model.CellPosition;
-import reversi.provider.model.PlayerTurn;
-import reversi.provider.model.ReversiModel;
-import reversi.provider.strategy.LongestPath;
+
+import adapter.ProviderTranslator;
 import model.Direction;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
+import reversi.provider.model.CellPosition;
+import reversi.provider.model.PlayerTurn;
+import reversi.provider.model.ReversiModel;
+import reversi.provider.strategy.LongestPath;
 import strategy.FallibleStrategy;
 
 /**
@@ -30,20 +32,12 @@ public class ProviderLongestPathStrategy implements FallibleStrategy {
                                              RepresentativeColor player) {
     PlayerTurn turn = player == RepresentativeColor.WHITE ? PlayerTurn.WHITE : PlayerTurn.BLACK;
     Optional<CellPosition> cell = strategy.chooseCellPosition(this.model, turn);
-    if (cell.isPresent()) {
-      Map<Direction, Integer> move = model.checkMove(convert(cell.get()), model.getTurn());
-      int value = 0;
-      for (int i : move.values()) {
-        value += i;
-      }
-      if (value == 0) {
+    if (cell.isPresent()) { //if the strategy returned a cell to move to...
+      int cellsFlipped = ProviderTranslator.countMoves(model,cell.get());
+      if (cellsFlipped == 0) {
         return Optional.empty();
       }
     }
-    return cell.map(this::convert);
-  }
-
-  private RowColPair convert(CellPosition position) {
-    return new RowColPair(-position.getX(), position.getZ());
+    return cell.map(ProviderTranslator::convertToRowColPair);
   }
 }

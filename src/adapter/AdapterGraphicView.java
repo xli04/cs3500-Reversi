@@ -1,10 +1,10 @@
 package adapter;
 
+import model.ReadOnlyReversiModel;
+import model.RepresentativeColor;
 import reversi.provider.model.GamePiece;
 import reversi.provider.model.PlayerTurn;
 import reversi.provider.view.BasicReversiView;
-import model.ReadOnlyReversiModel;
-import model.RepresentativeColor;
 import reversi.provider.view.ViewFeatures;
 import view.Features;
 import view.IView;
@@ -60,18 +60,16 @@ public class AdapterGraphicView implements IView {
 
   @Override
   public void update(ReadOnlyReversiModel model, RepresentativeColor player) {
-    view.update();
+    view.update(); //refresh the view
     if (model.isGameOver()) {
-      GamePiece piece = GamePiece.BLACK;
-      if (model.getWinner() == RepresentativeColor.WHITE) {
-        piece = GamePiece.WHITE;
-      } else if (model.getWinner() == null) {
-        piece = GamePiece.EMPTY;
-      }
+      ///translate our winner color system to the providers'
+      GamePiece piece = ProviderTranslator.convertColorToProviderColor(model.getWinner());
       PlayerTurn turn = piece == GamePiece.BLACK ? PlayerTurn.BLACK : PlayerTurn.WHITE;
       view.showGameOverMessage(turn, piece);
     }
     if (!model.isGameOver() && model.getTurn() == player) {
+      //for games in progress, and it is the player using this view's turn, notify them
+      //that it is their turn
       view.notifyPlayer();
     }
   }

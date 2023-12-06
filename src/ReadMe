@@ -149,7 +149,7 @@ We used an adapter pattern in order to integrate our library with our provider's
 
 
 4. Source Organization
-    -In the src directory, we can find 3 packages
+    -In the src directory, we can find 5 packages
       -Model → This package contains the interface and domain logic relative to the rules of Reversi
         games, as well as other structures that our reversi models use to represent different features
         of the game. For instance, our model holds the Direction class that is used to handle checking
@@ -166,6 +166,17 @@ We used an adapter pattern in order to integrate our library with our provider's
       -Strategy -> contains different classes that help a player select a move, by using a specific
       strategy. The strategy package outlines how we can compose strategies, as well as contains
       specific implementations for different fallible and infallible strategies.
+      -Adapter--> contains different classes that translate from ourReversi codebase and our
+      providers' Reversi codebase. There are strategy adapters, a model adapter, a view adapter,
+      and a view adapter. All of these classes serve to translate between our strategy, model, and
+      view implementations and our providers' implementations. We used the adapter pattern since
+      each of our codebases are similar in that they serve the same purpose: using the MVC to
+      simulate Reversi, but they are technically different in that we have our own design choices
+      and different implementation details. We also have a utility class called Provider Translator
+      that contains utility methods that help us translate between specific aspects of our codebase
+      and to accomplish different tasks that help in this translation process.
+
+
       -Test: in the test directory, we may find a few packages:
           Model, controller, and view packages:
               Contains tests for components and their respective subcomponents whose package-visible
@@ -180,7 +191,7 @@ We used an adapter pattern in order to integrate our library with our provider's
               board state.
 
 Changes for part 4
-Instead of using a enum class inside of the main, we created a public called DiddicultyCretor, one purpose of this
+Instead of using a enum class inside of the main, we created a public called DifficultyCreator, one purpose of this
     class is to let the command-line work with the provider's strategy. Since the adopt strategy need a model as
     field and this Difficulty creator also need a provider's model in its constructor. We can initialize this creator
     after we create a provider's model using our model implementation. Another purpose is to make it easier to use
