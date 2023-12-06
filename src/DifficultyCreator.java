@@ -18,7 +18,7 @@ import strategy.MinimaxStrategy;
  * A difficulty creator class, represents the different difficulties correspond with
  * the different strategy that will be used to choose the position.
  */
-public class DifficultyCreator {
+public final class DifficultyCreator {
   private static ReversiModel model = null;
 
   /**

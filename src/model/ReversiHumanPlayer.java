@@ -5,7 +5,7 @@ import java.util.Optional;
 /**
  * A ReversiPlayer interface, represents Human player in the reversi game.
  */
-public class ReversiHumanPlayer implements Player {
+public final class ReversiHumanPlayer implements Player {
 
   private RepresentativeColor color;
 

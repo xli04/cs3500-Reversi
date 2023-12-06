@@ -22,7 +22,7 @@ import model.RowColPair;
  * A Panel will draw all the colors, allow users to click on them,
  * and play the game.
  */
-public class ReversiBoardPanel extends JPanel {
+public final class ReversiBoardPanel extends JPanel {
   private static int preferWidth = 100;
   private static int preferHeight = 100;
   /**
