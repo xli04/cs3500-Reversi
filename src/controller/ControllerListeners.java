@@ -12,7 +12,7 @@ import model.RepresentativeColor;
  * A ControllerListeners class represents a model listener of the controller, used to register as
  * a listener in the model.
  */
-public final class ControllerListeners implements ModelListener {
+public class ControllerListeners implements ModelListener {
   private final List<Controller> controllers;
 
   /**

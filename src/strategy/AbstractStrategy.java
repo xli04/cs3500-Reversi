@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import model.CubeCoordinateTrio;
-import model.Direction;
+import model.RegularDirection;
 import model.Hexagon;
+import model.ModelDirection;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
@@ -47,10 +48,10 @@ public abstract class AbstractStrategy {
   protected Map<RowColPair, Integer> findAvailablePosition(ReadOnlyReversiModel model,
                                                            RepresentativeColor color) {
     Map<RowColPair, Integer> positionToFlippedCardCount = new HashMap<>();
-    Map<RowColPair, Hexagon> map = model.getCurrentBoard();
+    Map<RowColPair, Hexagon> map = model.getBoard();
     for (RowColPair pair : map.keySet()) {
       try {
-        Map<Direction, Integer> directionToFlippedCardCount = model.checkMove(pair, color);
+        Map<ModelDirection, Integer> directionToFlippedCardCount = model.checkMove(pair, color);
         int numCardsThatCanBeFlipped = 0;
         for (int i : directionToFlippedCardCount.values()) {
           numCardsThatCanBeFlipped += i;
@@ -91,10 +92,10 @@ public abstract class AbstractStrategy {
    */
   protected boolean isNextToCorner(RowColPair pair, List<RowColPair> cornerPoints) {
     CubeCoordinateTrio cube = pair.convertToCube();
-    for (Direction direction : Direction.values()) {
-      RowColPair newPosition = new CubeCoordinateTrio(cube.getRow() + direction.getRowOffset(),
-          cube.getLeftCol() + direction.getLeftColOffset(),
-          cube.getRightCol() + direction.getRightColOffset()).convertToRowCol();
+    for (RegularDirection regularDirection : RegularDirection.values()) {
+      RowColPair newPosition = new CubeCoordinateTrio(cube.getRow() + regularDirection.getRowOffset(),
+          cube.getLeftCol() + regularDirection.getLeftColOffset(),
+          cube.getRightCol() + regularDirection.getRightColOffset()).convertToRowCol();
       if (cornerPoints.contains(newPosition)) {
         return true;
       }

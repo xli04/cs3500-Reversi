@@ -8,7 +8,7 @@ import model.RepresentativeColor;
  * things we expected. it will give feedback to determine if the controller interact with
  * the view correctly.
  */
-public final class MockView implements IView {
+public class MockView implements IView {
   private final StringBuilder builder;
 
   /**

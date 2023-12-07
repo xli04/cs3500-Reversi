@@ -77,8 +77,7 @@ public final class Controller implements Features {
           view.showMessage("Some thing wrong with the Ai strategy");
         }
       } catch (IllegalStateException e) {
-        e.printStackTrace();
-        view.showMessage("Some thing wrong with the Ai strategy" + player.getColor());
+        view.showMessage("Some thing wrong with the Ai strategy");
       }
     }
   }
@@ -139,7 +138,6 @@ public final class Controller implements Features {
       }
       model.makePass(player.getColor());
     } catch (IllegalStateException e) {
-      e.printStackTrace();
       view.showMessage("Can not take action right now " + "Player: " + player.getColor());
     }
   }

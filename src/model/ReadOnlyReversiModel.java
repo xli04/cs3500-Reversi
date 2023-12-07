@@ -12,7 +12,7 @@ public interface ReadOnlyReversiModel {
    *
    * @return the current board
    */
-  Map<RowColPair, Hexagon> getCurrentBoard();
+  Map<RowColPair, Hexagon> getBoard();
 
   /**
    * check if the game is over, if the both players pass in a row or the board is full.
@@ -61,7 +61,7 @@ public interface ReadOnlyReversiModel {
    * @throws IllegalStateException if the game is already ended
    * @throws IllegalArgumentException if the coordinators are invalid
    */
-  Map<Direction, Integer> checkMove(RowColPair pair, RepresentativeColor color);
+  Map<ModelDirection, Integer> checkMove(RowColPair pair, RepresentativeColor color);
 
   /**
    * get the size of board, which refers to the side length of board.

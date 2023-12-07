@@ -19,7 +19,7 @@ import model.RowColPair;
  * A Panel will draw all the colors, allow users to click on them,
  * and play the game.
  */
-public class ReversiBoardPanel extends JPanel{
+public class SquareBoardPanel extends JPanel{
   private static int preferWidth = 100;
   private static int preferHeight = 100;
   /**
@@ -32,13 +32,14 @@ public class ReversiBoardPanel extends JPanel{
   private boolean showHints;
   private boolean mouseLock = false;
 
+  private Graphics graphics = null;
 
   /**
    * construct the Panel with the given constructor.
    *
    * @param model the given model
    */
-  public ReversiBoardPanel(ReadOnlyReversiModel model, RepresentativeColor color) {
+  public SquareBoardPanel(ReadOnlyReversiModel model, RepresentativeColor color) {
     this.model = Objects.requireNonNull(model);
     selectedPosition = null;
     MouseEventsListener listener = new MouseEventsListener();
@@ -94,7 +95,7 @@ public class ReversiBoardPanel extends JPanel{
    *
    * @return Our preferred *logical* size.
    */
-  public Dimension getPreferredLogicalSize() {
+  private Dimension getPreferredLogicalSize() {
     return new Dimension(preferWidth, preferHeight);
   }
 
@@ -113,13 +114,55 @@ public class ReversiBoardPanel extends JPanel{
     Graphics2D g2d = (Graphics2D) g.create();
     g2d.transform(transformLogicalToPhysical());
     hexGrid.paintComponent(g2d);
+    paintNumbers(g2d, selectedPosition);
   }
 
   /**
    * Paint the number on the specific hexagon represents the number of cells that the current
    * player place here can flipped.
    */
+  protected void paintNumbers(Graphics2D g2d, RowColPair pair) {
+    if (pair == null) {
+      return;
+    }
+    try {
+      if (!model.isGameOver() && color == model.getTurn() && showHints) {
+        Font font = new Font("Arial", Font.PLAIN, 4);
+        g2d.setFont(font);
+        g2d.scale(1, -1);
+        g2d.setColor(Color.gray);
+        Map<RowColPair, RowColPair> location = hexGrid.getThePositionForDrawingNumber();
+        Map<ModelDirection, Integer> values = model.checkMove(pair, model.getTurn());
+        int value = 0;
+        for (int i : values.values()) {
+          value += i;
+        }
+        Point2D p2d = new Point2D() {
+          @Override
+          public double getX() {
+            return location.get(pair).getRow();
+          }
 
+          @Override
+          public double getY() {
+            return location.get(pair).getCol() - 6;
+          }
+
+          @Override
+          public void setLocation(double x, double y) {
+            // no action for setLocation.
+          }
+        };
+        g2d.drawString(String.valueOf(value),
+          (int) inverse().transform(p2d, null).getX(),
+          (int) inverse().transform(p2d, null).getY());
+        repaint();
+      }
+    } catch (IllegalStateException e) {
+
+    }
+
+  }
 
   /**
    * update the current model game state to the view.
@@ -138,6 +181,18 @@ public class ReversiBoardPanel extends JPanel{
     selectedPosition = null;
   }
 
+  /**
+   * flipping the graphics vertically by applying a scaling transformation with
+   * a scaling factor of 1 along the x-axis (no change) and a scaling factor of -1
+   * along the y-axis.
+   *
+   * @return the transformation after flipping
+   */
+  private AffineTransform inverse() {
+    AffineTransform ret = new AffineTransform();
+    ret.scale(1, -1);
+    return ret;
+  }
 
   /**
    * Computes the transformation that converts board coordinates
@@ -152,7 +207,6 @@ public class ReversiBoardPanel extends JPanel{
     Dimension preferred = getPreferredLogicalSize();
     ret.translate(getWidth() / 2., getHeight() / 2.);
     ret.scale(getWidth() / preferred.getWidth(), getHeight() / preferred.getHeight());
-    ret.scale(1, -1);
     return ret;
   }
 
@@ -167,7 +221,6 @@ public class ReversiBoardPanel extends JPanel{
   private AffineTransform transformPhysicalToLogical() {
     AffineTransform ret = new AffineTransform();
     Dimension preferred = getPreferredLogicalSize();
-    ret.scale(1, -1);
     ret.scale(preferred.getWidth() / getWidth(), preferred.getHeight() / getHeight());
     ret.translate(-getWidth() / 2., -getHeight() / 2.);
     return ret;
@@ -223,6 +276,8 @@ public class ReversiBoardPanel extends JPanel{
       Point physicalP = e.getPoint();
       Point2D logicalP = transformPhysicalToLogical().transform(physicalP, null);
       RowColPair selected = hexGrid.getPoint(logicalP);
+      System.out.println(selected.getRow());
+      System.out.println(selected.getCol());
       if (selected == null) {
         if (selectedPosition == null) {
           return;

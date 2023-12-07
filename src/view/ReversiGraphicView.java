@@ -19,13 +19,14 @@ import model.RepresentativeColor;
  * and white players, and the hasToPassWarning. It also has a hint button used to determin
  * whether the player wants to get some hints.
  */
-public final class ReversiGraphicView extends JFrame implements IView {
+public class ReversiGraphicView extends JFrame implements IView {
   private final ReversiBoardPanel panel;
   private final JLabel whiteScore;
   private final JLabel blackScore;
   private final JLabel turn;
   private final JLabel hasToPassWarning;
   private final JButton hint;
+//  private final ReversiHintPanel hintPanel;
 
   /**
    * construct the ReversiView with the given parameter. Register the current
@@ -39,6 +40,8 @@ public final class ReversiGraphicView extends JFrame implements IView {
   public ReversiGraphicView(ReadOnlyReversiModel model) {
     this.panel = new ReversiBoardPanel(model, null);
     this.add(panel);
+//    this.hintPanel = new ReversiHintPanel(model, panel.getPreferredLogicalSize(), null);
+//    this.add(hintPanel);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     hint = new JButton("Hint");
     hint.setFocusable(false);

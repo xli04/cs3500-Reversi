@@ -15,14 +15,14 @@ final class MockModel implements MutableReversiModel {
   private final List<RowColPair> positionsLieToStrategy;
   
   @Override
-  public Map<Direction, Integer> checkMove(RowColPair pair, RepresentativeColor color) {
+  public Map<ModelDirection, Integer> checkMove(RowColPair pair, RepresentativeColor color) {
     builder.append("Checking").append("(").append(pair.getRow()).append(",")
       .append(pair.getCol()).append(")").append("\n");
     if (positionsLieToStrategy.contains(pair)) {
       builder.append("lie on you").append("\n");
-      Map<Direction, Integer> lieMap = new HashMap<>();
-      for (Direction direction : Direction.values()) {
-        lieMap.put(direction, 0);
+      Map<ModelDirection, Integer> lieMap = new HashMap<>();
+      for (RegularDirection regularDirection : RegularDirection.values()) {
+        lieMap.put(regularDirection, 0);
       }
       return lieMap;
     }
@@ -58,8 +58,8 @@ final class MockModel implements MutableReversiModel {
   }
 
   @Override
-  public Map<RowColPair, Hexagon> getCurrentBoard() {
-    return model.getCurrentBoard();
+  public Map<RowColPair, Hexagon> getBoard() {
+    return model.getBoard();
   }
 
   @Override

@@ -1,18 +1,18 @@
-import adapter.AdapterModel;
-import adapter.ProviderViewFeatures;
-import adapter.AdapterGraphicView;
 import controller.Controller;
 import controller.ControllerListeners;
 import model.ModelStatus;
-import model.MutableReversiModel;
 import model.Player;
-import model.RegularReversiModel;
+import model.HexReversiModel;
 import model.ReversiAiPlayer;
 import model.ReversiHumanPlayer;
 import model.ReversiModelStatus;
-import reversi.provider.view.BasicReversiView;
+import strategy.AvoidCellsNextToCornersStrategy;
+import strategy.CaptureMaxPieces;
+import strategy.CompleteStrategy;
+import strategy.CompositeStrategy;
+import strategy.CornerStrategy;
 import strategy.InfallibleStrategy;
-import view.IView;
+import strategy.MinimaxStrategy;
 import view.ReversiGraphicView;
 
 /**
@@ -25,12 +25,7 @@ import view.ReversiGraphicView;
  * piece, medium is based on the easy strategy and it will also prefer to take the corner
  * positions first. For the medium plus, it not only has the behavior for the medium strategy,
  * it also AvoidCellsNextToCorners Finally, for the hard level, this strategy is minimax ,
- * which means it will simulate the action and then take the best action. We also support the
- * strategy from our provider's code, for the providereasy, this strategy is easiest strategy
- * from the provider's strategies. for the provider medium, this strategy is combination of
- * corner strategy and the strategy that find the position that can get the highest points.
- * for the provider hard, this strategy is the combination of CornersStrategy and the strategy
- * that AvoidingNextToCorners.
+ * which means it will simulate the action and then take the best action.
  */
 public class ReversiGame {
   /**
@@ -39,15 +34,8 @@ public class ReversiGame {
    * @param args the default constructor
    */
   public static void main(String[] args) {
-    //create a model of our type and give it to the adapter
-    ModelStatus status = new ReversiModelStatus();
-    MutableReversiModel model = new RegularReversiModel.ModelBuilder().setStatus(status).build();
-    AdapterModel adapt = new AdapterModel(model);
     Player player1 = new ReversiHumanPlayer();
     Player player2 = new ReversiHumanPlayer();
-    //difficulty creator takes in the adapter model whose delegate is our model
-    //allows their strategy to use our model
-    DifficultyCreator creator = new DifficultyCreator(adapt);
     if (args.length != 2) {
       throw new IllegalArgumentException("Reversi game must has two players");
     }
@@ -58,7 +46,7 @@ public class ReversiGame {
         player = new ReversiHumanPlayer();
       } else {
         try {
-          InfallibleStrategy strategy = creator.getDifficultyCorrespondingStrategy(type);
+          InfallibleStrategy strategy = Difficulty.valueOf(type).getStrategy();
           player = new ReversiAiPlayer(strategy);
         } catch (IllegalArgumentException e) {
           throw new IllegalArgumentException("No such type of game player supported");
@@ -72,13 +60,10 @@ public class ReversiGame {
         player2 = player;
       }
     }
-    //Provider view features is an implementation of their features
-    IView view = new ReversiGraphicView(model);
-    IView view2 = new AdapterGraphicView(new BasicReversiView(adapt),
-        new ProviderViewFeatures(adapt, player2));
-    //we are using their view to implement our adapter view so that their view
-    //is a type of our view Iview, so that the controller can work both
-    //views
+    ModelStatus status = new ReversiModelStatus();
+    HexReversiModel model = new HexReversiModel.ModelBuilder().setStatus(status).build();
+    ReversiGraphicView view = new ReversiGraphicView(model);
+    ReversiGraphicView view2 = new ReversiGraphicView(model);
     Controller controller = new Controller(model, view, player1, status);
     Controller controller2 = new Controller(model, view2, player2, status);
     ControllerListeners listeners = new ControllerListeners();
@@ -88,5 +73,56 @@ public class ReversiGame {
     model.startGame();
   }
 
+  /**
+   * Represent a difficult for the strategies.
+   */
+  public enum Difficulty {
+
+    /**
+     * our most simple strategy, it will only looking for the position that can capture most
+     * * piece.
+     */
+    EASY(new CompleteStrategy(new CaptureMaxPieces())),
+
+    /**
+     * medium is based on the easy strategy and it will also prefer to take the corner
+     * positions first.
+     */
+    MEDIUM(new CompleteStrategy(new CompositeStrategy(new CornerStrategy(),
+        new CaptureMaxPieces()))),
+
+    /**
+     * For the medium plus, it not only has the behavior for the medium strategy,
+     * it also AvoidCellsNextToCorners.
+     */
+    MEDIUMPLUS(new CompleteStrategy(new CompositeStrategy(new CompositeStrategy(
+        new CornerStrategy(), new AvoidCellsNextToCornersStrategy()), new CaptureMaxPieces()))),
+
+    /**
+     * for the hard level, this strategy is minimax ,
+     * which means it will simulate the action and then take the best action.
+     */
+    HARD(new CompleteStrategy(new MinimaxStrategy()));
+
+    private final InfallibleStrategy strategy;
+
+    /**
+     * Every level of difficulty will has a corresponding strategy.
+     *
+     * @param strategy the corresponding strategy
+     */
+    Difficulty(InfallibleStrategy strategy) {
+      this.strategy = strategy;
+    }
+
+    /**
+     * get the corresponding strategy fo this difficulty.
+     *
+     * @return the corresponding strategy
+     */
+    public InfallibleStrategy getStrategy() {
+      return strategy;
+    }
+  }
 
 }

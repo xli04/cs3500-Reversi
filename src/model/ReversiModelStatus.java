@@ -5,7 +5,7 @@ package model;
  * placed a move or made a pass or the start the game, the status of the game will be updated
  * in order to reflect the most recent status.
  */
-public final class ReversiModelStatus implements ModelStatus {
+public class ReversiModelStatus implements ModelStatus {
   private Status status;
 
   /**

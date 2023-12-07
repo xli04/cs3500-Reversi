@@ -11,18 +11,7 @@ import java.util.Map;
  * a line with opposite color cells. The user may choose to pass if there is no
  * valid move or they just want to do it.
  */
-public final class RegularReversiModel implements MutableReversiModel {
-  private static final int DEFAULT_SIZE = 6;
-  //INVARIANT: size is greater than 1.
-  private final int size;
-  private final Map<RowColPair, Hexagon> board;
-  //INVARIANT: passTimes can not be larger than 2.
-  private int passTimes;
-  //INVARIANT: turn can only be white or black.
-  private RepresentativeColor turn = null;
-  private List<ModelListener> listeners;
-  private boolean hasGameStarted = false;
-  private final ModelStatus status;
+public final class HexReversiModel extends AbstractReversiModel {
 
   /**
    * initialize the game with the given size. the 2 should be the smallest size for a board
@@ -31,17 +20,8 @@ public final class RegularReversiModel implements MutableReversiModel {
    * @param size size of the board
    * @param status the status that represents the most recent states of game
    */
-  private  RegularReversiModel(int size, ModelStatus status) {
-    if (size < 2) {
-      throw new IllegalArgumentException("Invalid board size");
-    }
-    board = new HashMap<>();
-    passTimes = 0;
-    this.size = size;
-    this.listeners = new ArrayList<>();
-    this.status = status;
-    setEntireBoardToBlankCells(size);
-    setBoardToStartingPosition();
+  private HexReversiModel(int size, ModelStatus status) {
+    super(size, status);
   }
 
   /**
@@ -89,8 +69,8 @@ public final class RegularReversiModel implements MutableReversiModel {
      *
      * @return the regular reversi model.
      */
-    public RegularReversiModel build() {
-      return new RegularReversiModel(size, status);
+    public HexReversiModel build() {
+      return new HexReversiModel(size, status);
     }
   }
 
@@ -104,20 +84,8 @@ public final class RegularReversiModel implements MutableReversiModel {
    * @param size  the size to construct the new board to
    * @param turn  the color whose turn it is
    */
-  RegularReversiModel(Map<RowColPair, Hexagon> board, int size, RepresentativeColor turn) {
-    if (board == null || size < 2 || (turn != RepresentativeColor.WHITE
-        && turn != RepresentativeColor.BLACK)) {
-      throw new IllegalArgumentException(
-        "Error occurred when trying to initialize Reversi Model from rigged board"
-      );
-    }
-    this.hasGameStarted = true;
-    this.board = board;
-    passTimes = 0;
-    this.turn = turn;
-    this.size = size;
-    status = new ReversiModelStatus();
-    listeners = new ArrayList<>();
+  HexReversiModel(Map<RowColPair, Hexagon> board, int size, RepresentativeColor turn) {
+    super(board, size, turn);
   }
 
   /**
@@ -137,7 +105,8 @@ public final class RegularReversiModel implements MutableReversiModel {
    *
    * @param size the size of the board
    */
-  private void setEntireBoardToBlankCells(int size) {
+  @Override
+  protected void setEntireBoardToBlankCells(int size) {
     int row = 2 * size - 1;
     int half = row - size;
     int upHalfStarter = 0;
@@ -160,12 +129,14 @@ public final class RegularReversiModel implements MutableReversiModel {
     }
   }
 
+
   /**
    * Set the initial state of the standard board, at the beginning, the number of white cells
    * and black cells will be the same. The middle cells of the board should be empty and the
    * pre-positioned cells are surrounding it.
    */
-  private void setBoardToStartingPosition() {
+  @Override
+  protected void setBoardToStartingPosition(int size) {
     board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.BLACK));
     board.put(new RowColPair(0, -1), new Hexagon(RepresentativeColor.WHITE));
     board.put(new RowColPair(-1, 0), new Hexagon(RepresentativeColor.BLACK));
@@ -194,6 +165,7 @@ public final class RegularReversiModel implements MutableReversiModel {
     }
   }
 
+
   /**
    * check if the attempt move is a valid move. check if the attempt position is
    * next to the opposite color cell with the current color and check if we can
@@ -209,7 +181,7 @@ public final class RegularReversiModel implements MutableReversiModel {
    *                                  or the game is already over or has not started
    */
   @Override
-  public void placeMove(RowColPair pair, RepresentativeColor currentPlayer) {
+  protected void tryPlaceMove(RowColPair pair, RepresentativeColor currentPlayer) {
     if (currentPlayer != turn) {
       throw new IllegalStateException("It's not your turn");
     }
@@ -224,11 +196,11 @@ public final class RegularReversiModel implements MutableReversiModel {
     }
     boolean canPlace = false;
     Hexagon hexagon = board.get(new RowColPair(row, col));
-    Map<Direction, Integer> flipTimes = checkMove(pair, turn);
-    for (Direction direction : Direction.values()) {
-      CubeCoordinateTrio adjacentCube = findAdjacentCells(pair.convertToCube(), direction);
+    Map<ModelDirection, Integer> flipTimes = checkMove(pair, turn);
+    for (RegularDirection regularDirection : RegularDirection.values()) {
+      CubeCoordinateTrio adjacentCube = findAdjacentCells(pair.convertToCube(), regularDirection);
       RowColPair adjacent = adjacentCube.convertToRowCol();
-      int flip = flipTimes.get(direction);
+      int flip = flipTimes.get(regularDirection);
       if (flip > 0) {
         canPlace = true;
         if (passTimes > 0) {
@@ -243,9 +215,9 @@ public final class RegularReversiModel implements MutableReversiModel {
       for (int i = 0; i < flip; i++) {
         Hexagon current = board.get(cube.convertToRowCol());
         current.setColor(current.getColor().getOpposite());
-        fixedR += direction.getRowOffset();
-        fixedQ += direction.getLeftColOffset();
-        fixedS += direction.getRightColOffset();
+        fixedR += regularDirection.getRowOffset();
+        fixedQ += regularDirection.getLeftColOffset();
+        fixedS += regularDirection.getRightColOffset();
         cube = new CubeCoordinateTrio(fixedR, fixedQ, fixedS);
       }
     }
@@ -257,6 +229,19 @@ public final class RegularReversiModel implements MutableReversiModel {
     for (ModelListener listener : listeners) {
       listener.update();
     }
+  }
+
+
+  @Override
+  protected Map<ModelDirection, Integer> tryCheckMove(RowColPair pair, RepresentativeColor color) {
+    checkIfGameOver();
+    checkCoordinators(pair);
+    Map<ModelDirection, Integer> map = new HashMap<>();
+    for (RegularDirection regularDirection : RegularDirection.values()) {
+      int flip = checkFlip(pair, regularDirection, color);
+      map.put(regularDirection, flip);
+    }
+    return map;
   }
 
   /**
@@ -274,40 +259,6 @@ public final class RegularReversiModel implements MutableReversiModel {
     }
   }
 
-  @Override
-  public Map<Direction, Integer> checkMove(RowColPair pair, RepresentativeColor color) {
-    checkIfGameOver();
-    checkCoordinators(pair);
-    Map<Direction, Integer> map = new HashMap<>();
-    for (Direction direction : Direction.values()) {
-      int flip = checkFlip(pair, direction, color);
-      map.put(direction, flip);
-    }
-    return map;
-  }
-
-  /**
-   * make a pass action when the user has to pass in this turn or the user wants to pass
-   * alter the turn to another player. In the end, update all the views by calling the controller
-   * to let the view repaint the board and update the controllers to show the current state of the
-   * game.
-   *
-   * @param currentPlayer the player that want to make pass
-   */
-  @Override
-  public void makePass(RepresentativeColor currentPlayer) {
-    checkIfGameStarted();
-    checkIfGameOver();
-    if (currentPlayer != turn) {
-      throw new IllegalStateException("It's not your turn");
-    }
-    passTimes++;
-    turn = turn.getOpposite();
-    status.updateStatus(this);
-    for (ModelListener listener : listeners) {
-      listener.update();
-    }
-  }
 
   /**
    * check if the game was started, since some actions are allowed before the game was started.
@@ -321,6 +272,24 @@ public final class RegularReversiModel implements MutableReversiModel {
     }
   }
 
+  @Override
+  protected boolean checkHasToPass() {
+    checkIfGameOver();
+    checkIfGameStarted();
+    for (RowColPair pair : board.keySet()) {
+      if (board.get(pair).getColor() != RepresentativeColor.NONE) {
+        continue;
+      }
+      for (RegularDirection regularDirection : RegularDirection.values()) {
+        int flip = checkFlip(pair, regularDirection, turn);
+        if (flip > 0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   /**
    * check the num of cell that can be flipped from the given position in the
    * given direction.
@@ -328,7 +297,7 @@ public final class RegularReversiModel implements MutableReversiModel {
    * @param direction the direction
    * @return the number of flippable cells in that direction
    */
-  private int checkFlip(RowColPair current, Direction direction, RepresentativeColor color) {
+  private int checkFlip(RowColPair current, ModelDirection direction, RepresentativeColor color) {
     CubeCoordinateTrio adjacent = findAdjacentCells(current.convertToCube(), direction);
     RowColPair adjacentRowCol = adjacent.convertToRowCol();
     if (!isInBounds(adjacentRowCol)) {
@@ -351,7 +320,7 @@ public final class RegularReversiModel implements MutableReversiModel {
    * @param currentPosition the position that need to check its surround area
    * @return the number of continues cells with opposite color in the certain direction
    */
-  private int checkContinues(Direction direction, RowColPair currentPosition,
+  private int checkContinues(ModelDirection direction, RowColPair currentPosition,
                              RepresentativeColor color) {
     Hexagon hexagon = board.get(currentPosition);
     RepresentativeColor current = hexagon.getColor();
@@ -380,52 +349,6 @@ public final class RegularReversiModel implements MutableReversiModel {
     }
   }
 
-  /**
-   * Check through the whole board to see if there exist a valid move for the current turn color.
-   *
-   * @return false if there exist valid move for given color otherWise true
-   */
-  @Override
-  public boolean hasToPass() {
-    checkIfGameOver();
-    checkIfGameStarted();
-    for (RowColPair pair : board.keySet()) {
-      if (board.get(pair).getColor() != RepresentativeColor.NONE) {
-        continue;
-      }
-      for (Direction direction : Direction.values()) {
-        int flip = checkFlip(pair, direction, turn);
-        if (flip > 0) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  @Override
-  public RepresentativeColor getColorAt(RowColPair pair) {
-    if (!isInBounds(pair)) {
-      throw new IllegalArgumentException("Out of bounds");
-    }
-    return board.get(pair).getColor();
-  }
-
-  @Override
-  public RepresentativeColor getWinner() {
-    checkIfGameStarted();
-    if (!isGameOver()) {
-      throw new IllegalStateException("game hasn't ended yet");
-    }
-    int blackScore = getScore(RepresentativeColor.BLACK);
-    int whiteScore = getScore(RepresentativeColor.WHITE);
-    if (blackScore > whiteScore) {
-      return RepresentativeColor.BLACK;
-    } else if (whiteScore > blackScore) {
-      return RepresentativeColor.WHITE;
-    }
-    return null;
-  }
 
   @Override
   public int getScore(RepresentativeColor color) {
@@ -440,24 +363,8 @@ public final class RegularReversiModel implements MutableReversiModel {
   }
 
   @Override
-  public MutableReversiModel getDeepCopy(RepresentativeColor color) {
-    return new RegularReversiModel(this.getCurrentBoard(), size, color);
-  }
-
-  @Override
-  public void startGame() {
-    if (hasGameStarted) {
-      throw new IllegalStateException("Game already started");
-    }
-    if (isGameOver()) {
-      throw new IllegalStateException("Game already over");
-    }
-    this.hasGameStarted = true;
-    turn = RepresentativeColor.BLACK;
-    status.updateStatus(this);
-    for (ModelListener listener : listeners) {
-      listener.update();
-    }
+  protected MutableReversiModel tryGetDeepCopy(RepresentativeColor color) {
+    return new HexReversiModel(this.getBoard(), size, color);
   }
 
   /**
@@ -467,40 +374,9 @@ public final class RegularReversiModel implements MutableReversiModel {
    * @param direction the given direction
    * @return the coordinators
    */
-  private CubeCoordinateTrio findAdjacentCells(CubeCoordinateTrio current, Direction direction) {
+  private CubeCoordinateTrio findAdjacentCells(CubeCoordinateTrio current, ModelDirection direction) {
     return new CubeCoordinateTrio(current.getRow() + direction.getRowOffset(),
       current.getLeftCol() + direction.getLeftColOffset(),
       current.getRightCol() + direction.getRightColOffset());
-  }
-
-  @Override
-  public Map<RowColPair, Hexagon> getCurrentBoard() {
-    Map<RowColPair, Hexagon> copy = new HashMap<>();
-    for (RowColPair pair : board.keySet()) {
-      copy.put(new RowColPair(pair.getRow(), pair.getCol()),
-          new Hexagon(board.get(pair).getColor()));
-    }
-    return copy;
-  }
-
-  @Override
-  public boolean isGameOver() {
-    return passTimes >= 2;
-  }
-
-  @Override
-  public int getSize() {
-    return size;
-  }
-
-  @Override
-  public RepresentativeColor getTurn() {
-    checkIfGameOver();
-    return turn;
-  }
-
-  @Override
-  public void addListener(ModelListener listener) {
-    listeners.add(listener);
   }
 }

@@ -3,7 +3,8 @@ package strategy;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import model.Direction;
+
+import model.ModelDirection;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
@@ -23,7 +24,7 @@ public final class CornerStrategy extends AbstractStrategy implements FallibleSt
       if (model.getColorAt(position) != RepresentativeColor.NONE) {
         continue;
       }
-      Map<Direction, Integer> value = model.checkMove(position, player);
+      Map<ModelDirection, Integer> value = model.checkMove(position, player);
       int pointsCanGet = 0;
       for (Integer i : value.values()) {
         pointsCanGet += i;

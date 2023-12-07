@@ -1,21 +1,15 @@
 package view;
 
-import java.awt.Graphics2D;
-import java.awt.Graphics;
-import java.awt.Polygon;
-import java.awt.Color;
-import java.awt.BasicStroke;
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import model.Hexagon;
-import model.ModelDirection;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
@@ -23,15 +17,15 @@ import model.RowColPair;
 /**
  * a HexGrid represents the assemble of hexagons.
  */
-public final class HexGrid {
+public final class SquareGrid {
   private final int size;
   private Map<RowColPair, Hexagon> hexagons;
   private final Map<RowColPair, Ellipse2D> center;
   private Map<RowColPair, RowColPair> number;
   private final int width;
   private final int height;
-  public final double theta = (Math.PI * 2) / 6.0;
-  public final int hexagonLength = 5;
+  public final double theta = (Math.PI * 2) / 4.0;
+  public final int hexagonLength = 14;
   private final ReadOnlyReversiModel model;
 
   /**
@@ -41,7 +35,7 @@ public final class HexGrid {
    * @param preferHeight the height of window
    * @param size         the size of the game board
    */
-  public HexGrid(ReadOnlyReversiModel model, int preferWidth, int preferHeight, int size) {
+  public SquareGrid(ReadOnlyReversiModel model, int preferWidth, int preferHeight, int size) {
     this.model = model;
     width = preferWidth;
     height = preferHeight;
@@ -88,6 +82,12 @@ public final class HexGrid {
     }
   }
 
+  private Polygon createSquare(int x, int y, int size) {
+    int[] xPoints = {x, x + hexagonLength, x + hexagonLength, x};
+    int[] yPoints = {y, y, y + hexagonLength, y + hexagonLength};
+    return new Polygon(xPoints, yPoints, size);
+  }
+
   /**
    * first, get the coordinators for the middle point(0,0), use its coordinators to get the point
    * surround it, then if the hexagon was unoccupied(the color is none or cyan), we will fill the
@@ -98,18 +98,13 @@ public final class HexGrid {
     List<List<Integer>> originalPoint = new ArrayList<>();
     Polygon polygon = new Polygon();
     RowColPair startPair = new RowColPair(0, 0);
-    for (int i = 0; i < 6; i++) {
-      int x1 = (int) (0 + hexagonLength * Math.sin(theta * i));
-      int y1 = (int) (0 + hexagonLength * Math.cos(theta * i));
-      polygon.addPoint(x1, y1);
-      originalPoint.add(Arrays.asList(x1, y1));
-    }
+    polygon = createSquare(-2 * size, -2 * size, 4);
     RepresentativeColor currentColor = hexagons.get(startPair).getColor();
     hexagons.get(startPair).setPoly(polygon);
-    int centerX = originalPoint.get(0).get(0);
-    int centerY = originalPoint.get(0).get(1);
+    int centerX = -2 * size;
+    int centerY = -2 * size;
     if (currentColor == RepresentativeColor.BLACK || currentColor == RepresentativeColor.WHITE) {
-      double circleRadius = hexagonLength / Math.sqrt(3);
+      double circleRadius = hexagonLength / Math.sqrt(2);
       center.put(new RowColPair(0, 0),
           new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
             circleRadius * 2, circleRadius * 2));
@@ -130,35 +125,22 @@ public final class HexGrid {
    */
   private void drawHexagon(List<List<Integer>> originalPoint, RowColPair pair) {
     Polygon polygon = new Polygon();
-    if (pair.getCol() == 0 && pair.getRow() == 0) {
-      return;
-    }
-    int fixY = 2 * pair.getRow();
-    int fixX = 3 * pair.getCol() + 4 * pair.getRow();
-    int centerX = 0;
-    int centerY = 0;
-    for (int i = 0; i < originalPoint.size(); i++) {
-      List<Integer> side = originalPoint.get(i);
-      int x = side.get(0);
-      int y = side.get(1);
-      x += (pair.getCol() * hexagonLength) + fixX;
-      y -= (pair.getRow() * hexagonLength) + fixY;
-      polygon.addPoint(x, y);
-      if (i == 0) {
-        centerX = x;
-        centerY = y;
-      }
-    }
+//    if (pair.getCol() == 0 && pair.getRow() == 0) {
+//      return;
+//    }
+    int fixY = pair.getRow() * hexagonLength;
+    int fixX = pair.getCol() * hexagonLength;
+    polygon = createSquare(pair.getRow() + fixY - 2 *  size, pair.getCol() + fixX - size, 4);
     hexagons.get(pair).setPoly(polygon);
     RepresentativeColor currentColor = hexagons.get(pair).getColor();
     if (currentColor == RepresentativeColor.BLACK || currentColor == RepresentativeColor.WHITE) {
       double circleRadius = hexagonLength / Math.sqrt(3);
       center.put(pair,
-          new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
-            circleRadius * 2, circleRadius * 2));
+          new Ellipse2D.Double(pair.getRow() + fixY - size - circleRadius + (double) size /2, pair.getCol() + fixX + size - circleRadius - (double) size /2,
+            circleRadius, circleRadius));
     } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()
         && model.getColorAt(pair) == RepresentativeColor.NONE) {
-        number.put(pair, new RowColPair(centerX, centerY));
+        number.put(pair, new RowColPair(pair.getRow() + fixY - 2 *  size, pair.getCol() + fixX - size));
     }
   }
 

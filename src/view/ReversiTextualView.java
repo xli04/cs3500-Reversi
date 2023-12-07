@@ -2,7 +2,6 @@ package view;
 
 import java.io.IOException;
 import java.util.Map;
-
 import model.Hexagon;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
@@ -12,7 +11,7 @@ import model.RowColPair;
  * class used to display the model in textual. using _ for empty cells,
  * X for black player, and O for white player.
  */
-public final class ReversiTextualView implements IView {
+public class ReversiTextualView implements IView {
   private final ReadOnlyReversiModel model;
 
   private final Appendable out;
@@ -53,7 +52,7 @@ public final class ReversiTextualView implements IView {
    */
   @Override
   public String toString() {
-    Map<RowColPair, Hexagon> board = model.getCurrentBoard();
+    Map<RowColPair, Hexagon> board = model.getBoard();
     StringBuilder builder = new StringBuilder();
     int size = model.getSize();
     int row = 2 * size - 1;
@@ -92,7 +91,7 @@ public final class ReversiTextualView implements IView {
    * Drawing _ for empty cells, X for black player, and O for white player.
    *
    * @param builder the current string builder
-   * @param color   the color of the player
+   * @param color the color of the player
    */
   private void drawGraph(StringBuilder builder, RepresentativeColor color) {
     if (color == RepresentativeColor.NONE) {
@@ -110,10 +109,10 @@ public final class ReversiTextualView implements IView {
   /**
    * Draw the graph in the color in the given position in given board.
    *
-   * @param board   the current board
+   * @param board the current board
    * @param builder the current builder
-   * @param i       the row coordinator
-   * @param j       the column coordinator
+   * @param i the row coordinator
+   * @param j the column coordinator
    */
   private void draw(Map<RowColPair, Hexagon> board, StringBuilder builder, int i, int j) {
     RepresentativeColor color = board.get(new RowColPair(i, j)).getColor();
@@ -123,7 +122,7 @@ public final class ReversiTextualView implements IView {
   /**
    * Renders a model in some manner (e.g. as text, or as graphics, etc.).
    *
-   * @throws IOException              if the rendering fails for some reason
+   * @throws IOException if the rendering fails for some reason
    * @throws IllegalArgumentException if there is no appendable object
    */
   private void render() {
@@ -139,7 +138,11 @@ public final class ReversiTextualView implements IView {
 
   @Override
   public void display() {
-    render();
+    if (out == null) {
+      System.out.println(this.toString());
+    } else {
+      render();
+    }
   }
 
   @Override
