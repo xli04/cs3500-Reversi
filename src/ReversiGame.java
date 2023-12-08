@@ -1,11 +1,13 @@
 import controller.Controller;
 import controller.ControllerListeners;
 import model.ModelStatus;
+import model.MutableReversiModel;
 import model.Player;
 import model.HexReversiModel;
 import model.ReversiAiPlayer;
 import model.ReversiHumanPlayer;
 import model.ReversiModelStatus;
+import model.SquareReversiModel;
 import strategy.AvoidCellsNextToCornersStrategy;
 import strategy.CaptureMaxPieces;
 import strategy.CompleteStrategy;
@@ -14,6 +16,7 @@ import strategy.CornerStrategy;
 import strategy.InfallibleStrategy;
 import strategy.MinimaxStrategy;
 import view.ReversiGraphicView;
+import view.SquareBoardPanel;
 
 /**
  * Main launching point for the reversi Game. User can choose the type of players in the
@@ -61,7 +64,7 @@ public class ReversiGame {
       }
     }
     ModelStatus status = new ReversiModelStatus();
-    HexReversiModel model = new HexReversiModel.ModelBuilder().setStatus(status).build();
+    MutableReversiModel model = new SquareReversiModel.ModelBuilder().setSize(8).setStatus(status).build();
     ReversiGraphicView view = new ReversiGraphicView(model);
     ReversiGraphicView view2 = new ReversiGraphicView(model);
     Controller controller = new Controller(model, view, player1, status);

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import model.Hexagon;
-import model.ModelDirection;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;

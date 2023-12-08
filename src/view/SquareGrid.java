@@ -1,15 +1,21 @@
 package view;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Graphics;
+import java.awt.Polygon;
+import java.awt.Color;
+import java.awt.BasicStroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import model.Hexagon;
+import model.ModelDirection;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
@@ -25,7 +31,7 @@ public final class SquareGrid {
   private final int width;
   private final int height;
   public final double theta = (Math.PI * 2) / 4.0;
-  public final int hexagonLength = 14;
+  public final int hexagonLength = 7;
   private final ReadOnlyReversiModel model;
 
   /**
@@ -67,7 +73,7 @@ public final class SquareGrid {
     g2d.setColor(Color.BLACK);
     float strokeWidth = 0.1f;
     int currentSize = size;
-    while (currentSize > 6) {
+    while (currentSize > 8) {
       strokeWidth += 0.2;
       currentSize--;
     }
@@ -98,7 +104,7 @@ public final class SquareGrid {
     List<List<Integer>> originalPoint = new ArrayList<>();
     Polygon polygon = new Polygon();
     RowColPair startPair = new RowColPair(0, 0);
-    polygon = createSquare(-2 * size, -2 * size, 4);
+    polygon = createSquare(-2 * size + size, -2 * size, 4);
     RepresentativeColor currentColor = hexagons.get(startPair).getColor();
     hexagons.get(startPair).setPoly(polygon);
     int centerX = -2 * size;
@@ -106,8 +112,8 @@ public final class SquareGrid {
     if (currentColor == RepresentativeColor.BLACK || currentColor == RepresentativeColor.WHITE) {
       double circleRadius = hexagonLength / Math.sqrt(2);
       center.put(new RowColPair(0, 0),
-          new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
-            circleRadius * 2, circleRadius * 2));
+        new Ellipse2D.Double(centerX - circleRadius + hexagonLength, centerY - hexagonLength,
+          circleRadius, circleRadius));
     } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()) {
       number.put(new RowColPair(0,0), new RowColPair(centerX, centerY));
     }
@@ -128,19 +134,20 @@ public final class SquareGrid {
 //    if (pair.getCol() == 0 && pair.getRow() == 0) {
 //      return;
 //    }
-    int fixY = pair.getRow() * hexagonLength;
-    int fixX = pair.getCol() * hexagonLength;
-    polygon = createSquare(pair.getRow() + fixY - 2 *  size, pair.getCol() + fixX - size, 4);
+    int fixY = pair.getRow() * hexagonLength - pair.getRow();
+    int fixX = pair.getCol() * hexagonLength - pair.getCol();
+    polygon = createSquare(pair.getRow() + fixY - 2 *  size + size, pair.getCol() + fixX - size, 4);
     hexagons.get(pair).setPoly(polygon);
     RepresentativeColor currentColor = hexagons.get(pair).getColor();
     if (currentColor == RepresentativeColor.BLACK || currentColor == RepresentativeColor.WHITE) {
-      double circleRadius = hexagonLength / Math.sqrt(3);
+      double circleRadius = hexagonLength / Math.sqrt(2);
       center.put(pair,
-          new Ellipse2D.Double(pair.getRow() + fixY - size - circleRadius + (double) size /2, pair.getCol() + fixX + size - circleRadius - (double) size /2,
-            circleRadius, circleRadius));
+        new Ellipse2D.Double(pair.getRow() + fixY - size + 1,
+          pair.getCol() + fixX - size + 1,
+          circleRadius, circleRadius));
     } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()
-        && model.getColorAt(pair) == RepresentativeColor.NONE) {
-        number.put(pair, new RowColPair(pair.getRow() + fixY - 2 *  size, pair.getCol() + fixX - size));
+      && model.getColorAt(pair) == RepresentativeColor.NONE) {
+      number.put(pair, new RowColPair(pair.getRow() + fixY - 2 *  size, pair.getCol() + fixX - size));
     }
   }
 

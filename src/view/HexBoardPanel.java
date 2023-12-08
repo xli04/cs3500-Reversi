@@ -4,13 +4,13 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
-
-import model.ModelDirection;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
@@ -19,26 +19,24 @@ import model.RowColPair;
  * A Panel will draw all the colors, allow users to click on them,
  * and play the game.
  */
-public class ReversiBoardPanel extends JPanel{
-  private static int preferWidth = 100;
-  private static int preferHeight = 100;
+public class HexBoardPanel extends JPanel implements IPanel{
+  private int preferWidth = 100;
+  private int preferHeight = 100;
   /**
    * Our view will need to display a model, so it needs to get the current sequence from the model.
    */
   private final ReadOnlyReversiModel model;
   private final HexGrid hexGrid;
   private RowColPair selectedPosition;
-  private RepresentativeColor color;
-  private boolean showHints;
   private boolean mouseLock = false;
-
+  private final List<PanelDecorator> decorators;
 
   /**
    * construct the Panel with the given constructor.
    *
    * @param model the given model
    */
-  public ReversiBoardPanel(ReadOnlyReversiModel model, RepresentativeColor color) {
+  public HexBoardPanel(ReadOnlyReversiModel model, RepresentativeColor color) {
     this.model = Objects.requireNonNull(model);
     selectedPosition = null;
     MouseEventsListener listener = new MouseEventsListener();
@@ -51,8 +49,7 @@ public class ReversiBoardPanel extends JPanel{
       boardSize -= 6;
     }
     hexGrid = new HexGrid(model, preferWidth, preferHeight, model.getSize());
-    this.color = color;
-    showHints = false;
+    decorators = new ArrayList<>();
   }
 
   /**
@@ -61,7 +58,9 @@ public class ReversiBoardPanel extends JPanel{
    * @param color the given color, represents the player
    */
   public void setColor(RepresentativeColor color) {
-    this.color = color;
+    for (PanelDecorator decorator : decorators) {
+      decorator.setColor(color);
+    }
   }
 
   /**
@@ -107,26 +106,24 @@ public class ReversiBoardPanel extends JPanel{
    * @param g the <code>Graphics</code> object to protect
    */
   @Override
-  protected void paintComponent(Graphics g) {
+  public void paintComponent(Graphics g) {
     super.paintComponent(g);
     this.setLayout(new FlowLayout());
     Graphics2D g2d = (Graphics2D) g.create();
     g2d.transform(transformLogicalToPhysical());
     hexGrid.paintComponent(g2d);
+    for (PanelDecorator decorator : decorators) {
+      decorator.setDrawingPoints(hexGrid.getThePositionForDrawingNumber());
+      decorator.paint(g2d, selectedPosition);
+    }
   }
-
-  /**
-   * Paint the number on the specific hexagon represents the number of cells that the current
-   * player place here can flipped.
-   */
-
 
   /**
    * update the current model game state to the view.
    *
    * @param model the current model state
    */
-  public void resetHexGrid(ReadOnlyReversiModel model) {
+  public void resetGrid(ReadOnlyReversiModel model) {
     hexGrid.update(model.getBoard());
     repaint();
   }
@@ -138,6 +135,12 @@ public class ReversiBoardPanel extends JPanel{
     selectedPosition = null;
   }
 
+  @Override
+  public void setDecorator(RepresentativeColor color) {
+    for (PanelDecorator decorator : decorators) {
+      decorator.setFunctionality(color);
+    }
+  }
 
   /**
    * Computes the transformation that converts board coordinates
@@ -147,7 +150,7 @@ public class ReversiBoardPanel extends JPanel{
    *
    * @return The necessary transformation
    */
-  private AffineTransform transformLogicalToPhysical() {
+  protected AffineTransform transformLogicalToPhysical() {
     AffineTransform ret = new AffineTransform();
     Dimension preferred = getPreferredLogicalSize();
     ret.translate(getWidth() / 2., getHeight() / 2.);
@@ -164,29 +167,13 @@ public class ReversiBoardPanel extends JPanel{
    *
    * @return The necessary transformation
    */
-  private AffineTransform transformPhysicalToLogical() {
+  protected AffineTransform transformPhysicalToLogical() {
     AffineTransform ret = new AffineTransform();
     Dimension preferred = getPreferredLogicalSize();
     ret.scale(1, -1);
     ret.scale(preferred.getWidth() / getWidth(), preferred.getHeight() / getHeight());
     ret.translate(-getWidth() / 2., -getHeight() / 2.);
     return ret;
-  }
-
-  /**
-   * If the player is the player need to make move in the turn, show hints. If the game is already
-   * over, the player can not interact with panel anymore thus do nothing.
-   *
-   * @param color the current player
-   */
-  public void setShowHints(RepresentativeColor color) {
-    if (model.isGameOver()) {
-      return;
-    }
-    if (color == model.getTurn()) {
-      showHints = !showHints;
-      repaint();
-    }
   }
 
   /**
@@ -198,7 +185,23 @@ public class ReversiBoardPanel extends JPanel{
     return selectedPosition;
   }
 
+  @Override
+  public JPanel getPanel() {
+    return this;
+  }
+
+  @Override
+  public void addDecorator(PanelDecorator decorator) {
+    decorators.add(decorator);
+  }
+
+  @Override
+  public Map<RowColPair, RowColPair> getDrawingPoints() {
+    return hexGrid.getThePositionForDrawingNumber();
+  }
+
   private class MouseEventsListener extends MouseInputAdapter {
+
     @Override
     public void mousePressed(MouseEvent e) {
       // no action for mousePressed.
@@ -240,7 +243,6 @@ public class ReversiBoardPanel extends JPanel{
         selectedPosition = selected;
         hexGrid.setColor(selected, RepresentativeColor.CYAN);
         repaint();
-//        paintNumbers(selectedPosition);
       } else if (hexGrid.getColor(selected) == RepresentativeColor.CYAN) {
         hexGrid.setColor(selected, RepresentativeColor.NONE);
         selectedPosition = null;

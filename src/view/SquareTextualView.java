@@ -73,36 +73,36 @@ public class SquareTextualView implements IView{
 
   @Override
   public void display() {
-
+    // no action
   }
 
   @Override
   public void addFeatures(Features features) {
-
+    // no action
   }
 
   @Override
   public void showMessage(String s) {
-
+    // no action
   }
 
   @Override
   public void lockInteractionWithViewForNonHumanPlayer() {
-
+    // no action
   }
 
   @Override
   public void showHints(RepresentativeColor color) {
-
+    // no action
   }
 
   @Override
   public void setColor(RepresentativeColor color) {
-
+    // no action
   }
 
   @Override
   public void update(ReadOnlyReversiModel model, RepresentativeColor player) {
-
+    // no action
   }
 }

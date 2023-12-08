@@ -4,13 +4,14 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
 
-import model.ModelDirection;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
@@ -19,20 +20,19 @@ import model.RowColPair;
  * A Panel will draw all the colors, allow users to click on them,
  * and play the game.
  */
-public class SquareBoardPanel extends JPanel{
-  private static int preferWidth = 100;
-  private static int preferHeight = 100;
+public class SquareBoardPanel extends JPanel implements IPanel{
+  private int preferWidth = 100;
+  private int preferHeight = 100;
   /**
    * Our view will need to display a model, so it needs to get the current sequence from the model.
    */
   private final ReadOnlyReversiModel model;
-  private final HexGrid hexGrid;
+  private final SquareGrid squareGrid;
   private RowColPair selectedPosition;
-  private RepresentativeColor color;
-  private boolean showHints;
   private boolean mouseLock = false;
+  private List<PanelDecorator> decorators;
 
-  private Graphics graphics = null;
+  private AffineTransform convert;
 
   /**
    * construct the Panel with the given constructor.
@@ -46,14 +46,13 @@ public class SquareBoardPanel extends JPanel{
     this.addMouseListener(listener);
     this.addMouseMotionListener(listener);
     int boardSize = model.getSize();
-    while (boardSize > 6) {
+    while (boardSize > 8) {
       preferWidth += 100;
       preferHeight += 110;
       boardSize -= 6;
     }
-    hexGrid = new HexGrid(model, preferWidth, preferHeight, model.getSize());
-    this.color = color;
-    showHints = false;
+    squareGrid = new SquareGrid(model, preferWidth, preferHeight, model.getSize());
+    decorators = new ArrayList<>();
   }
 
   /**
@@ -62,7 +61,9 @@ public class SquareBoardPanel extends JPanel{
    * @param color the given color, represents the player
    */
   public void setColor(RepresentativeColor color) {
-    this.color = color;
+    for (PanelDecorator decorator : decorators) {
+      decorator.setColor(color);
+    }
   }
 
   /**
@@ -108,60 +109,15 @@ public class SquareBoardPanel extends JPanel{
    * @param g the <code>Graphics</code> object to protect
    */
   @Override
-  protected void paintComponent(Graphics g) {
+  public void paintComponent(Graphics g) {
     super.paintComponent(g);
     this.setLayout(new FlowLayout());
     Graphics2D g2d = (Graphics2D) g.create();
     g2d.transform(transformLogicalToPhysical());
-    hexGrid.paintComponent(g2d);
-    paintNumbers(g2d, selectedPosition);
-  }
-
-  /**
-   * Paint the number on the specific hexagon represents the number of cells that the current
-   * player place here can flipped.
-   */
-  protected void paintNumbers(Graphics2D g2d, RowColPair pair) {
-    if (pair == null) {
-      return;
+    squareGrid.paintComponent(g2d);
+    for (PanelDecorator decorator : decorators) {
+      decorator.paint(g2d, selectedPosition);
     }
-    try {
-      if (!model.isGameOver() && color == model.getTurn() && showHints) {
-        Font font = new Font("Arial", Font.PLAIN, 4);
-        g2d.setFont(font);
-        g2d.scale(1, -1);
-        g2d.setColor(Color.gray);
-        Map<RowColPair, RowColPair> location = hexGrid.getThePositionForDrawingNumber();
-        Map<ModelDirection, Integer> values = model.checkMove(pair, model.getTurn());
-        int value = 0;
-        for (int i : values.values()) {
-          value += i;
-        }
-        Point2D p2d = new Point2D() {
-          @Override
-          public double getX() {
-            return location.get(pair).getRow();
-          }
-
-          @Override
-          public double getY() {
-            return location.get(pair).getCol() - 6;
-          }
-
-          @Override
-          public void setLocation(double x, double y) {
-            // no action for setLocation.
-          }
-        };
-        g2d.drawString(String.valueOf(value),
-          (int) inverse().transform(p2d, null).getX(),
-          (int) inverse().transform(p2d, null).getY());
-        repaint();
-      }
-    } catch (IllegalStateException e) {
-
-    }
-
   }
 
   /**
@@ -169,8 +125,8 @@ public class SquareBoardPanel extends JPanel{
    *
    * @param model the current model state
    */
-  public void resetHexGrid(ReadOnlyReversiModel model) {
-    hexGrid.update(model.getBoard());
+  public void resetGrid(ReadOnlyReversiModel model) {
+    squareGrid.update(model.getBoard());
     repaint();
   }
 
@@ -179,19 +135,6 @@ public class SquareBoardPanel extends JPanel{
    */
   public void resetSelectedPosition() {
     selectedPosition = null;
-  }
-
-  /**
-   * flipping the graphics vertically by applying a scaling transformation with
-   * a scaling factor of 1 along the x-axis (no change) and a scaling factor of -1
-   * along the y-axis.
-   *
-   * @return the transformation after flipping
-   */
-  private AffineTransform inverse() {
-    AffineTransform ret = new AffineTransform();
-    ret.scale(1, -1);
-    return ret;
   }
 
   /**
@@ -232,14 +175,7 @@ public class SquareBoardPanel extends JPanel{
    *
    * @param color the current player
    */
-  public void setShowHints(RepresentativeColor color) {
-    if (model.isGameOver()) {
-      return;
-    }
-    if (color == model.getTurn()) {
-      showHints = !showHints;
-      repaint();
-    }
+  public void setDecorator(RepresentativeColor color) {
   }
 
   /**
@@ -249,6 +185,22 @@ public class SquareBoardPanel extends JPanel{
    */
   public RowColPair getSelectedPosition() {
     return selectedPosition;
+  }
+
+  @Override
+  public JPanel getPanel() {
+    return this;
+  }
+
+
+  @Override
+  public Map<RowColPair, RowColPair> getDrawingPoints() {
+    return squareGrid.getThePositionForDrawingNumber();
+  }
+
+  @Override
+  public void addDecorator(PanelDecorator decorator) {
+    decorators.add(decorator);
   }
 
   private class MouseEventsListener extends MouseInputAdapter {
@@ -270,37 +222,33 @@ public class SquareBoardPanel extends JPanel{
      */
     @Override
     public void mouseReleased(MouseEvent e) {
-      if (model.isGameOver() || mouseLock) {
-        return;
-      }
-      Point physicalP = e.getPoint();
-      Point2D logicalP = transformPhysicalToLogical().transform(physicalP, null);
-      RowColPair selected = hexGrid.getPoint(logicalP);
-      System.out.println(selected.getRow());
-      System.out.println(selected.getCol());
-      if (selected == null) {
-        if (selectedPosition == null) {
+      if (!model.isGameOver() && !mouseLock) {
+        Point physicalP = e.getPoint();
+        Point2D logicalP = transformPhysicalToLogical().transform(physicalP, null);
+        RowColPair selected = squareGrid.getPoint(logicalP);
+        if (selected == null) {
+          if (selectedPosition == null) {
+            return;
+          }
+          squareGrid.setColor(selectedPosition, RepresentativeColor.NONE);
+          selectedPosition = null;
+          repaint();
           return;
         }
-        hexGrid.setColor(selectedPosition, RepresentativeColor.NONE);
-        selectedPosition = null;
-        repaint();
-        return;
-      }
-      if (hexGrid.getColor(selected) == RepresentativeColor.NONE) {
-        if (selectedPosition != null && hexGrid.getColor(selectedPosition)
-          == RepresentativeColor.CYAN) {
-          hexGrid.setColor(selectedPosition, RepresentativeColor.NONE);
+        if (squareGrid.getColor(selected) == RepresentativeColor.NONE) {
+          if (selectedPosition != null && squareGrid.getColor(selectedPosition)
+            == RepresentativeColor.CYAN) {
+            squareGrid.setColor(selectedPosition, RepresentativeColor.NONE);
+          }
+          selectedPosition = selected;
+          squareGrid.setColor(selected, RepresentativeColor.CYAN);
+          repaint();
+        } else if (squareGrid.getColor(selected) == RepresentativeColor.CYAN) {
+          squareGrid.setColor(selected, RepresentativeColor.NONE);
+          selectedPosition = null;
         }
-        selectedPosition = selected;
-        hexGrid.setColor(selected, RepresentativeColor.CYAN);
         repaint();
-//        paintNumbers(selectedPosition);
-      } else if (hexGrid.getColor(selected) == RepresentativeColor.CYAN) {
-        hexGrid.setColor(selected, RepresentativeColor.NONE);
-        selectedPosition = null;
       }
-      repaint();
     }
 
     @Override

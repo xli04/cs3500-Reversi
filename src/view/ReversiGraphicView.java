@@ -1,16 +1,14 @@
 package view;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import javax.swing.JFrame;
+
+import javax.swing.*;
+
+import model.HexReversiModel;
 import model.ReadOnlyReversiModel;
 import model.RowColPair;
-import java.awt.Color;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import java.awt.BorderLayout;
 import model.RepresentativeColor;
 
 /**
@@ -20,7 +18,7 @@ import model.RepresentativeColor;
  * whether the player wants to get some hints.
  */
 public class ReversiGraphicView extends JFrame implements IView {
-  private final ReversiBoardPanel panel;
+  private final IPanel panel;
   private final JLabel whiteScore;
   private final JLabel blackScore;
   private final JLabel turn;
@@ -38,10 +36,14 @@ public class ReversiGraphicView extends JFrame implements IView {
    * @param model the given model
    */
   public ReversiGraphicView(ReadOnlyReversiModel model) {
-    this.panel = new ReversiBoardPanel(model, null);
-    this.add(panel);
-//    this.hintPanel = new ReversiHintPanel(model, panel.getPreferredLogicalSize(), null);
-//    this.add(hintPanel);
+    if (model instanceof HexReversiModel) {
+      panel = new HexBoardPanel(model, null);
+      panel.addDecorator(new HintDecorator(model));
+      this.add(panel.getPanel());
+    } else {
+      this.panel = new SquareBoardPanel(model, null);
+      this.add(panel.getPanel());
+    }
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     hint = new JButton("Hint");
     hint.setFocusable(false);
@@ -107,7 +109,7 @@ public class ReversiGraphicView extends JFrame implements IView {
    * @param model the current model
    */
   private void resetPanel(ReadOnlyReversiModel model) {
-    panel.resetHexGrid(model);
+    panel.resetGrid(model);
     resetScore(model.getScore(RepresentativeColor.BLACK),
         model.getScore(RepresentativeColor.WHITE));
     this.repaint();
@@ -225,7 +227,8 @@ public class ReversiGraphicView extends JFrame implements IView {
 
   @Override
   public void showHints(RepresentativeColor color) {
-    panel.setShowHints(color);
+    panel.setDecorator(color);
+    repaint();
   }
 
   @Override
@@ -252,5 +255,7 @@ public class ReversiGraphicView extends JFrame implements IView {
   private void resetSelectedPosition() {
     panel.resetSelectedPosition();
   }
+
+
 
 }

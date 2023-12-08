@@ -195,7 +195,16 @@ public final class SquareReversiModel extends AbstractReversiModel{
   @Override
   protected Map<ModelDirection, Integer> tryCheckMove(RowColPair pair, RepresentativeColor color)  {
     checkIfGameOver();
-    checkCoordinators(pair);
+    if (!isInBounds(pair) || pair == null) {
+      throw new IllegalArgumentException("invalid coordinators");
+    }
+    if (board.get(pair).getColor() != RepresentativeColor.NONE) {
+      Map<ModelDirection, Integer> value = new HashMap<>();
+      for (SquareDirection direction : SquareDirection.values()) {
+        value.put(direction, 0);
+      }
+      return value;
+    }
     Map<ModelDirection, Integer> value = new HashMap<>();
     for (SquareDirection direction : SquareDirection.values()) {
       value.put(direction, checkFlip(pair, direction, color));

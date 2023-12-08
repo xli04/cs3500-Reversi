@@ -1,6 +1,6 @@
 package view;
 
-import java.awt.*;
+import java.util.Map;
 
 import javax.swing.*;
 
@@ -11,10 +11,12 @@ import model.RowColPair;
 public interface IPanel {
   void setColor(RepresentativeColor color);
   void setMouseLock(Boolean lock);
-  void paintComponent(Graphics g);
-  void resetHexGrid(ReadOnlyReversiModel model);
+  void resetGrid(ReadOnlyReversiModel model);
   void resetSelectedPosition();
-  void setShowHints(RepresentativeColor color);
+  void setDecorator(RepresentativeColor color);
   RowColPair getSelectedPosition();
+  JPanel getPanel();
+  Map<RowColPair, RowColPair> getDrawingPoints();
+  void addDecorator(PanelDecorator decorator);
 
 }
