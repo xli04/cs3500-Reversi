@@ -1,7 +1,10 @@
 package model;
 
-import java.util.List;
-
+/**
+ * The ModelDirection interface represents directions used in a game model.
+ * Implementing classes/enums provide specific directions with associated
+ * row and column offsets.
+ */
 public interface ModelDirection {
 
   /**
@@ -16,7 +19,7 @@ public interface ModelDirection {
    *
    * @return the difference
    */
- int getRowOffset();
+  int getRowOffset();
 
   /**
    * get the change in the RightCol.
@@ -24,6 +27,4 @@ public interface ModelDirection {
    * @return the difference
    */
   int getRightColOffset();
-
-  ModelDirection[] getDirection();
 }

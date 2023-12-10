@@ -6,7 +6,11 @@ import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
 
-public class SquareTextualView implements IView{
+/**
+ * The SquareTextualView class represents a textual view for a square-based model.
+ * It implements the IView interface to provide a text-based representation of the model.
+ */
+public class SquareTextualView implements IView {
   private final ReadOnlyReversiModel model;
 
   private final Appendable out;
@@ -41,8 +45,9 @@ public class SquareTextualView implements IView{
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-    for (int row = 0; row < model.getSize(); row ++) {
-      for (int col = 0; col < model.getSize(); col ++) {
+    int start = - (model.getSize() / 2 - 1);
+    for (int row = start; row < model.getSize() + start; row++) {
+      for (int col = start; col < model.getSize() + start; col++) {
         RepresentativeColor color = model.getColorAt(new RowColPair(row, col));
         if (color == RepresentativeColor.BLACK) {
           builder.append("X");
@@ -60,6 +65,12 @@ public class SquareTextualView implements IView{
     return builder.toString();
   }
 
+  /**
+   * Renders a model in some manner (e.g. as text, or as graphics, etc.).
+   *
+   * @throws IOException if the rendering fails for some reason
+   * @throws IllegalArgumentException if there is no appendable object
+   */
   private void render() {
     if (out == null) {
       throw new IllegalArgumentException();
@@ -73,7 +84,7 @@ public class SquareTextualView implements IView{
 
   @Override
   public void display() {
-    // no action
+    render();
   }
 
   @Override

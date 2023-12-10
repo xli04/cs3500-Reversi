@@ -4,7 +4,7 @@ package model;
  * Represents a direction relative to a given cell on the board. The checking order
  * of the directions should be LEfT,RIGHT, RIGHTUP, RIGHTDOWN, LEFTUP, LEFTDOWN.
  */
-public enum RegularDirection implements ModelDirection{
+public enum HexDirection implements ModelDirection {
   LEfT(-1, 0, 1),
   RIGHT(1, 0, -1),
   RIGHTUP(1, -1, 0),
@@ -24,16 +24,10 @@ public enum RegularDirection implements ModelDirection{
    * @param rowOffset the changes in column
    * @param rightColOffset the changes in column
    */
-  RegularDirection(int leftColOffset, int rowOffset, int rightColOffset) {
+  HexDirection(int leftColOffset, int rowOffset, int rightColOffset) {
     this.leftColOffset = leftColOffset;
     this.rowOffset = rowOffset;
     this.rightColOffset = rightColOffset;
-  }
-
-  RegularDirection(int rowOffset, int colOffset) {
-    this.rowOffset = rowOffset;
-    this.leftColOffset = colOffset;
-    this.rightColOffset = 0;
   }
 
   /**
@@ -61,11 +55,6 @@ public enum RegularDirection implements ModelDirection{
    */
   public int getRightColOffset() {
     return this.rightColOffset;
-  }
-
-  @Override
-  public ModelDirection[] getDirection() {
-    return values();
   }
 
 

@@ -1,15 +1,16 @@
 package view;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import javax.swing.*;
+import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
@@ -19,7 +20,7 @@ import model.RowColPair;
  * A Panel will draw all the colors, allow users to click on them,
  * and play the game.
  */
-public class HexBoardPanel extends JPanel implements IPanel{
+public class HexBoardPanel extends JPanel implements IPanel {
   private int preferWidth = 100;
   private int preferHeight = 100;
   /**
@@ -29,14 +30,13 @@ public class HexBoardPanel extends JPanel implements IPanel{
   private final HexGrid hexGrid;
   private RowColPair selectedPosition;
   private boolean mouseLock = false;
-  private final List<PanelDecorator> decorators;
 
   /**
    * construct the Panel with the given constructor.
    *
    * @param model the given model
    */
-  public HexBoardPanel(ReadOnlyReversiModel model, RepresentativeColor color) {
+  public HexBoardPanel(ReadOnlyReversiModel model) {
     this.model = Objects.requireNonNull(model);
     selectedPosition = null;
     MouseEventsListener listener = new MouseEventsListener();
@@ -49,19 +49,8 @@ public class HexBoardPanel extends JPanel implements IPanel{
       boardSize -= 6;
     }
     hexGrid = new HexGrid(model, preferWidth, preferHeight, model.getSize());
-    decorators = new ArrayList<>();
   }
 
-  /**
-   * Set the color to the panel, represent this panel is for the player in given color.
-   *
-   * @param color the given color, represents the player
-   */
-  public void setColor(RepresentativeColor color) {
-    for (PanelDecorator decorator : decorators) {
-      decorator.setColor(color);
-    }
-  }
 
   /**
    * Set the mouse lock to the panel, in order to keep human players away from bothering
@@ -112,10 +101,6 @@ public class HexBoardPanel extends JPanel implements IPanel{
     Graphics2D g2d = (Graphics2D) g.create();
     g2d.transform(transformLogicalToPhysical());
     hexGrid.paintComponent(g2d);
-    for (PanelDecorator decorator : decorators) {
-      decorator.setDrawingPoints(hexGrid.getThePositionForDrawingNumber());
-      decorator.paint(g2d, selectedPosition);
-    }
   }
 
   /**
@@ -133,13 +118,6 @@ public class HexBoardPanel extends JPanel implements IPanel{
    */
   public void resetSelectedPosition() {
     selectedPosition = null;
-  }
-
-  @Override
-  public void setDecorator(RepresentativeColor color) {
-    for (PanelDecorator decorator : decorators) {
-      decorator.setFunctionality(color);
-    }
   }
 
   /**
@@ -176,6 +154,10 @@ public class HexBoardPanel extends JPanel implements IPanel{
     return ret;
   }
 
+  public Map<RowColPair, RowColPair> getDrawingPoints() {
+    return hexGrid.getThePositionForDrawingNumber();
+  }
+
   /**
    * Get the user's current selected position in the system of RowColPair.
    *
@@ -188,16 +170,6 @@ public class HexBoardPanel extends JPanel implements IPanel{
   @Override
   public JPanel getPanel() {
     return this;
-  }
-
-  @Override
-  public void addDecorator(PanelDecorator decorator) {
-    decorators.add(decorator);
-  }
-
-  @Override
-  public Map<RowColPair, RowColPair> getDrawingPoints() {
-    return hexGrid.getThePositionForDrawingNumber();
   }
 
   private class MouseEventsListener extends MouseInputAdapter {
@@ -237,7 +209,7 @@ public class HexBoardPanel extends JPanel implements IPanel{
       }
       if (hexGrid.getColor(selected) == RepresentativeColor.NONE) {
         if (selectedPosition != null && hexGrid.getColor(selectedPosition)
-          == RepresentativeColor.CYAN) {
+            == RepresentativeColor.CYAN) {
           hexGrid.setColor(selectedPosition, RepresentativeColor.NONE);
         }
         selectedPosition = selected;

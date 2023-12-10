@@ -24,7 +24,7 @@ public final class AvoidCellsNextToCornersStrategy extends AbstractStrategy impl
     RowColPair pair = null;
     int value = -1;
     for (RowColPair position : pairs.keySet()) {
-      if (!(isNextToCorner(position, cornerPoints))) {
+      if (!(isNextToCorner(model, position, cornerPoints))) {
         if (pair == null) {
           pair = position;
           value = pairs.get(position);

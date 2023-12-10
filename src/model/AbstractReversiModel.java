@@ -5,24 +5,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractReversiModel implements MutableReversiModel{
-  protected static final int DEFAULT_SIZE = 6;
+/**
+ * The AbstractReversiModel class provides a partial implementation of the MutableReversiModel
+ * interface. It serves as a base class for Reversi game models, defining common functionality
+ * and properties.
+ */
+public abstract class AbstractReversiModel implements MutableReversiModel {
   //INVARIANT: size is greater than 1.
   protected final int size;
-  protected final Map<RowColPair, Hexagon> board;
+  protected final Map<RowColPair, CellPiece> board;
+  protected final ModelStatus status;
   //INVARIANT: passTimes can not be larger than 2.
   protected int passTimes;
   //INVARIANT: turn can only be white or black.
   protected RepresentativeColor turn = null;
   protected List<ModelListener> listeners;
   protected boolean hasGameStarted = false;
-  protected final ModelStatus status;
 
   /**
    * initialize the game with the given size. the 2 should be the smallest size for a board
    * to put in all the pre-positioned cells.
    *
-   * @param size size of the board
+   * @param size   size of the board
    * @param status the status that represents the most recent states of game
    */
   protected AbstractReversiModel(int size, ModelStatus status) {
@@ -49,9 +53,9 @@ public abstract class AbstractReversiModel implements MutableReversiModel{
    * @param size  the size to construct the new board to
    * @param turn  the color whose turn it is
    */
-  AbstractReversiModel(Map<RowColPair, Hexagon> board, int size, RepresentativeColor turn) {
+  AbstractReversiModel(Map<RowColPair, CellPiece> board, int size, RepresentativeColor turn) {
     if (board == null || size < 2 || (turn != RepresentativeColor.WHITE
-      && turn != RepresentativeColor.BLACK)) {
+        && turn != RepresentativeColor.BLACK)) {
       throw new IllegalArgumentException(
         "Error occurred when trying to initialize Reversi Model from rigged board"
       );
@@ -74,11 +78,11 @@ public abstract class AbstractReversiModel implements MutableReversiModel{
    * left, the r will increase, if the cell go right, the r will decrease. for the q, the leftCol,
    * it will increase when the col go left. and for the s, the rightCol, it will increase
    * when the col go right.
-   *        (-2,0,2) (-2,1,1) (-2,2,0)
-   *    (-1,-1,2) (-1,0,1) (-1,1,0) (-1,-2,-1)
+   * (-2,0,2) (-2,1,1) (-2,2,0)
+   * (-1,-1,2) (-1,0,1) (-1,1,0) (-1,-2,-1)
    * (0,-2,2) (0,-1,1) (0,0,0) (0,1,-1) (0,2,-2)
-   *    (1,-2,1) (1,-1,0) (1,0,-1) (1,1,-2)
-   *       (2,-2,0) (2,-1,-1) (2,0,-2)
+   * (1,-2,1) (1,-1,0) (1,0,-1) (1,1,-2)
+   * (2,-2,0) (2,-1,-1) (2,0,-2)
    *
    * @param size the size of the board
    */
@@ -122,7 +126,7 @@ public abstract class AbstractReversiModel implements MutableReversiModel{
    * to let the view repaint the board and update the controllers to show the current state of the
    * game.
    *
-   * @param pair the row-col pair
+   * @param pair          the row-col pair
    * @param currentPlayer the player that wants to place a move
    * @throws IllegalArgumentException If the coordinators are invalid
    * @throws IllegalStateException    If we can not place the given color cell in given position
@@ -133,7 +137,9 @@ public abstract class AbstractReversiModel implements MutableReversiModel{
     tryPlaceMove(pair, currentPlayer);
   }
 
-  protected abstract Map<ModelDirection, Integer> tryCheckMove(RowColPair pair, RepresentativeColor color);
+  protected abstract Map<ModelDirection, Integer> tryCheckMove(RowColPair pair,
+                                                               RepresentativeColor color);
+
   @Override
   public Map<ModelDirection, Integer> checkMove(RowColPair pair, RepresentativeColor color) {
     return tryCheckMove(pair, color);
@@ -223,6 +229,7 @@ public abstract class AbstractReversiModel implements MutableReversiModel{
   }
 
   protected abstract MutableReversiModel tryGetDeepCopy(RepresentativeColor color);
+
   @Override
   public MutableReversiModel getDeepCopy(RepresentativeColor color) {
     return tryGetDeepCopy(color);
@@ -245,11 +252,11 @@ public abstract class AbstractReversiModel implements MutableReversiModel{
   }
 
   @Override
-  public Map<RowColPair, Hexagon> getBoard() {
-    Map<RowColPair, Hexagon> copy = new HashMap<>();
+  public Map<RowColPair, CellPiece> getBoard() {
+    Map<RowColPair, CellPiece> copy = new HashMap<>();
     for (RowColPair pair : board.keySet()) {
       copy.put(new RowColPair(pair.getRow(), pair.getCol()),
-        new Hexagon(board.get(pair).getColor()));
+          new CellPiece(board.get(pair).getColor()));
     }
     return copy;
   }

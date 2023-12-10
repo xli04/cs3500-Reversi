@@ -3,8 +3,21 @@ package model;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class SquareReversiModel extends AbstractReversiModel{
+/**
+ * The SquareReversiModel class represents a Reversi game model based on a square board.
+ * It extends AbstractReversiModel and provides specific implementations for a square-shaped board.
+ * This class is marked as final to prevent further extension.
+ *
+ * @see AbstractReversiModel
+ */
+public final class SquareReversiModel extends AbstractReversiModel {
 
+  /**
+   * Constructs a SquareReversiModel with the specified size and initial status.
+   *
+   * @param size   The size of the square board.
+   * @param status The initial ModelStatus of the game.
+   */
   private SquareReversiModel(int size, ModelStatus status) {
     super(size, status);
   }
@@ -19,80 +32,37 @@ public final class SquareReversiModel extends AbstractReversiModel{
    * @param size  the size to construct the new board to
    * @param turn  the color whose turn it is
    */
-  SquareReversiModel(Map<RowColPair, Hexagon> board, int size, RepresentativeColor turn) {
+  SquareReversiModel(Map<RowColPair, CellPiece> board, int size, RepresentativeColor turn) {
     super(board, size, turn);
-  }
-
-  /**
-   * A Builder to the regular reversi model, the target is to the reducing the number of
-   * constructor and supply flexibility and Step-by-Step Construction for the model.
-   */
-  public static class ModelBuilder {
-    private ModelStatus status;
-
-    private int size;
-
-    /**
-     * A setter that updates the status object.
-     *
-     * @param status the desired status object for our Reversi Model builder
-     * @return this Builder, to allow for chained building.
-     */
-    public ModelBuilder setStatus(ModelStatus status) {
-      this.status = status;
-      return this;
-    }
-
-    /**
-     * Initialize the builder to standard reversi game with size 6 and a default
-     * status class.
-     */
-    public ModelBuilder() {
-      status = new ReversiModelStatus();
-      size = DEFAULT_SIZE;
-    }
-
-    /**
-     * A setter that updates the size.
-     *
-     * @param size the desired size for our Reversi Model builder
-     * @return this Builder, to allow for chained building.
-     */
-    public ModelBuilder setSize(int size) {
-      this.size = size;
-      return this;
-    }
-
-    /**
-     * Builds a Regular Reversi Model with the configurations of this builder.
-     *
-     * @return the regular reversi model.
-     */
-    public SquareReversiModel build() {
-      return new SquareReversiModel(size, status);
-    }
   }
 
   @Override
   protected void setEntireBoardToBlankCells(int size) {
     int difference = size / 2 - 1;
-    for(int row = 0; row < size; row++) {
-      for (int col = 0; col < size; col ++) {
+    for (int row = 0; row < size; row++) {
+      for (int col = 0; col < size; col++) {
         RowColPair pair = new RowColPair(row - difference, col - difference);
-        Hexagon hexagon = new Hexagon(RepresentativeColor.NONE);
-        board.put(pair, hexagon);
+        CellPiece cellPiece = new CellPiece(RepresentativeColor.NONE);
+        board.put(pair, cellPiece);
       }
     }
   }
 
   @Override
   protected void setBoardToStartingPosition(int size) {
-    board.put(new RowColPair(0, 0), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(1, 1), new Hexagon(RepresentativeColor.BLACK));
+    board.put(new RowColPair(0, 0), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(0, 1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(1, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(1, 1), new CellPiece(RepresentativeColor.BLACK));
   }
 
+  /**
+   * Checks if the given coordinators are valid and within bounds.
+   *
+   * @param pair The RowColPair representing the coordinators to check.
+   * @throws IllegalArgumentException If the coordinators are out of bounds or null.
+   * @throws IllegalStateException    If attempting to place on an already occupied cell.
+   */
   private void checkCoordinators(RowColPair pair) {
     if (!isInBounds(pair) || pair == null) {
       throw new IllegalArgumentException("invalid coordinators");
@@ -102,13 +72,22 @@ public final class SquareReversiModel extends AbstractReversiModel{
     }
   }
 
-
+  /**
+   * Checks if the game is already over.
+   *
+   * @throws IllegalStateException If the game has already ended.
+   */
   private void checkIfGameOver() {
     if (isGameOver()) {
       throw new IllegalStateException("game already ended");
     }
   }
 
+  /**
+   * Checks if the game has started.
+   *
+   * @throws IllegalStateException If attempting to query the model before the game has started.
+   */
   private void checkIfGameStarted() {
     if (!hasGameStarted) {
       throw new IllegalStateException("Unable to query the model before the game "
@@ -117,22 +96,22 @@ public final class SquareReversiModel extends AbstractReversiModel{
   }
 
   @Override
-  protected void tryPlaceMove(RowColPair pair, RepresentativeColor currentPlayer){
+  protected void tryPlaceMove(RowColPair pair, RepresentativeColor currentPlayer) {
     if (currentPlayer != turn) {
       throw new IllegalStateException("It's not your turn");
     }
     checkIfGameStarted();
     checkIfGameOver();
     checkCoordinators(pair);
-    int row = pair.getRow();
-    int col = pair.getCol();
     RepresentativeColor color = turn;
     if (color == RepresentativeColor.NONE || color == null) {
       throw new IllegalArgumentException("Invalid color");
     }
-    boolean canPlace = false;
-    Hexagon hexagon = board.get(new RowColPair(row, col));
+    int row = pair.getRow();
+    int col = pair.getCol();
+    CellPiece cellPiece = board.get(new RowColPair(row, col));
     Map<ModelDirection, Integer> flipTimes = checkMove(pair, turn);
+    boolean canPlace = false;
     for (SquareDirection direction : SquareDirection.values()) {
       RowColPair adjacent = findAdjacentCells(pair, direction);
       int flip = flipTimes.get(direction);
@@ -141,13 +120,13 @@ public final class SquareReversiModel extends AbstractReversiModel{
         if (passTimes > 0) {
           passTimes = 0;
         }
-        hexagon.setColor(color);
+        cellPiece.setColor(color);
       }
       RowColPair currenPair = adjacent;
       int fixedR = currenPair.getRow();
       int fixedQ = currenPair.getCol();
       for (int i = 0; i < flip; i++) {
-        Hexagon current = board.get(currenPair);
+        CellPiece current = board.get(currenPair);
         current.setColor(current.getColor().getOpposite());
         fixedR += direction.getRowOffset();
         fixedQ += direction.getLeftColOffset();
@@ -165,18 +144,16 @@ public final class SquareReversiModel extends AbstractReversiModel{
   }
 
   @Override
-  public Map<RowColPair, Hexagon> getBoard() {
-    Map<RowColPair, Hexagon> copy = new HashMap<>();
-    for (RowColPair pair : board.keySet()) {
-      copy.put(new RowColPair(pair.getRow(), pair.getCol()),
-        new Hexagon(board.get(pair).getColor()));
-    }
-    return copy;
+  public ModelType checkType() {
+    return ModelType.SQUARE;
   }
 
   @Override
   protected boolean checkHasToPass() {
-    for(RowColPair pair : board.keySet()) {
+    for (RowColPair pair : board.keySet()) {
+      if (board.get(pair).getColor() != RepresentativeColor.NONE) {
+        continue;
+      }
       Map<ModelDirection, Integer> map = checkMove(pair, turn);
       for (int i : map.values()) {
         if (i > 0) {
@@ -193,18 +170,9 @@ public final class SquareReversiModel extends AbstractReversiModel{
   }
 
   @Override
-  protected Map<ModelDirection, Integer> tryCheckMove(RowColPair pair, RepresentativeColor color)  {
+  protected Map<ModelDirection, Integer> tryCheckMove(RowColPair pair, RepresentativeColor color) {
     checkIfGameOver();
-    if (!isInBounds(pair) || pair == null) {
-      throw new IllegalArgumentException("invalid coordinators");
-    }
-    if (board.get(pair).getColor() != RepresentativeColor.NONE) {
-      Map<ModelDirection, Integer> value = new HashMap<>();
-      for (SquareDirection direction : SquareDirection.values()) {
-        value.put(direction, 0);
-      }
-      return value;
-    }
+    checkCoordinators(pair);
     Map<ModelDirection, Integer> value = new HashMap<>();
     for (SquareDirection direction : SquareDirection.values()) {
       value.put(direction, checkFlip(pair, direction, color));
@@ -233,8 +201,8 @@ public final class SquareReversiModel extends AbstractReversiModel{
 
   private int checkContinues(SquareDirection direction, RowColPair currentPosition,
                              RepresentativeColor color) {
-    Hexagon hexagon = board.get(currentPosition);
-    RepresentativeColor current = hexagon.getColor();
+    CellPiece cellPiece = board.get(currentPosition);
+    RepresentativeColor current = cellPiece.getColor();
     int replace = 1;
     int r = currentPosition.getRow();
     int c = currentPosition.getCol();
@@ -259,6 +227,60 @@ public final class SquareReversiModel extends AbstractReversiModel{
   private RowColPair findAdjacentCells(RowColPair current, SquareDirection direction) {
     return new RowColPair(current.getRow() + direction.getRowOffset(),
       current.getCol() + direction.getLeftColOffset());
+  }
+
+  /**
+   * A Builder to the regular reversi model, the target is to the reducing the number of
+   * constructor and supply flexibility and Step-by-Step Construction for the model.
+   */
+  public static class ModelBuilder {
+    private ModelStatus status;
+    private int size;
+
+    protected final int DEFAULT_SIZE = 8;
+
+    /**
+     * Initialize the builder to standard reversi game with size 6 and a default
+     * status class.
+     */
+    public ModelBuilder() {
+      status = new ReversiModelStatus();
+      size = DEFAULT_SIZE;
+    }
+
+    /**
+     * A setter that updates the status object.
+     *
+     * @param status the desired status object for our Reversi Model builder
+     * @return this Builder, to allow for chained building.
+     */
+    public ModelBuilder setStatus(ModelStatus status) {
+      this.status = status;
+      return this;
+    }
+
+    /**
+     * A setter that updates the size.
+     *
+     * @param size the desired size for our Reversi Model builder
+     * @return this Builder, to allow for chained building.
+     */
+    public ModelBuilder setSize(int size) {
+      this.size = size;
+      return this;
+    }
+
+    /**
+     * Builds a Regular Reversi Model with the configurations of this builder.
+     *
+     * @return the regular reversi model.
+     */
+    public SquareReversiModel build() {
+      if (size < 2 || size % 2 != 0 ) {
+        throw new IllegalArgumentException("can not build model");
+      }
+      return new SquareReversiModel(size, status);
+    }
   }
 
 }

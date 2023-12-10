@@ -6,7 +6,6 @@ import java.awt.event.KeyListener;
 
 import javax.swing.*;
 
-import model.HexReversiModel;
 import model.ReadOnlyReversiModel;
 import model.RowColPair;
 import model.RepresentativeColor;
@@ -19,12 +18,12 @@ import model.RepresentativeColor;
  */
 public class ReversiGraphicView extends JFrame implements IView {
   private final IPanel panel;
+  private final HintDecorator hintDecorator;
   private final JLabel whiteScore;
   private final JLabel blackScore;
   private final JLabel turn;
   private final JLabel hasToPassWarning;
   private final JButton hint;
-//  private final ReversiHintPanel hintPanel;
 
   /**
    * construct the ReversiView with the given parameter. Register the current
@@ -36,13 +35,26 @@ public class ReversiGraphicView extends JFrame implements IView {
    * @param model the given model
    */
   public ReversiGraphicView(ReadOnlyReversiModel model) {
-    if (model instanceof HexReversiModel) {
-      panel = new HexBoardPanel(model, null);
-      panel.addDecorator(new HintDecorator(model));
+    if (model.checkType() == ReadOnlyReversiModel.ModelType.HEX) {
+      this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      this.setLayout(new BorderLayout());
+      panel = new HexBoardPanel(model);
+      this.setSize(panel.getPanel().getPreferredSize());
+      JLayeredPane pane = new JLayeredPane();
+      pane.setPreferredSize(new Dimension(getWidth(), getHeight()));
+      panel.getPanel().setBounds(new Rectangle(getWidth(), getHeight()));
+      panel.getPanel().setOpaque(true);
+      this.hintDecorator = new HintDecorator(model, (HexBoardPanel) panel);
+      hintDecorator.setBounds(new Rectangle(getWidth(), getHeight()));
+      pane.add(panel.getPanel(), JLayeredPane.DEFAULT_LAYER);
+      pane.add(hintDecorator, JLayeredPane.PALETTE_LAYER);
+      this.add(pane);
+    } else if (model.checkType() == ReadOnlyReversiModel.ModelType.SQUARE) {
+      this.panel = new SquareBoardPanel(model);
       this.add(panel.getPanel());
+      hintDecorator = null;
     } else {
-      this.panel = new SquareBoardPanel(model, null);
-      this.add(panel.getPanel());
+      throw new IllegalArgumentException("Mock model can not be visualized");
     }
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     hint = new JButton("Hint");
@@ -52,7 +64,9 @@ public class ReversiGraphicView extends JFrame implements IView {
     turn = new JLabel("");
     hasToPassWarning = new JLabel("");
     JPanel northPan = new JPanel();
-    northPan.add(hint);
+    if (model.checkType() == ReadOnlyReversiModel.ModelType.HEX) {
+      northPan.add(hint);
+    }
     northPan.add(whiteScore);
     northPan.add(blackScore);
     northPan.add(turn);
@@ -63,7 +77,9 @@ public class ReversiGraphicView extends JFrame implements IView {
 
   @Override
   public void setColor(RepresentativeColor color) {
-    panel.setColor(color);
+    if (hintDecorator != null) {
+      hintDecorator.setColor(color);
+    }
   }
 
   /**
@@ -227,7 +243,7 @@ public class ReversiGraphicView extends JFrame implements IView {
 
   @Override
   public void showHints(RepresentativeColor color) {
-    panel.setDecorator(color);
+    hintDecorator.setFunctionality(color);
     repaint();
   }
 

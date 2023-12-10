@@ -12,7 +12,7 @@ public interface ReadOnlyReversiModel {
    *
    * @return the current board
    */
-  Map<RowColPair, Hexagon> getBoard();
+  Map<RowColPair, CellPiece> getBoard();
 
   /**
    * check if the game is over, if the both players pass in a row or the board is full.
@@ -101,4 +101,27 @@ public interface ReadOnlyReversiModel {
    * @param listener the listener that care about the model
    */
   void addListener(ModelListener listener);
+
+  /**
+   * Returns the Reversi model type associated with the implementing class.
+   *
+   * @return The Reversi model type (SQUARE or HEX).
+   */
+  ModelType checkType();
+
+  /**
+   * Enum representing different Reversi model types.
+   */
+  enum ModelType {
+
+    /**
+     * Represents a Reversi model with a square board.
+     */
+    SQUARE,
+
+    /**
+     * Represents a Reversi model with a hexagonal board.
+     */
+    HEX;
+  }
 }

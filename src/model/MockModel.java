@@ -21,8 +21,8 @@ final class MockModel implements MutableReversiModel {
     if (positionsLieToStrategy.contains(pair)) {
       builder.append("lie on you").append("\n");
       Map<ModelDirection, Integer> lieMap = new HashMap<>();
-      for (RegularDirection regularDirection : RegularDirection.values()) {
-        lieMap.put(regularDirection, 0);
+      for (HexDirection hexDirection : HexDirection.values()) {
+        lieMap.put(hexDirection, 0);
       }
       return lieMap;
     }
@@ -58,7 +58,7 @@ final class MockModel implements MutableReversiModel {
   }
 
   @Override
-  public Map<RowColPair, Hexagon> getBoard() {
+  public Map<RowColPair, CellPiece> getBoard() {
     return model.getBoard();
   }
 
@@ -105,6 +105,11 @@ final class MockModel implements MutableReversiModel {
   @Override
   public void addListener(ModelListener listener) {
     builder.append("add listener");
+  }
+
+  @Override
+  public ModelType checkType() {
+    return model.checkType();
   }
 
   @Override

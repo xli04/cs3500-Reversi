@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import model.Hexagon;
+import model.CellPiece;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
@@ -24,7 +24,7 @@ import model.RowColPair;
  */
 public final class HexGrid {
   private final int size;
-  private Map<RowColPair, Hexagon> hexagons;
+  private Map<RowColPair, CellPiece> hexagons;
   private final Map<RowColPair, Ellipse2D> center;
   private Map<RowColPair, RowColPair> number;
   private final int width;
@@ -55,7 +55,7 @@ public final class HexGrid {
    *
    * @param board the current model
    */
-  public void update(Map<RowColPair, Hexagon> board) {
+  public void update(Map<RowColPair, CellPiece> board) {
     hexagons = new HashMap<>(board);
     number = new HashMap<>();
   }
@@ -74,7 +74,7 @@ public final class HexGrid {
     int currentSize = size;
     while (currentSize > 6) {
       strokeWidth += 0.2;
-      currentSize--;
+      currentSize -= 6;
     }
     g2d.setStroke(new BasicStroke(strokeWidth));
     if (polygon != null) {
@@ -113,7 +113,7 @@ public final class HexGrid {
           new Ellipse2D.Double(centerX - circleRadius, centerY - 8,
             circleRadius * 2, circleRadius * 2));
     } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()) {
-      number.put(new RowColPair(0,0), new RowColPair(centerX, centerY));
+      number.put(new RowColPair(0, 0), new RowColPair(centerX, centerY));
     }
     for (RowColPair pair : hexagons.keySet()) {
       drawHexagon(originalPoint, pair);
@@ -157,7 +157,7 @@ public final class HexGrid {
             circleRadius * 2, circleRadius * 2));
     } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()
         && model.getColorAt(pair) == RepresentativeColor.NONE) {
-        number.put(pair, new RowColPair(centerX, centerY));
+      number.put(pair, new RowColPair(centerX, centerY));
     }
   }
 
@@ -192,8 +192,8 @@ public final class HexGrid {
    */
   public RowColPair getPoint(Point2D p) {
     for (RowColPair pair : hexagons.keySet()) {
-      Hexagon hexagon = hexagons.get(pair);
-      Polygon part = hexagon.getPolygon();
+      CellPiece cellPiece = hexagons.get(pair);
+      Polygon part = cellPiece.getPolygon();
       if (part.contains(p)) {
         return pair;
       }

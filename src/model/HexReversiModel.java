@@ -1,8 +1,6 @@
 package model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,8 +28,9 @@ public final class HexReversiModel extends AbstractReversiModel {
    */
   public static class ModelBuilder {
     private ModelStatus status;
-
     private int size;
+
+    protected final int DEFAULT_SIZE = 6;
 
     /**
      * A setter that updates the status object.
@@ -84,7 +83,7 @@ public final class HexReversiModel extends AbstractReversiModel {
    * @param size  the size to construct the new board to
    * @param turn  the color whose turn it is
    */
-  HexReversiModel(Map<RowColPair, Hexagon> board, int size, RepresentativeColor turn) {
+  HexReversiModel(Map<RowColPair, CellPiece> board, int size, RepresentativeColor turn) {
     super(board, size, turn);
   }
 
@@ -113,17 +112,17 @@ public final class HexReversiModel extends AbstractReversiModel {
     for (int i = half; i > 0; i--) {
       for (int j = upHalfStarter; j <= half; j++) {
         int x = -i;
-        board.put(new RowColPair(x, j), new Hexagon(RepresentativeColor.NONE));
+        board.put(new RowColPair(x, j), new CellPiece(RepresentativeColor.NONE));
       }
       upHalfStarter--;
     }
     for (int i = -half; i <= half; i++) {
-      board.put(new RowColPair(0, i), new Hexagon(RepresentativeColor.NONE));
+      board.put(new RowColPair(0, i), new CellPiece(RepresentativeColor.NONE));
     }
     int downHalfStarter = half;
     for (int i = 1; i <= half; i++) {
       for (int j = -half; j < downHalfStarter; j++) {
-        board.put(new RowColPair(i, j), new Hexagon(RepresentativeColor.NONE));
+        board.put(new RowColPair(i, j), new CellPiece(RepresentativeColor.NONE));
       }
       downHalfStarter--;
     }
@@ -137,12 +136,12 @@ public final class HexReversiModel extends AbstractReversiModel {
    */
   @Override
   protected void setBoardToStartingPosition(int size) {
-    board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(0, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-1, 0), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(1, -1), new Hexagon(RepresentativeColor.BLACK));
+    board.put(new RowColPair(0, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(0, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-1, 0), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(1, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(1, -1), new CellPiece(RepresentativeColor.BLACK));
   }
 
   /**
@@ -195,29 +194,29 @@ public final class HexReversiModel extends AbstractReversiModel {
       throw new IllegalArgumentException("Invalid color");
     }
     boolean canPlace = false;
-    Hexagon hexagon = board.get(new RowColPair(row, col));
+    CellPiece cellPiece = board.get(new RowColPair(row, col));
     Map<ModelDirection, Integer> flipTimes = checkMove(pair, turn);
-    for (RegularDirection regularDirection : RegularDirection.values()) {
-      CubeCoordinateTrio adjacentCube = findAdjacentCells(pair.convertToCube(), regularDirection);
+    for (HexDirection hexDirection : HexDirection.values()) {
+      CubeCoordinateTrio adjacentCube = findAdjacentCells(pair.convertToCube(), hexDirection);
       RowColPair adjacent = adjacentCube.convertToRowCol();
-      int flip = flipTimes.get(regularDirection);
+      int flip = flipTimes.get(hexDirection);
       if (flip > 0) {
         canPlace = true;
         if (passTimes > 0) {
           passTimes = 0;
         }
-        hexagon.setColor(color);
+        cellPiece.setColor(color);
       }
       CubeCoordinateTrio cube = adjacent.convertToCube();
       int fixedR = cube.getRow();
       int fixedQ = cube.getLeftCol();
       int fixedS = cube.getRightCol();
       for (int i = 0; i < flip; i++) {
-        Hexagon current = board.get(cube.convertToRowCol());
+        CellPiece current = board.get(cube.convertToRowCol());
         current.setColor(current.getColor().getOpposite());
-        fixedR += regularDirection.getRowOffset();
-        fixedQ += regularDirection.getLeftColOffset();
-        fixedS += regularDirection.getRightColOffset();
+        fixedR += hexDirection.getRowOffset();
+        fixedQ += hexDirection.getLeftColOffset();
+        fixedS += hexDirection.getRightColOffset();
         cube = new CubeCoordinateTrio(fixedR, fixedQ, fixedS);
       }
     }
@@ -237,9 +236,9 @@ public final class HexReversiModel extends AbstractReversiModel {
     checkIfGameOver();
     checkCoordinators(pair);
     Map<ModelDirection, Integer> map = new HashMap<>();
-    for (RegularDirection regularDirection : RegularDirection.values()) {
-      int flip = checkFlip(pair, regularDirection, color);
-      map.put(regularDirection, flip);
+    for (HexDirection hexDirection : HexDirection.values()) {
+      int flip = checkFlip(pair, hexDirection, color);
+      map.put(hexDirection, flip);
     }
     return map;
   }
@@ -280,8 +279,8 @@ public final class HexReversiModel extends AbstractReversiModel {
       if (board.get(pair).getColor() != RepresentativeColor.NONE) {
         continue;
       }
-      for (RegularDirection regularDirection : RegularDirection.values()) {
-        int flip = checkFlip(pair, regularDirection, turn);
+      for (HexDirection hexDirection : HexDirection.values()) {
+        int flip = checkFlip(pair, hexDirection, turn);
         if (flip > 0) {
           return false;
         }
@@ -322,8 +321,8 @@ public final class HexReversiModel extends AbstractReversiModel {
    */
   private int checkContinues(ModelDirection direction, RowColPair currentPosition,
                              RepresentativeColor color) {
-    Hexagon hexagon = board.get(currentPosition);
-    RepresentativeColor current = hexagon.getColor();
+    CellPiece cellPiece = board.get(currentPosition);
+    RepresentativeColor current = cellPiece.getColor();
     int replace = 1;
     CubeCoordinateTrio cube = currentPosition.convertToCube();
     int q = cube.getLeftCol();
@@ -349,17 +348,9 @@ public final class HexReversiModel extends AbstractReversiModel {
     }
   }
 
-
   @Override
-  public int getScore(RepresentativeColor color) {
-    int score = 0;
-    for (RowColPair pair : board.keySet()) {
-      RepresentativeColor currentColor = board.get(pair).getColor();
-      if (currentColor == color) {
-        score++;
-      }
-    }
-    return score;
+  public ModelType checkType() {
+    return ModelType.HEX;
   }
 
   @Override
@@ -374,7 +365,8 @@ public final class HexReversiModel extends AbstractReversiModel {
    * @param direction the given direction
    * @return the coordinators
    */
-  private CubeCoordinateTrio findAdjacentCells(CubeCoordinateTrio current, ModelDirection direction) {
+  private CubeCoordinateTrio findAdjacentCells(CubeCoordinateTrio current,
+                                               ModelDirection direction) {
     return new CubeCoordinateTrio(current.getRow() + direction.getRowOffset(),
       current.getLeftCol() + direction.getLeftColOffset(),
       current.getRightCol() + direction.getRightColOffset());

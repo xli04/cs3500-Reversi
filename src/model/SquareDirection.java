@@ -1,10 +1,14 @@
 package model;
 
-public enum SquareDirection implements ModelDirection{
-  SQUARELEFT(-1, 0),
-  SQUARERIGHT(1, 0),
-  SQUAREUP(0, -1),
-  SQUAREDOWN(0, 1),
+/**
+ * The SquareDirection enum represents directions on a square grid for modeling movements.
+ * Each direction has associated row and column offsets.
+ */
+public enum SquareDirection implements ModelDirection {
+  SQUARELEFT(0, -1),
+  SQUARERIGHT(0, 1),
+  SQUAREUP(-1, 0),
+  SQUAREDOWN(1, 0),
   SQUARELEFTUP(-1, -1),
   SQUARERIGHTUP(-1, 1),
   SQUARELEFTDOWN(1, -1),
@@ -13,6 +17,12 @@ public enum SquareDirection implements ModelDirection{
   private final int rowOffset;
   private final int colOffset;
 
+  /**
+   * Constructs a SquareDirection with the specified row and column offsets.
+   *
+   * @param rowOffset The offset in the row direction.
+   * @param colOffset The offset in the column direction.
+   */
   SquareDirection(int rowOffset, int colOffset) {
     this.rowOffset = rowOffset;
     this.colOffset = colOffset;
@@ -30,10 +40,5 @@ public enum SquareDirection implements ModelDirection{
   @Override
   public int getRightColOffset() {
     return 0;
-  }
-
-  @Override
-  public ModelDirection[] getDirection() {
-    return values();
   }
 }

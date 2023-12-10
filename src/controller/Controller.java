@@ -77,6 +77,7 @@ public final class Controller implements Features {
           view.showMessage("Some thing wrong with the Ai strategy");
         }
       } catch (IllegalStateException e) {
+        e.printStackTrace();
         view.showMessage("Some thing wrong with the Ai strategy");
       }
     }

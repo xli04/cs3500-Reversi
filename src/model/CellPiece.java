@@ -5,7 +5,7 @@ import java.awt.Polygon;
 /**
  * A Single hexagon tile in the game board.
  */
-public final class Hexagon {
+public final class CellPiece {
   private Polygon poly;
 
   private RepresentativeColor representativeColor;
@@ -16,7 +16,7 @@ public final class Hexagon {
    * @param representativeColor the given color
    */
 
-  public Hexagon(RepresentativeColor representativeColor) {
+  public CellPiece(RepresentativeColor representativeColor) {
     this.representativeColor = representativeColor;
   }
 

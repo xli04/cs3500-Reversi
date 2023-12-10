@@ -8,14 +8,12 @@ import java.awt.BasicStroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import model.Hexagon;
-import model.ModelDirection;
+import model.CellPiece;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
@@ -25,12 +23,11 @@ import model.RowColPair;
  */
 public final class SquareGrid {
   private final int size;
-  private Map<RowColPair, Hexagon> hexagons;
+  private Map<RowColPair, CellPiece> hexagons;
   private final Map<RowColPair, Ellipse2D> center;
   private Map<RowColPair, RowColPair> number;
   private final int width;
   private final int height;
-  public final double theta = (Math.PI * 2) / 4.0;
   public final int hexagonLength = 7;
   private final ReadOnlyReversiModel model;
 
@@ -56,7 +53,7 @@ public final class SquareGrid {
    *
    * @param board the current model
    */
-  public void update(Map<RowColPair, Hexagon> board) {
+  public void update(Map<RowColPair, CellPiece> board) {
     hexagons = new HashMap<>(board);
     number = new HashMap<>();
   }
@@ -75,7 +72,7 @@ public final class SquareGrid {
     int currentSize = size;
     while (currentSize > 8) {
       strokeWidth += 0.2;
-      currentSize--;
+      currentSize -= 8;
     }
     g2d.setStroke(new BasicStroke(strokeWidth));
     if (polygon != null) {
@@ -88,10 +85,17 @@ public final class SquareGrid {
     }
   }
 
-  private Polygon createSquare(int x, int y, int size) {
-    int[] xPoints = {x, x + hexagonLength, x + hexagonLength, x};
-    int[] yPoints = {y, y, y + hexagonLength, y + hexagonLength};
-    return new Polygon(xPoints, yPoints, size);
+  /**
+   * Creates a square polygon with the specified coordinates.
+   *
+   * @param x The x-coordinate of the top-left corner of the square.
+   * @param y The y-coordinate of the top-left corner of the square.
+   * @return A Polygon object representing a square with the given coordinates.
+   */
+  private Polygon createSquare(int x, int y) {
+    int[] pointX = {x, x + hexagonLength, x + hexagonLength, x};
+    int[] pointY = {y, y, y + hexagonLength, y + hexagonLength};
+    return new Polygon(pointX, pointY, 4);
   }
 
   /**
@@ -100,11 +104,10 @@ public final class SquareGrid {
    * hexagon, otherwise draw a circle in that hexagon based on the coordinators for its topping
    * point.
    */
-  private void makeHexagons() {
-    List<List<Integer>> originalPoint = new ArrayList<>();
+  private void makeSquare() {
     Polygon polygon = new Polygon();
     RowColPair startPair = new RowColPair(0, 0);
-    polygon = createSquare(-2 * size + size, -2 * size, 4);
+    polygon = createSquare(-2 * size, -2 * size + size);
     RepresentativeColor currentColor = hexagons.get(startPair).getColor();
     hexagons.get(startPair).setPoly(polygon);
     int centerX = -2 * size;
@@ -112,13 +115,14 @@ public final class SquareGrid {
     if (currentColor == RepresentativeColor.BLACK || currentColor == RepresentativeColor.WHITE) {
       double circleRadius = hexagonLength / Math.sqrt(2);
       center.put(new RowColPair(0, 0),
-        new Ellipse2D.Double(centerX - circleRadius + hexagonLength, centerY - hexagonLength,
+          new Ellipse2D.Double(centerY - hexagonLength,
+          centerX - circleRadius + hexagonLength,
           circleRadius, circleRadius));
     } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()) {
-      number.put(new RowColPair(0,0), new RowColPair(centerX, centerY));
+      number.put(new RowColPair(0, 0), new RowColPair(centerX, centerY));
     }
     for (RowColPair pair : hexagons.keySet()) {
-      drawHexagon(originalPoint, pair);
+      drawSquare(pair);
     }
   }
 
@@ -126,28 +130,25 @@ public final class SquareGrid {
    * use the coordinators for the middle point to find the coordinators for other
    * point.
    *
-   * @param originalPoint the coordinators for the points of middle hexagon
    * @param pair          the current point
    */
-  private void drawHexagon(List<List<Integer>> originalPoint, RowColPair pair) {
+  private void drawSquare(RowColPair pair) {
     Polygon polygon = new Polygon();
-//    if (pair.getCol() == 0 && pair.getRow() == 0) {
-//      return;
-//    }
     int fixY = pair.getRow() * hexagonLength - pair.getRow();
     int fixX = pair.getCol() * hexagonLength - pair.getCol();
-    polygon = createSquare(pair.getRow() + fixY - 2 *  size + size, pair.getCol() + fixX - size, 4);
+    polygon = createSquare(pair.getCol() + fixX - size, pair.getRow() + fixY - 2 *  size + size);
     hexagons.get(pair).setPoly(polygon);
     RepresentativeColor currentColor = hexagons.get(pair).getColor();
     if (currentColor == RepresentativeColor.BLACK || currentColor == RepresentativeColor.WHITE) {
       double circleRadius = hexagonLength / Math.sqrt(2);
       center.put(pair,
-        new Ellipse2D.Double(pair.getRow() + fixY - size + 1,
-          pair.getCol() + fixX - size + 1,
+          new Ellipse2D.Double(pair.getCol() + fixX - size + 1,
+          pair.getRow() + fixY - size + 1,
           circleRadius, circleRadius));
     } else if (currentColor == RepresentativeColor.NONE && !model.isGameOver()
-      && model.getColorAt(pair) == RepresentativeColor.NONE) {
-      number.put(pair, new RowColPair(pair.getRow() + fixY - 2 *  size, pair.getCol() + fixX - size));
+        && model.getColorAt(pair) == RepresentativeColor.NONE) {
+      number.put(pair, new RowColPair(pair.getRow() + fixY - 2 *  size,
+          pair.getCol() + fixX - size));
     }
   }
 
@@ -157,7 +158,7 @@ public final class SquareGrid {
    * @param g the <code>Graphics</code> object to protect
    */
   public void paintComponent(Graphics g) {
-    makeHexagons();
+    makeSquare();
     Graphics2D g2d = (Graphics2D) g.create();
     g2d.setColor(Color.DARK_GRAY);
     g2d.fillRect(-width / 2, -height / 2, width, height);
@@ -182,8 +183,8 @@ public final class SquareGrid {
    */
   public RowColPair getPoint(Point2D p) {
     for (RowColPair pair : hexagons.keySet()) {
-      Hexagon hexagon = hexagons.get(pair);
-      Polygon part = hexagon.getPolygon();
+      CellPiece cellPiece = hexagons.get(pair);
+      Polygon part = cellPiece.getPolygon();
       if (part.contains(p)) {
         return pair;
       }

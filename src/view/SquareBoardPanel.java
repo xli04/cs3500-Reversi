@@ -1,6 +1,10 @@
 package view;
 
-import java.awt.*;
+import java.awt.Graphics2D;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -8,10 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import javax.swing.*;
+import javax.swing.JPanel;
 import javax.swing.event.MouseInputAdapter;
-
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
@@ -20,7 +22,7 @@ import model.RowColPair;
  * A Panel will draw all the colors, allow users to click on them,
  * and play the game.
  */
-public class SquareBoardPanel extends JPanel implements IPanel{
+public class SquareBoardPanel extends JPanel implements IPanel {
   private int preferWidth = 100;
   private int preferHeight = 100;
   /**
@@ -30,16 +32,13 @@ public class SquareBoardPanel extends JPanel implements IPanel{
   private final SquareGrid squareGrid;
   private RowColPair selectedPosition;
   private boolean mouseLock = false;
-  private List<PanelDecorator> decorators;
-
-  private AffineTransform convert;
 
   /**
    * construct the Panel with the given constructor.
    *
    * @param model the given model
    */
-  public SquareBoardPanel(ReadOnlyReversiModel model, RepresentativeColor color) {
+  public SquareBoardPanel(ReadOnlyReversiModel model) {
     this.model = Objects.requireNonNull(model);
     selectedPosition = null;
     MouseEventsListener listener = new MouseEventsListener();
@@ -52,18 +51,6 @@ public class SquareBoardPanel extends JPanel implements IPanel{
       boardSize -= 6;
     }
     squareGrid = new SquareGrid(model, preferWidth, preferHeight, model.getSize());
-    decorators = new ArrayList<>();
-  }
-
-  /**
-   * Set the color to the panel, represent this panel is for the player in given color.
-   *
-   * @param color the given color, represents the player
-   */
-  public void setColor(RepresentativeColor color) {
-    for (PanelDecorator decorator : decorators) {
-      decorator.setColor(color);
-    }
   }
 
   /**
@@ -115,9 +102,6 @@ public class SquareBoardPanel extends JPanel implements IPanel{
     Graphics2D g2d = (Graphics2D) g.create();
     g2d.transform(transformLogicalToPhysical());
     squareGrid.paintComponent(g2d);
-    for (PanelDecorator decorator : decorators) {
-      decorator.paint(g2d, selectedPosition);
-    }
   }
 
   /**
@@ -143,7 +127,7 @@ public class SquareBoardPanel extends JPanel implements IPanel{
    * into screen coordinates (with (0,0) in upper-left,
    * width and height in pixels).
    *
-   * @return The necessary transformation
+   * @return The AffineTransform necessary for the logical-to-physical transformation.
    */
   private AffineTransform transformLogicalToPhysical() {
     AffineTransform ret = new AffineTransform();
@@ -159,7 +143,7 @@ public class SquareBoardPanel extends JPanel implements IPanel{
    * into board coordinates (with (0,0) in center, width and height
    * our logical size).
    *
-   * @return The necessary transformation
+   * @return The AffineTransform necessary for the physical-to-logical transformation.
    */
   private AffineTransform transformPhysicalToLogical() {
     AffineTransform ret = new AffineTransform();
@@ -167,15 +151,6 @@ public class SquareBoardPanel extends JPanel implements IPanel{
     ret.scale(preferred.getWidth() / getWidth(), preferred.getHeight() / getHeight());
     ret.translate(-getWidth() / 2., -getHeight() / 2.);
     return ret;
-  }
-
-  /**
-   * If the player is the player need to make move in the turn, show hints. If the game is already
-   * over, the player can not interact with panel anymore thus do nothing.
-   *
-   * @param color the current player
-   */
-  public void setDecorator(RepresentativeColor color) {
   }
 
   /**
@@ -190,17 +165,6 @@ public class SquareBoardPanel extends JPanel implements IPanel{
   @Override
   public JPanel getPanel() {
     return this;
-  }
-
-
-  @Override
-  public Map<RowColPair, RowColPair> getDrawingPoints() {
-    return squareGrid.getThePositionForDrawingNumber();
-  }
-
-  @Override
-  public void addDecorator(PanelDecorator decorator) {
-    decorators.add(decorator);
   }
 
   private class MouseEventsListener extends MouseInputAdapter {
@@ -235,9 +199,12 @@ public class SquareBoardPanel extends JPanel implements IPanel{
           repaint();
           return;
         }
+        System.out.println(selected.getRow());
+        System.out.println(selected.getCol());
+        System.out.println();
         if (squareGrid.getColor(selected) == RepresentativeColor.NONE) {
           if (selectedPosition != null && squareGrid.getColor(selectedPosition)
-            == RepresentativeColor.CYAN) {
+              == RepresentativeColor.CYAN) {
             squareGrid.setColor(selectedPosition, RepresentativeColor.NONE);
           }
           selectedPosition = selected;

@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import model.CubeCoordinateTrio;
-import model.RegularDirection;
-import model.Hexagon;
+import model.HexDirection;
+import model.CellPiece;
 import model.ModelDirection;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
+import model.SquareDirection;
+import model.SquareReversiModel;
 
 /**
  * Represents a strategy for a game of reversi. Abstract strategies are exclusively fallible
@@ -48,8 +50,11 @@ public abstract class AbstractStrategy {
   protected Map<RowColPair, Integer> findAvailablePosition(ReadOnlyReversiModel model,
                                                            RepresentativeColor color) {
     Map<RowColPair, Integer> positionToFlippedCardCount = new HashMap<>();
-    Map<RowColPair, Hexagon> map = model.getBoard();
+    Map<RowColPair, CellPiece> map = model.getBoard();
     for (RowColPair pair : map.keySet()) {
+      if (model.getColorAt(pair) != RepresentativeColor.NONE) {
+        continue;
+      }
       try {
         Map<ModelDirection, Integer> directionToFlippedCardCount = model.checkMove(pair, color);
         int numCardsThatCanBeFlipped = 0;
@@ -73,12 +78,21 @@ public abstract class AbstractStrategy {
    * @return a List contains the corner coordinators
    */
   protected List<RowColPair> getCornerPoints(ReadOnlyReversiModel model) {
-    return Arrays.asList(new RowColPair(-(model.getSize() - 1), 0),
-      new RowColPair(-(model.getSize() - 1), (model.getSize() - 1)),
-      new RowColPair((model.getSize() - 1), -(model.getSize() - 1)),
-      new RowColPair((model.getSize() - 1), 0),
-      new RowColPair(0, model.getSize() - 1),
-      new RowColPair(0, -(model.getSize() - 1)));
+    if (model.checkType() == ReadOnlyReversiModel.ModelType.SQUARE) {
+      int convert = model.getSize() / 2 - 1;
+      return Arrays.asList(new RowColPair(-convert, -convert),
+        new RowColPair(- convert, - convert + model.getSize() - 1),
+        new RowColPair(-convert + model.getSize() - 1, - convert),
+        new RowColPair(-convert + model.getSize() - 1, -convert + model.getSize() - 1));
+    } else if (model.checkType() == ReadOnlyReversiModel.ModelType.HEX) {
+      return Arrays.asList(new RowColPair(-(model.getSize() - 1), 0),
+        new RowColPair(-(model.getSize() - 1), (model.getSize() - 1)),
+        new RowColPair((model.getSize() - 1), -(model.getSize() - 1)),
+        new RowColPair((model.getSize() - 1), 0),
+        new RowColPair(0, model.getSize() - 1),
+        new RowColPair(0, -(model.getSize() - 1)));
+    }
+    throw new IllegalArgumentException("strategy can not applied on this model");
   }
 
 
@@ -90,12 +104,19 @@ public abstract class AbstractStrategy {
    * @return the fixed value, since placing at the corner may produce potential disadvantages
    *        by letting opposite color occupied the corner.
    */
-  protected boolean isNextToCorner(RowColPair pair, List<RowColPair> cornerPoints) {
+  protected boolean isNextToCorner(ReadOnlyReversiModel model,
+                                   RowColPair pair, List<RowColPair> cornerPoints) {
     CubeCoordinateTrio cube = pair.convertToCube();
-    for (RegularDirection regularDirection : RegularDirection.values()) {
-      RowColPair newPosition = new CubeCoordinateTrio(cube.getRow() + regularDirection.getRowOffset(),
-          cube.getLeftCol() + regularDirection.getLeftColOffset(),
-          cube.getRightCol() + regularDirection.getRightColOffset()).convertToRowCol();
+    ModelDirection[] directions = new ModelDirection[]{};
+    if (model instanceof SquareReversiModel) {
+      directions = SquareDirection.values();
+    } else {
+      directions = HexDirection.values();
+    }
+    for (ModelDirection hexDirection : directions) {
+      RowColPair newPosition = new CubeCoordinateTrio(cube.getRow() + hexDirection.getRowOffset(),
+          cube.getLeftCol() + hexDirection.getLeftColOffset(),
+          cube.getRightCol() + hexDirection.getRightColOffset()).convertToRowCol();
       if (cornerPoints.contains(newPosition)) {
         return true;
       }

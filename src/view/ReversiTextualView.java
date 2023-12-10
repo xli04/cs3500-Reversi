@@ -2,7 +2,7 @@ package view;
 
 import java.io.IOException;
 import java.util.Map;
-import model.Hexagon;
+import model.CellPiece;
 import model.ReadOnlyReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
@@ -52,7 +52,7 @@ public class ReversiTextualView implements IView {
    */
   @Override
   public String toString() {
-    Map<RowColPair, Hexagon> board = model.getBoard();
+    Map<RowColPair, CellPiece> board = model.getBoard();
     StringBuilder builder = new StringBuilder();
     int size = model.getSize();
     int row = 2 * size - 1;
@@ -114,7 +114,7 @@ public class ReversiTextualView implements IView {
    * @param i the row coordinator
    * @param j the column coordinator
    */
-  private void draw(Map<RowColPair, Hexagon> board, StringBuilder builder, int i, int j) {
+  private void draw(Map<RowColPair, CellPiece> board, StringBuilder builder, int i, int j) {
     RepresentativeColor color = board.get(new RowColPair(i, j)).getColor();
     drawGraph(builder, color);
   }

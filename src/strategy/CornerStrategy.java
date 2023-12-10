@@ -20,6 +20,7 @@ public final class CornerStrategy extends AbstractStrategy implements FallibleSt
   public Optional<RowColPair> choosePosition(ReadOnlyReversiModel model,
                                              RepresentativeColor player) {
     List<RowColPair> cornerPoints = getCornerPoints(model);
+
     for (RowColPair position : cornerPoints) {
       if (model.getColorAt(position) != RepresentativeColor.NONE) {
         continue;

@@ -1,3 +1,57 @@
+--------------------------------------------------HW8-----------------------------------------------------------------
+Level0:
+-We successfully implement the functionality enable a “hint” mode where the selected cell shows
+ how many discs would be flipped if that player chose that move.
+-We had an another class called hint panel so that it will not modify our original rendering code,
+ it will add a panel on our old panel.
+
+Level1:
+-We successfully implement a model for the more-common square grid Reversi.
+-We made an abstract class called AbstractReversiModel that implements the mutable model, and it
+ has some methods that both hex and square model has such as get color at and get score, so that
+ in the Squarereversi model class, we can avoid having duplicated codes by only override the methods
+ that has a different logic with hex reversi model such as place a move and check move. Also, since
+ the hex model has 6 directions and square model has 8, we made a interface called model interface and
+ hex direction and square direction implement this interface so that in the check move method where
+ requires a direction as key, we can just use this model direction, and both your Hexagonal model and
+ our Square model implement the same model interface(s), and coexist in our code.
+
+Level2:
+-We successfully implement a visual view for square-grid Reversi.
+-First, we made a square grid in order to compute the drawing positions of every squares. Then i made
+ a IPanel interface so that both hexboard panel and square board panel can implement this IPanel interface,
+ so that in out view class, we can just using the check type method to get the type of the model and based on
+ this type use different panel to generate different image. Since we only have one view class that works with
+ both hex and square panel, Of course  Hexagonal view and my Square view must implement the same view interface(s),
+ and must coexist in my code.
+
+Level3:
+-We successfully make my controller work with both Hexagonal and Square Reversi.
+-In this level, we did not change anything since the view could based on the different model type generate
+ different image, the controller will always get the model and view in the same type and we do not need to change
+ the logic inside the controller since the way the user take action is same in both hex and square model. thus,
+ controller is entirely independent of my coordinate class representation, in this level, we mocked our view and
+ model in order to test if the controller interact with them correctly, all the test cases is in the class test
+ interaction square model.
+
+Level4:
+-We successfully make my strategy implementation(s) work with both Hexagonal and Square reversi.
+-The way we compute the corrdinates in square model are pretty similar to what we have in the hex model,
+(0,0) is in the middle, and row will increase go downward, decrease up forward, the col will increase when
+go right and decrease when go left, so that for the most of the logic inside the strategy, we do not need to change
+the only thing we changed is inside the abstractstrategy class, inside the get corner strategy, the method will
+return different positions based on the different model type since square model has 4 corners and hex model has
+6.
+
+
+
+
+
+
+
+
+
+
 --------------------------------------------------HW7-----------------------------------------------------------------
  1. Overview
     The goal of our codebase is to allow games of reversi that follow the rules of Regular Reversi
