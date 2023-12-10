@@ -13,12 +13,12 @@ import static org.junit.Assert.assertThrows;
 /**
  * test cases for regular reversi model.
  */
-public class TestForRegularReversiCombineModel {
+public class TestForHexReversiModel {
   MutableReversiModel model;
 
   @Before
   public void setUp() {
-    model = new RegularReversiModel.ModelBuilder().build();
+    model = new HexReversiModel.ModelBuilder().build();
     model.startGame();
   }
 
@@ -52,7 +52,7 @@ public class TestForRegularReversiCombineModel {
   @Test
   public void testTextualViewForGivenSize() {
     ReversiTextualView view = new ReversiTextualView(
-        new RegularReversiModel.ModelBuilder().setSize(2).build());
+        new HexReversiModel.ModelBuilder().setSize(2).build());
     Assert.assertEquals(" X O \n"
         +
         "O _ X \n"
@@ -64,7 +64,7 @@ public class TestForRegularReversiCombineModel {
   public void testRenderForGivenSize() {
     StringBuilder builder = new StringBuilder();
     ReversiTextualView view = new ReversiTextualView(
-        new RegularReversiModel.ModelBuilder().setSize(2).build(), builder);
+        new HexReversiModel.ModelBuilder().setSize(2).build(), builder);
     view.display();
     Assert.assertEquals(" X O \n"
         +
@@ -242,10 +242,11 @@ public class TestForRegularReversiCombineModel {
    */
   @Test
   public void testCheckMoveReturnCorrectNumberWhenCanFlipCells() {
-    Map<Direction, Integer> map = model.checkMove(new RowColPair(-1, 2), RepresentativeColor.BLACK);
-    for (Direction direction : Direction.values()) {
+    Map<ModelDirection, Integer> map = model.checkMove(new RowColPair(-1, 2),
+        RepresentativeColor.BLACK);
+    for (ModelDirection direction : HexDirection.values()) {
       int num = map.get(direction);
-      if (direction == Direction.LEfT) {
+      if (direction == HexDirection.LEfT) {
         Assert.assertEquals(1, num);
       } else {
         Assert.assertEquals(0, num);
@@ -255,9 +256,10 @@ public class TestForRegularReversiCombineModel {
 
   @Test
   public void testCheckMoveReturnCorrectNumberWhenCanNotFlipCells() {
-    Map<Direction, Integer> map = model.checkMove(new RowColPair(0, 0), RepresentativeColor.BLACK);
-    for (Direction direction : Direction.values()) {
-      int num = map.get(direction);
+    Map<ModelDirection, Integer> map = model.checkMove(new RowColPair(0, 0),
+        RepresentativeColor.BLACK);
+    for (HexDirection hexDirection : HexDirection.values()) {
+      int num = map.get(hexDirection);
       Assert.assertEquals(0, num);
     }
   }
@@ -330,7 +332,7 @@ public class TestForRegularReversiCombineModel {
   @Test
   public void testModelDisallowsInvalidSize() {
     assertThrows(IllegalArgumentException.class, () ->
-        new RegularReversiModel.ModelBuilder().setSize(0).build());
+        new HexReversiModel.ModelBuilder().setSize(0).build());
   }
 
   @Test
@@ -440,9 +442,9 @@ public class TestForRegularReversiCombineModel {
   @Test
   public void testInvalidBoardSize() {
     assertThrows(IllegalArgumentException.class, ()
-        -> new RegularReversiModel.ModelBuilder().setSize(1).build());
+        -> new HexReversiModel.ModelBuilder().setSize(1).build());
     assertThrows(IllegalArgumentException.class, ()
-        -> new RegularReversiModel.ModelBuilder().setSize(-1).build());
+        -> new HexReversiModel.ModelBuilder().setSize(-1).build());
   }
 
   @Test
@@ -470,7 +472,7 @@ public class TestForRegularReversiCombineModel {
 
   @Test
   public void testDeepCopy() {
-    Map<RowColPair, Hexagon> board = model.getCurrentBoard();
+    Map<RowColPair, CellPiece> board = model.getBoard();
     Assert.assertEquals(RepresentativeColor.NONE, board.get(new RowColPair(-1, 2)).getColor());
     model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.NONE, board.get(new RowColPair(-1, 2)).getColor());

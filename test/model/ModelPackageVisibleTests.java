@@ -9,32 +9,32 @@ import java.util.Map;
  * Represents a test class for the Regular Reversi Model that package-visible functionality that
  * isn’t part of our model interface.
  */
-public class CombineModelPackageVisibleTests {
+public class ModelPackageVisibleTests {
   /**
    * make the board with the given size as the side length.
    *
    * @param size the given side length
    * @return the 2d array represent the board
    */
-  private Map<RowColPair, Hexagon> makeBoard(int size) {
-    Map<RowColPair, Hexagon> board = new HashMap<>();
+  private Map<RowColPair, CellPiece> makeBoard(int size) {
+    Map<RowColPair, CellPiece> board = new HashMap<>();
     int row = 2 * size - 1;
     int half = row - size;
     int upHalfStarter = 0;
     for (int i = half; i > 0; i--) {
       for (int j = upHalfStarter; j <= half; j++) {
         int x = -i;
-        board.put(new RowColPair(x, j), new Hexagon(RepresentativeColor.NONE));
+        board.put(new RowColPair(x, j), new CellPiece(RepresentativeColor.NONE));
       }
       upHalfStarter--;
     }
     for (int i = -half; i <= half; i++) {
-      board.put(new RowColPair(0, i), new Hexagon(RepresentativeColor.NONE));
+      board.put(new RowColPair(0, i), new CellPiece(RepresentativeColor.NONE));
     }
     int downHalfStarter = half;
     for (int i = 1; i <= half; i++) {
       for (int j = -half; j < downHalfStarter; j++) {
-        board.put(new RowColPair(i, j), new Hexagon(RepresentativeColor.NONE));
+        board.put(new RowColPair(i, j), new CellPiece(RepresentativeColor.NONE));
       }
       downHalfStarter--;
     }
@@ -46,9 +46,9 @@ public class CombineModelPackageVisibleTests {
    */
   @Test
   public void testCheckPassTrueWhenThereIsNoValidMove() {
-    Map<RowColPair, Hexagon> riggedBoard = makeBoard(5);
+    Map<RowColPair, CellPiece> riggedBoard = makeBoard(5);
     MutableReversiModel nothingBoard =
-        new RegularReversiModel(riggedBoard, 5, RepresentativeColor.BLACK);
+        new HexReversiModel(riggedBoard, 5, RepresentativeColor.BLACK);
     Assert.assertTrue(nothingBoard.hasToPass());
     nothingBoard.makePass(RepresentativeColor.BLACK);
     Assert.assertTrue(nothingBoard.hasToPass());
@@ -61,11 +61,11 @@ public class CombineModelPackageVisibleTests {
    */
   @Test
   public void testCellPlaceBetweenTwoOppositeColorWillNotBeFlipped() {
-    Map<RowColPair, Hexagon> board = makeBoard(6);
-    board.put(new RowColPair(0, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(0, 2), new Hexagon(RepresentativeColor.BLACK));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    Map<RowColPair, CellPiece> board = makeBoard(6);
+    board.put(new RowColPair(0, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(0, 1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(0, 2), new CellPiece(RepresentativeColor.BLACK));
+    MutableReversiModel model = new HexReversiModel(board, 6, RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(0, 0)));
     model.placeMove(new RowColPair(0, 0), RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(0, 0)));
@@ -86,14 +86,14 @@ public class CombineModelPackageVisibleTests {
    */
   @Test
   public void testPlaceMoveFlipMultipleCardsInDifferentDirections() {
-    Map<RowColPair, Hexagon> board = makeBoard(6);
-    board.put(new RowColPair(-1, -1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-1, 1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, -1), new Hexagon(RepresentativeColor.BLACK));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    Map<RowColPair, CellPiece> board = makeBoard(6);
+    board.put(new RowColPair(-1, -1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-1, 1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(0, 1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(1, 0), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, -1), new CellPiece(RepresentativeColor.BLACK));
+    MutableReversiModel model = new HexReversiModel(board, 6, RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(-1, 2)));
     model.placeMove(new RowColPair(-1, 2), RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(-1, 1)));
@@ -103,9 +103,9 @@ public class CombineModelPackageVisibleTests {
 
   @Test
   public void testGetWinnerWhiteWinWhenGameOver() {
-    Map<RowColPair, Hexagon> board = makeBoard(6);
-    board.put(new RowColPair(0, 0), new Hexagon(RepresentativeColor.WHITE));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    Map<RowColPair, CellPiece> board = makeBoard(6);
+    board.put(new RowColPair(0, 0), new CellPiece(RepresentativeColor.WHITE));
+    MutableReversiModel model = new HexReversiModel(board, 6, RepresentativeColor.BLACK);
     Assert.assertTrue(model.hasToPass());
     model.makePass(RepresentativeColor.BLACK);
     Assert.assertTrue(model.hasToPass());
@@ -119,8 +119,8 @@ public class CombineModelPackageVisibleTests {
    */
   @Test
   public void testGameWillNotEndAutomatically() {
-    Map<RowColPair, Hexagon> board = makeBoard(6);
-    MutableReversiModel model = new RegularReversiModel(board, 3, RepresentativeColor.BLACK);
+    Map<RowColPair, CellPiece> board = makeBoard(6);
+    MutableReversiModel model = new HexReversiModel(board, 3, RepresentativeColor.BLACK);
     Assert.assertTrue(model.hasToPass()); // Black player has to pass
     model.makePass(RepresentativeColor.BLACK); // Black Player pass
     Assert.assertTrue(model.hasToPass()); // White player also need to pass

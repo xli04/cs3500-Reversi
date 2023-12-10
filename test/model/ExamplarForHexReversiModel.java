@@ -3,19 +3,15 @@ package model;
 import org.junit.Assert;
 import org.junit.Test;
 
-import model.MutableReversiModel;
-import model.RegularReversiModel;
-import model.RepresentativeColor;
-import model.RowColPair;
 import view.ReversiTextualView;
 
 /**
  * a test class that used to give readers a quick understanding of model.
  */
-public class ExamplarForRegularReversiCombineModel {
+public class ExamplarForHexReversiModel {
   @Test
   public void testGeneralUnderstanding() {
-    MutableReversiModel model = new RegularReversiModel.ModelBuilder().build();
+    MutableReversiModel model = new HexReversiModel.ModelBuilder().build();
     Assert.assertEquals(6, model.getSize()); // the default size and side length of the board is 6
     model.startGame();
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn()); // Player Black moves first

@@ -6,26 +6,27 @@ import java.util.Map;
 
 import controller.Controller;
 import controller.ControllerListeners;
-import model.Hexagon;
+import model.HexReversiModel;
+import model.CellPiece;
 import model.ModelStatus;
 import model.MutableReversiModel;
 import model.Player;
-import model.RegularReversiModel;
 import model.RepresentativeColor;
 import model.ReversiAiPlayer;
 import model.ReversiHumanPlayer;
 import model.ReversiModelStatus;
 import model.RowColPair;
+import model.SquareReversiModel;
 import strategy.CaptureMaxPieces;
 import strategy.CompleteStrategy;
 import strategy.MinimaxStrategy;
-import view.MockView;
 import view.IView;
+import view.MockView;
 
 /**
  * A test class for the if the controller interact with the view and model as we expected.
  */
-public class TestInteractionsBetweenControllerAndViewAndCombineModel {
+public class TestInteractionSquareModel {
   Controller controller1;
   IView mockView1;
   MutableReversiModel model;
@@ -42,7 +43,7 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
   @Before
   public void setUp() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel.ModelBuilder().setStatus(status).build();
+    model = new SquareReversiModel.ModelBuilder().setStatus(status).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller1 = new Controller(model, mockView1, new ReversiHumanPlayer(), status);
@@ -64,7 +65,7 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
     Assert.assertTrue(builder2.toString().contains("Set Warning: false"));
     // at the beginning, the model will set the turn to black after start game and there is no
     // has to pass waring to both players.
-    controller1.placeMove(new RowColPair(-1, 2));
+    controller1.placeMove(new RowColPair(0, 2));
     Assert.assertTrue(builder1.toString().contains("Update the view"));
     Assert.assertTrue(builder2.toString().contains("Update the view"));
     // After one of the player place the move, the controller will update all the view that
@@ -78,7 +79,7 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
   @Test
   public void testHasToPassWarning() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel.ModelBuilder().setStatus(status).setSize(2).build();
+    model = new HexReversiModel.ModelBuilder().setStatus(status).setSize(2).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller1 = new Controller(model, mockView1, new ReversiHumanPlayer(), status);
@@ -107,7 +108,7 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
 
   @Test
   public void testAiPlayerLockTheMouse() {
-    model = new RegularReversiModel.ModelBuilder().setSize(2).build();
+    model = new SquareReversiModel.ModelBuilder().setSize(2).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller1 = new Controller(model, mockView1, new ReversiAiPlayer(new
@@ -144,7 +145,7 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
   @Test
   public void testNotifyTheUserCanOnlyPass() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel.ModelBuilder().setStatus(status).setSize(2).build();
+    model = new SquareReversiModel.ModelBuilder().setStatus(status).setSize(2).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller1 = new Controller(model, mockView1, new ReversiHumanPlayer(), status);
@@ -174,20 +175,20 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
 
   @Test
   public void testControllerModifyTheModelCorrectlyPlaceMove() {
-    Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(-1, 2)));
-    controller1.placeMove(new RowColPair(-1, 2));
-    Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(-1, 2)));
-    Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(1, -2)));
-    controller2.placeMove(new RowColPair(1, -2));
-    Assert.assertEquals(RepresentativeColor.WHITE, model.getColorAt(new RowColPair(1, -2)));
+    Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(0, 2)));
+    controller1.placeMove(new RowColPair(0, 2));
+    Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(0, 2)));
+    Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(-1, 0)));
+    controller2.placeMove(new RowColPair(-1, 0));
+    Assert.assertEquals(RepresentativeColor.WHITE, model.getColorAt(new RowColPair(-1, 0)));
   }
 
   @Test
   public void testControllerModifyTheModelCorrectlyWhenNotRightTurn() {
-    Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(1, -2)));
+    Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(-1, 0)));
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn());
-    controller2.placeMove(new RowColPair(1, -2));
-    Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(1, -2)));
+    controller2.placeMove(new RowColPair(-1, 0));
+    Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(-1, 0)));
     controller2.makePass();
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn());
     // even though place at (1,-2) is a valid move, but the player in controller2 is placing
@@ -206,7 +207,7 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
 
   @Test
   public void testStartGameAssignColorCorrectly() {
-    MutableReversiModel model = new RegularReversiModel.ModelBuilder().setStatus(status).build();
+    MutableReversiModel model = new HexReversiModel.ModelBuilder().setStatus(status).build();
     IView view = new MockView(new StringBuilder());
     IView view2 = new MockView(new StringBuilder());
     Controller controller = new Controller(model, view, new ReversiHumanPlayer(), status);
@@ -225,7 +226,7 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
   @Test
   public void testThrowExceptionWhenMoreThanTwoPlayersWasAdded() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel.ModelBuilder().setStatus(status).build();
+    model = new SquareReversiModel.ModelBuilder().setStatus(status).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller1 = new Controller(model, mockView1, new ReversiHumanPlayer(), status);
@@ -248,7 +249,7 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
   @Test
   public void testThrowExceptionWhenOnePlayerIsTryingToPlacingForBothColr() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel.ModelBuilder().setStatus(status).build();
+    model = new SquareReversiModel.ModelBuilder().setStatus(status).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     Player player = new ReversiHumanPlayer();
@@ -268,7 +269,7 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
   @Test
   public void testTryToPlaceWorksProperlyWhenPlacingValidMove() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel.ModelBuilder().setStatus(status).build();
+    model = new SquareReversiModel.ModelBuilder().setStatus(status).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller2 = new Controller(model, mockView1, new ReversiAiPlayer(new
@@ -282,8 +283,8 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
     model.addListener(listeners);
     model.startGame();
     // if the current player is a human player, nothing happened.
-    Map<RowColPair, Hexagon> original = model.getCurrentBoard();
-    Map<RowColPair, Hexagon> after = model.getCurrentBoard();
+    Map<RowColPair, CellPiece> original = model.getBoard();
+    Map<RowColPair, CellPiece> after = model.getBoard();
     controller1.tryToPlace();
     for (RowColPair pair : original.keySet()) {
       Assert.assertEquals(original.get(pair).getColor(), after.get(pair).getColor());
@@ -291,13 +292,13 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
     controller1.makePass();
     // if the player is an ai player, the controller will ask the player to choose the next move
     // and then execute it.
-    Assert.assertEquals(RepresentativeColor.WHITE, model.getColorAt(new RowColPair(-2, 1)));
+    Assert.assertEquals(RepresentativeColor.WHITE, model.getColorAt(new RowColPair(-1, 0)));
   }
 
   @Test
   public void testTryToPlaceWorksProperlyWhenNoValidMoveExist() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel.ModelBuilder().setStatus(status).setSize(2).build();
+    model = new SquareReversiModel.ModelBuilder().setStatus(status).setSize(2).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller2 = new Controller(model, mockView1, new ReversiAiPlayer(new
@@ -311,8 +312,8 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
     model.addListener(listeners);
     model.startGame();
     // if the current player is a human player, nothing happened.
-    Map<RowColPair, Hexagon> original = model.getCurrentBoard();
-    Map<RowColPair, Hexagon> after = model.getCurrentBoard();
+    Map<RowColPair, CellPiece> original = model.getBoard();
+    Map<RowColPair, CellPiece> after = model.getBoard();
     controller1.tryToPlace();
     for (RowColPair pair : original.keySet()) {
       Assert.assertEquals(original.get(pair).getColor(), after.get(pair).getColor());
@@ -325,7 +326,7 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
   @Test
   public void testShowHints() {
     status = new ReversiModelStatus();
-    model = new RegularReversiModel.ModelBuilder().setStatus(status).setSize(2).build();
+    model = new SquareReversiModel.ModelBuilder().setStatus(status).setSize(2).build();
     builder1 = new StringBuilder();
     mockView1 = new MockView(builder1);
     controller1 = new Controller(model, mockView1, new ReversiHumanPlayer(), status);
@@ -350,7 +351,7 @@ public class TestInteractionsBetweenControllerAndViewAndCombineModel {
 
   @Test
   public void testViewShowGameOverMessageHasWinner() {
-    controller1.placeMove(new RowColPair(-1, 2));
+    controller1.placeMove(new RowColPair(2, 0));
     controller2.makePass();
     controller1.makePass();
     Assert.assertTrue(builder1.toString().contains("Show game over winner: BLACK"));

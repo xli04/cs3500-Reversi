@@ -32,25 +32,25 @@ public class TestStrategyForGameInProcess {
    * @param size the given side length
    * @return the 2d array represent the board
    */
-  private Map<RowColPair, Hexagon> makeBoard(int size) {
-    Map<RowColPair, Hexagon> board = new HashMap<>();
+  private Map<RowColPair, CellPiece> makeBoard(int size) {
+    Map<RowColPair, CellPiece> board = new HashMap<>();
     int row = 2 * size - 1;
     int half = row - size;
     int upHalfStarter = 0;
     for (int i = half; i > 0; i--) {
       for (int j = upHalfStarter; j <= half; j++) {
         int x = -i;
-        board.put(new RowColPair(x, j), new Hexagon(RepresentativeColor.NONE));
+        board.put(new RowColPair(x, j), new CellPiece(RepresentativeColor.NONE));
       }
       upHalfStarter--;
     }
     for (int i = -half; i <= half; i++) {
-      board.put(new RowColPair(0, i), new Hexagon(RepresentativeColor.NONE));
+      board.put(new RowColPair(0, i), new CellPiece(RepresentativeColor.NONE));
     }
     int downHalfStarter = half;
     for (int i = 1; i <= half; i++) {
       for (int j = -half; j < downHalfStarter; j++) {
-        board.put(new RowColPair(i, j), new Hexagon(RepresentativeColor.NONE));
+        board.put(new RowColPair(i, j), new CellPiece(RepresentativeColor.NONE));
       }
       downHalfStarter--;
     }
@@ -75,20 +75,20 @@ public class TestStrategyForGameInProcess {
    */
   @Test
   public void testAvoidCorner() {
-    Map<RowColPair, Hexagon> board = makeBoard(6);
-    board.put(new RowColPair(0, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-1, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(1, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(2, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(3, -2), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(4, -3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-2, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 2), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.BLACK));
+    Map<RowColPair, CellPiece> board = makeBoard(6);
+    board.put(new RowColPair(0, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-1, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(1, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(2, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(3, -2), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(4, -3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-2, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 2), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(0, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, 0), new CellPiece(RepresentativeColor.BLACK));
     InfallibleStrategy avoidCorner = new CompleteStrategy(new AvoidCellsNextToCornersStrategy());
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new HexReversiModel(board, 6, RepresentativeColor.BLACK);
     RowColPair pair = avoidCorner.choosePosition(model, RepresentativeColor.BLACK);
     Assert.assertEquals(new RowColPair(1, -2), pair);
   }
@@ -111,21 +111,21 @@ public class TestStrategyForGameInProcess {
    */
   @Test
   public void testChooseCorner() {
-    Map<RowColPair, Hexagon> board = makeBoard(6);
-    board.put(new RowColPair(-1, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(4, -3), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, -1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-2, 1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-1, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(0, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(4, -3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(2, -2), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(3, -3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(4, -4), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-3, 2), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-4, 3), new Hexagon(RepresentativeColor.BLACK));
+    Map<RowColPair, CellPiece> board = makeBoard(6);
+    board.put(new RowColPair(-1, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(4, -3), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, -1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-2, 1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-1, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(0, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(4, -3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(2, -2), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(3, -3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(4, -4), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-3, 2), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-4, 3), new CellPiece(RepresentativeColor.BLACK));
     InfallibleStrategy cornerFirst = new CompleteStrategy(new CornerStrategy());
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new HexReversiModel(board, 6, RepresentativeColor.BLACK);
     RowColPair nextPosition = cornerFirst.choosePosition(model, RepresentativeColor.BLACK);
     Assert.assertEquals(new RowColPair(5, -5), nextPosition);
   }
@@ -137,7 +137,7 @@ public class TestStrategyForGameInProcess {
   @Test
   public void testForStrategyReturnCorrectPositionSameValueUpperLeftMost() {
     InfallibleStrategy getHigherScore = new CompleteStrategy(new CaptureMaxPieces());
-    MutableReversiModel model = new RegularReversiModel.ModelBuilder().build();
+    MutableReversiModel model = new HexReversiModel.ModelBuilder().build();
     Assert.assertEquals(new RowColPair(-2, 1),
         getHigherScore.choosePosition(model, RepresentativeColor.BLACK));
   }
@@ -158,20 +158,20 @@ public class TestStrategyForGameInProcess {
    */
   @Test
   public void testForStrategyReturnCorrectPositionHighestValue() {
-    Map<RowColPair, Hexagon> board = makeBoard(6);
-    board.put(new RowColPair(-1, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(4, -3), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, -1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-2, 1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-1, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(0, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(4, -3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(2, -2), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(3, -3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(4, -4), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-3, 2), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-4, 3), new Hexagon(RepresentativeColor.BLACK));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    Map<RowColPair, CellPiece> board = makeBoard(6);
+    board.put(new RowColPair(-1, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(4, -3), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, -1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-2, 1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-1, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(0, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(4, -3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(2, -2), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(3, -3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(4, -4), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-3, 2), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-4, 3), new CellPiece(RepresentativeColor.BLACK));
+    MutableReversiModel model = new HexReversiModel(board, 6, RepresentativeColor.BLACK);
     InfallibleStrategy strategy = new CompleteStrategy(new CaptureMaxPieces());
     RowColPair nextPosition = strategy.choosePosition(model, RepresentativeColor.BLACK);
     Assert.assertEquals(new RowColPair(1, -2), nextPosition);
@@ -194,23 +194,23 @@ public class TestStrategyForGameInProcess {
    */
   @Test
   public void testBackUp() {
-    Map<RowColPair, Hexagon> board = makeBoard(6);
-    board.put(new RowColPair(0, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-1, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(1, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(2, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(3, -2), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(4, -3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-2, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 2), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.BLACK));
+    Map<RowColPair, CellPiece> board = makeBoard(6);
+    board.put(new RowColPair(0, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-1, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(1, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(2, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(3, -2), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(4, -3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-2, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 2), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(0, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, 0), new CellPiece(RepresentativeColor.BLACK));
     InfallibleStrategy avoidCorner = new CompleteStrategy(new AvoidCellsNextToCornersStrategy());
     FallibleStrategy avoidCornerCombineCorner = new CompositeStrategy(
         new AvoidCellsNextToCornersStrategy(), new CornerStrategy());
     InfallibleStrategy complete = new CompleteStrategy(avoidCornerCombineCorner);
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    MutableReversiModel model = new HexReversiModel(board, 6, RepresentativeColor.BLACK);
     RowColPair avoidCornerPair = avoidCorner.choosePosition(model, RepresentativeColor.BLACK);
     RowColPair cornerPair = complete.choosePosition(model, RepresentativeColor.BLACK);
     Assert.assertEquals(avoidCornerPair, cornerPair);
@@ -237,31 +237,31 @@ public class TestStrategyForGameInProcess {
    */
   @Test
   public void testMinimaxStrategyMakeTheBestChoice() {
-    Map<RowColPair, Hexagon> board = makeBoard(6);
-    board.put(new RowColPair(-5, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-5, 1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-5, 2), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-5, 3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-5, 4), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-4, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-4, 3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-3, -1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-3, 0), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-3, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-3, 2), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-3, 3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-3, 4), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-3, 5), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-2, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-2, 3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-1, -1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 0), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(0, -1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, -1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.WHITE));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    Map<RowColPair, CellPiece> board = makeBoard(6);
+    board.put(new RowColPair(-5, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-5, 1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-5, 2), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-5, 3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-5, 4), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-4, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-4, 3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-3, -1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-3, 0), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-3, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-3, 2), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-3, 3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-3, 4), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-3, 5), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-2, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-2, 3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-1, -1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 0), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(0, -1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(0, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, -1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, 0), new CellPiece(RepresentativeColor.WHITE));
+    MutableReversiModel model = new HexReversiModel(board, 6, RepresentativeColor.BLACK);
     InfallibleStrategy player = new CompleteStrategy(new MinimaxStrategy());
     RowColPair pair = player.choosePosition(model, RepresentativeColor.WHITE);
     Assert.assertEquals(new RowColPair(-5, 5), pair);
@@ -293,42 +293,42 @@ public class TestStrategyForGameInProcess {
    */
   @Test
   public void testMinimaxShowItsIntelligence() {
-    Map<RowColPair, Hexagon> board = makeBoard(6);
-    board.put(new RowColPair(-5, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-5, 1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-5, 2), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-5, 3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-5, 4), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-5, 5), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-4, 1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-4, 3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-4, 5), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-3, -1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-3, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-3, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-3, 2), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-3, 3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-3, 4), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-3, 5), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-2, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-2, 1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-2, 3), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-2, 5), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-1, -1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-1, -1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 2), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(-1, 3), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(0, -1), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(0, 1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, -3), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, -2), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, -1), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, 0), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(1, 1), new Hexagon(RepresentativeColor.BLACK));
+    Map<RowColPair, CellPiece> board = makeBoard(6);
+    board.put(new RowColPair(-5, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-5, 1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-5, 2), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-5, 3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-5, 4), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-5, 5), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-4, 1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-4, 3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-4, 5), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-3, -1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-3, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-3, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-3, 2), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-3, 3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-3, 4), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-3, 5), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-2, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-2, 1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-2, 3), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-2, 5), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-1, -1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-1, -1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 2), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(-1, 3), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(0, -1), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(0, 1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, -3), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, -2), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, -1), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, 0), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(1, 1), new CellPiece(RepresentativeColor.BLACK));
     InfallibleStrategy strategy = new CompleteStrategy(new MinimaxStrategy());
-    ReadOnlyReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    ReadOnlyReversiModel model = new HexReversiModel(board, 6, RepresentativeColor.BLACK);
     RowColPair pair = strategy.choosePosition(model, RepresentativeColor.WHITE);
     Assert.assertEquals(new RowColPair(-1, -2), pair);
   }
@@ -352,12 +352,12 @@ public class TestStrategyForGameInProcess {
    */
   @Test
   public void testCheatInAvoidCellNextToCornerStrategy() {
-    Map<RowColPair, Hexagon> board = makeBoard(6);
-    board.put(new RowColPair(-3, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-2, 0), new Hexagon(RepresentativeColor.WHITE));
-    board.put(new RowColPair(-1, 0), new Hexagon(RepresentativeColor.BLACK));
-    board.put(new RowColPair(0, 0), new Hexagon(RepresentativeColor.WHITE));
-    MutableReversiModel model = new RegularReversiModel(board, 6, RepresentativeColor.BLACK);
+    Map<RowColPair, CellPiece> board = makeBoard(6);
+    board.put(new RowColPair(-3, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-2, 0), new CellPiece(RepresentativeColor.WHITE));
+    board.put(new RowColPair(-1, 0), new CellPiece(RepresentativeColor.BLACK));
+    board.put(new RowColPair(0, 0), new CellPiece(RepresentativeColor.WHITE));
+    MutableReversiModel model = new HexReversiModel(board, 6, RepresentativeColor.BLACK);
     FallibleStrategy strategy = new AvoidCellsNextToCornersStrategy();
     StringBuilder builder = new StringBuilder();
     MockModel mock = new MockModel(model, builder, List.of(new RowColPair(1, 0)));
@@ -372,7 +372,7 @@ public class TestStrategyForGameInProcess {
    */
   @Test
   public void testCornerPlayerChecksAllCornerMoves() {
-    Map<RowColPair, Hexagon> board = makeBoard(3);
+    Map<RowColPair, CellPiece> board = makeBoard(3);
     List<RowColPair> cornerPoints = Arrays.asList(new RowColPair(-2, 0),
         new RowColPair(-2, 2),
         new RowColPair(2, -2),
@@ -380,9 +380,9 @@ public class TestStrategyForGameInProcess {
         new RowColPair(0, 2),
         new RowColPair(0, -2));
     for (RowColPair point : cornerPoints) {
-      board.replace(point, new Hexagon(RepresentativeColor.NONE));
+      board.replace(point, new CellPiece(RepresentativeColor.NONE));
     }
-    MutableReversiModel delegate = new RegularReversiModel(board, 3, RepresentativeColor.BLACK);
+    MutableReversiModel delegate = new HexReversiModel(board, 3, RepresentativeColor.BLACK);
     StringBuilder builder = new StringBuilder();
     MockModel mock = new MockModel(delegate, builder, new ArrayList<>());
 
@@ -395,7 +395,7 @@ public class TestStrategyForGameInProcess {
 
     //confirm that the strategy checked each corner move
     //confirm that the strategy did not check any other non-corner move
-    for (RowColPair pair : delegate.getCurrentBoard().keySet()) {
+    for (RowColPair pair : delegate.getBoard().keySet()) {
       boolean containsRowColPair = output.contains(String.format(
           "Checking" + "(" + pair.getRow() + "," + pair.getCol() + ")"));
       if (cornerPoints.contains(pair)) {
