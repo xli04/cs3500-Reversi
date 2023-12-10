@@ -18,7 +18,7 @@ import model.RowColPair;
  * The HintDecorator class represents a decorator for enhancing a graphical panel with hint
  * functionality. Hints can be enabled or disabled for a specific player independently.
  */
-public class HintDecorator extends JPanel {
+public class HintPanel extends JPanel {
   private final ReadOnlyReversiModel model;
   private boolean hint;
   private RepresentativeColor color;
@@ -30,7 +30,7 @@ public class HintDecorator extends JPanel {
    *
    * @param model The ReadOnlyReversiModel to associate with the decorator.
    */
-  public HintDecorator(ReadOnlyReversiModel model, HexBoardPanel panel) {
+  public HintPanel(ReadOnlyReversiModel model, HexBoardPanel panel) {
     hint = false;
     this.model = model;
     this.panel = panel;
@@ -38,6 +38,10 @@ public class HintDecorator extends JPanel {
     setPreferredSize(panel.getPreferredSize());
   }
 
+  /**
+   * Set the color for which we want to retreieve hints for
+   * @param color the color to be set
+   */
   public void setColor(RepresentativeColor color) {
     this.color = color;
   }

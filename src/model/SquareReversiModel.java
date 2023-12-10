@@ -38,10 +38,11 @@ public final class SquareReversiModel extends AbstractReversiModel {
 
   @Override
   protected void setEntireBoardToBlankCells(int size) {
-    int difference = size / 2 - 1;
+    //use an offset to ensure that the (0,0) is near the middle of grid
+    int offset = size / 2 - 1;
     for (int row = 0; row < size; row++) {
       for (int col = 0; col < size; col++) {
-        RowColPair pair = new RowColPair(row - difference, col - difference);
+        RowColPair pair = new RowColPair(row - offset, col - offset);
         CellPiece cellPiece = new CellPiece(RepresentativeColor.NONE);
         board.put(pair, cellPiece);
       }

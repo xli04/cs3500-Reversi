@@ -8,7 +8,7 @@ import view.ReversiTextualView;
 /**
  * a test class that used to give readers a quick understanding of model.
  */
-public class ExamplarForHexReversiModel {
+public class ExamplarForHexReversiModel  {
   @Test
   public void testGeneralUnderstanding() {
     MutableReversiModel model = new HexReversiModel.ModelBuilder().build();

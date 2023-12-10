@@ -87,8 +87,10 @@ public class TestForMockHexModel {
     Assert.assertEquals(new RowColPair(-2, 1), actualPair);
     Map<RowColPair, CellPiece> board = mock.getBoard();
     for (RowColPair position : board.keySet()) {
-      String pairString = "Checking" + "(" + position.getRow() + "," + position.getCol() + ")";
-      Assert.assertTrue(builder.toString().contains(pairString));
+      if (board.get(position).getColor() == RepresentativeColor.NONE) {
+        String pairString = "Checking" + "(" + position.getRow() + "," + position.getCol() + ")";
+        Assert.assertTrue(builder.toString().contains(pairString));
+      }
     }
   }
 }

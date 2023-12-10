@@ -1,12 +1,17 @@
+package model;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import model.AbstractModelTest;
 import model.CellPiece;
 import model.HexReversiModel;
 import model.ModelDirection;
+import model.MutableReversiModel;
 import model.RepresentativeColor;
 import model.RowColPair;
 import model.SquareDirection;
@@ -16,10 +21,45 @@ import view.SquareTextualView;
 
 import static org.junit.Assert.assertThrows;
 
-/**
- * test for SquareReversiModelTest.
- */
-public class SquareReversiModelTest {
+public final class SquareReversiModelTest extends AbstractModelTest {
+
+  @Override
+  public MutableReversiModel createRiggedEmptyModel(int size) {
+    return new SquareReversiModel(fillBoardWithColor(size, RepresentativeColor.NONE)
+            , size, RepresentativeColor.BLACK);
+  }
+
+  @Override
+  public MutableReversiModel createRiggedFullModel(int size) {
+    return new SquareReversiModel(fillBoardWithColor(size, RepresentativeColor.BLACK),
+            size, RepresentativeColor.BLACK);
+  }
+
+  @Override
+  public MutableReversiModel createDefaultModel() {
+    return new SquareReversiModel.ModelBuilder().build();
+  }
+
+  /**
+   * make the board with the given size as the side length and set each cell
+   * to contain a piece of the given color
+   *
+   * @param size  the given side length
+   * @param color the color to fill the baord with
+   * @return the 2d array represent the board
+   */
+  private Map<RowColPair, CellPiece> fillBoardWithColor(int size, RepresentativeColor color) {
+    Map<RowColPair, CellPiece> board = new HashMap<>();
+    int difference = size / 2 - 1;
+    for (int row = 0; row < size; row++) {
+      for (int col = 0; col < size; col++) {
+        RowColPair currPair = new RowColPair(row - difference, col - difference);
+        CellPiece currPiece = new CellPiece(color);
+        board.put(currPair, currPiece);
+      }
+    }
+    return board;
+  }
 
   private SquareReversiModel model;
 
@@ -92,14 +132,14 @@ public class SquareReversiModelTest {
   public void testTextualView() {
     SquareTextualView view = new SquareTextualView(model);
     Assert.assertEquals(
-        "_ _ _ _ _ _ _ _ \n"
-        + "_ _ _ _ _ _ _ _ \n"
-        + "_ _ _ _ _ _ _ _ \n"
-        + "_ _ _ X O _ _ _ \n"
-        + "_ _ _ O X _ _ _ \n"
-        + "_ _ _ _ _ _ _ _ \n"
-        + "_ _ _ _ _ _ _ _ \n"
-        + "_ _ _ _ _ _ _ _ \n", view.toString());
+            "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ X O _ _ _ \n"
+                    + "_ _ _ O X _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n", view.toString());
   }
 
   @Test
@@ -107,17 +147,17 @@ public class SquareReversiModelTest {
     SquareReversiModel model1 = new SquareReversiModel.ModelBuilder().setSize(2).build();
     SquareTextualView view = new SquareTextualView(model1);
     Assert.assertEquals("X O\n"
-        + "O X\n", view.toString());
+            + "O X\n", view.toString());
   }
 
   @Test
   public void testRenderForGivenSize() {
     StringBuilder builder = new StringBuilder();
     SquareTextualView view = new SquareTextualView(
-        new SquareReversiModel.ModelBuilder().setSize(2).build(), builder);
+            new SquareReversiModel.ModelBuilder().setSize(2).build(), builder);
     view.display();
     Assert.assertEquals("X O\n"
-        + "O X\n", builder.toString());
+            + "O X\n", builder.toString());
   }
 
   @Test
@@ -126,14 +166,14 @@ public class SquareReversiModelTest {
     SquareTextualView view = new SquareTextualView(model, builder);
     view.display();
     Assert.assertEquals(
-        "_ _ _ _ _ _ _ _ \n"
-          + "_ _ _ _ _ _ _ _ \n"
-          + "_ _ _ _ _ _ _ _ \n"
-          + "_ _ _ X O _ _ _ \n"
-          + "_ _ _ O X _ _ _ \n"
-          + "_ _ _ _ _ _ _ _ \n"
-          + "_ _ _ _ _ _ _ _ \n"
-          + "_ _ _ _ _ _ _ _ \n", builder.toString());
+            "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ X O _ _ _ \n"
+                    + "_ _ _ O X _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n", builder.toString());
   }
 
   @Test
@@ -142,25 +182,25 @@ public class SquareReversiModelTest {
     SquareTextualView view = new SquareTextualView(model, builder);
     view.display();
     Assert.assertEquals(
-        "_ _ _ _ _ _ _ _ \n"
-        + "_ _ _ _ _ _ _ _ \n"
-        + "_ _ _ _ _ _ _ _ \n"
-        + "_ _ _ X O _ _ _ \n"
-        + "_ _ _ O X _ _ _ \n"
-        + "_ _ _ _ _ _ _ _ \n"
-        + "_ _ _ _ _ _ _ _ \n"
-        + "_ _ _ _ _ _ _ _ \n", builder.toString());
+            "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ X O _ _ _ \n"
+                    + "_ _ _ O X _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n", builder.toString());
     model.placeMove(new RowColPair(0, 2), RepresentativeColor.BLACK);
     view.display();
     Assert.assertTrue(builder.toString().contains(
-        "_ _ _ _ _ _ _ _ \n"
-        + "_ _ _ _ _ _ _ _ \n"
-          + "_ _ _ _ _ _ _ _ \n"
-          + "_ _ _ X X X _ _ \n"
-          + "_ _ _ O X _ _ _ \n"
-          + "_ _ _ _ _ _ _ _ \n"
-          + "_ _ _ _ _ _ _ _ \n"
-          + "_ _ _ _ _ _ _ _"));
+            "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ X X X _ _ \n"
+                    + "_ _ _ O X _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _ \n"
+                    + "_ _ _ _ _ _ _ _"));
   }
 
   /**
@@ -179,22 +219,22 @@ public class SquareReversiModelTest {
   @Test
   public void testCheckMoveInvalidCoordinators() {
     assertThrows(IllegalArgumentException.class, ()
-        -> model.checkMove(new RowColPair(0, 100), RepresentativeColor.BLACK));
+            -> model.checkMove(new RowColPair(0, 100), RepresentativeColor.BLACK));
     assertThrows(IllegalArgumentException.class, ()
-        -> model.checkMove(new RowColPair(-1, -100), RepresentativeColor.BLACK));
+            -> model.checkMove(new RowColPair(-1, -100), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testCheckMoveInvalidCoordinatorsOnExistingCells() {
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(0, 0)));
     assertThrows(IllegalStateException.class, ()
-        -> model.checkMove(new RowColPair(0, 0), RepresentativeColor.BLACK));
+            -> model.checkMove(new RowColPair(0, 0), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testPlaceMoveInvalidCoordinatorsOutOfBound() {
     assertThrows(IllegalArgumentException.class, ()
-        -> model.placeMove(new RowColPair(100, -1), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(100, -1), RepresentativeColor.BLACK));
   }
 
   /**
@@ -204,17 +244,17 @@ public class SquareReversiModelTest {
   @Test
   public void testInValidPlaceMoveThrowException() {
     Assert.assertEquals(RepresentativeColor.NONE, model.getColorAt(new RowColPair(0, 2)));
-    Assert. assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(0, 0)));
+    Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(0, 0)));
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(0, -1), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(0, -1), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testInvalidGetColorAtThrowException() {
     assertThrows(IllegalArgumentException.class, ()
-        -> model.getColorAt(new RowColPair(-100, 1)));
+            -> model.getColorAt(new RowColPair(-100, 1)));
     assertThrows(IllegalArgumentException.class, ()
-        -> model.getColorAt(new RowColPair(0, 100)));
+            -> model.getColorAt(new RowColPair(0, 100)));
   }
 
   @Test
@@ -251,7 +291,7 @@ public class SquareReversiModelTest {
   @Test
   public void testCheckMoveReturnCorrectNumberWhenCanFlipCells() {
     Map<ModelDirection, Integer> map = model.checkMove(new RowColPair(0, 2),
-        RepresentativeColor.BLACK);
+            RepresentativeColor.BLACK);
     for (ModelDirection direction : SquareDirection.values()) {
       int num = map.get(direction);
       if (direction == SquareDirection.SQUARELEFT) {
@@ -265,7 +305,7 @@ public class SquareReversiModelTest {
   @Test
   public void testCheckMoveReturnCorrectNumberWhenCanNotFlipCells() {
     Map<ModelDirection, Integer> map = model.checkMove(new RowColPair(0, -1),
-        RepresentativeColor.BLACK);
+            RepresentativeColor.BLACK);
     for (SquareDirection hexDirection : SquareDirection.values()) {
       int num = map.get(hexDirection);
       Assert.assertEquals(0, num);
@@ -275,14 +315,14 @@ public class SquareReversiModelTest {
   @Test
   public void testInvalidPlaceCellNoSurroundingCells() {
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(-3, -3), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(-3, -3), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testInvalidPlaceCellOnExistingCells() {
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(0, 0)));
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(0, 0), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(0, 0), RepresentativeColor.BLACK));
   }
 
   /**
@@ -294,14 +334,14 @@ public class SquareReversiModelTest {
   @Test
   public void testInvalidPlaceCanNotFlipAnything() {
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(-3, -3), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(-3, -3), RepresentativeColor.BLACK));
   }
 
   @Test
   public void testGetWinnerWhenGameIsNotOver() {
     model.placeMove(new RowColPair(0, 2), RepresentativeColor.BLACK);
     assertThrows(IllegalStateException.class, ()
-        -> model.getWinner());
+            -> model.getWinner());
   }
 
   /**
@@ -320,7 +360,7 @@ public class SquareReversiModelTest {
   public void testPlaceMoveFailedDoNotResetThePassTime() {
     model.makePass(RepresentativeColor.BLACK);
     assertThrows(IllegalArgumentException.class, ()
-        -> model.placeMove(new RowColPair(0, 5), RepresentativeColor.WHITE));
+            -> model.placeMove(new RowColPair(0, 5), RepresentativeColor.WHITE));
     model.makePass(RepresentativeColor.WHITE);
     Assert.assertTrue(model.isGameOver());
   }
@@ -334,13 +374,13 @@ public class SquareReversiModelTest {
   @Test
   public void testModelDisallowsInvalidSize() {
     assertThrows(IllegalArgumentException.class, () ->
-        new HexReversiModel.ModelBuilder().setSize(0).build());
+            new HexReversiModel.ModelBuilder().setSize(0).build());
   }
 
   @Test
   public void testInvalidColorGetOpposite() {
     assertThrows(IllegalArgumentException.class, ()
-        -> RepresentativeColor.NONE.getOpposite());
+            -> RepresentativeColor.NONE.getOpposite());
   }
 
   @Test
@@ -349,11 +389,11 @@ public class SquareReversiModelTest {
     model.makePass(RepresentativeColor.WHITE);
     Assert.assertTrue(model.isGameOver());
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(0, 2), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(0, 2), RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.checkMove(new RowColPair(0, 2), RepresentativeColor.BLACK));
+            -> model.checkMove(new RowColPair(0, 2), RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.makePass(RepresentativeColor.WHITE));
+            -> model.makePass(RepresentativeColor.WHITE));
   }
 
   /**
@@ -363,7 +403,7 @@ public class SquareReversiModelTest {
   @Test
   public void testInvalidPlaceHasAdjacentCellsCanNotFlipAnything() {
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(0, -2), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(0, -2), RepresentativeColor.BLACK));
   }
 
   @Test
@@ -394,7 +434,7 @@ public class SquareReversiModelTest {
   public void testPlaceMoveFailedNotAlterTheTurn() {
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn());
     assertThrows(IllegalArgumentException.class, ()
-        -> model.placeMove(new RowColPair(-100, -1), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(-100, -1), RepresentativeColor.BLACK));
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn());
   }
 
@@ -420,13 +460,13 @@ public class SquareReversiModelTest {
     model.makePass(RepresentativeColor.WHITE);
     Assert.assertTrue(model.isGameOver());
     assertThrows(IllegalStateException.class, ()
-        -> model.makePass(RepresentativeColor.BLACK));
+            -> model.makePass(RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(0, 2), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(0, 2), RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.checkMove(new RowColPair(0, 2), RepresentativeColor.BLACK));
+            -> model.checkMove(new RowColPair(0, 2), RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.getTurn());
+            -> model.getTurn());
   }
 
   @Test
@@ -442,24 +482,24 @@ public class SquareReversiModelTest {
   @Test
   public void testInvalidBoardSize() {
     assertThrows(IllegalArgumentException.class, ()
-        -> new HexReversiModel.ModelBuilder().setSize(1).build());
+            -> new HexReversiModel.ModelBuilder().setSize(1).build());
     assertThrows(IllegalArgumentException.class, ()
-        -> new HexReversiModel.ModelBuilder().setSize(-1).build());
+            -> new HexReversiModel.ModelBuilder().setSize(-1).build());
   }
 
   @Test
   public void testUserActionMustFollowTurnDuringGame() {
     Assert.assertEquals(RepresentativeColor.BLACK, model.getTurn());
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(1, -1), RepresentativeColor.WHITE));
+            -> model.placeMove(new RowColPair(1, -1), RepresentativeColor.WHITE));
     assertThrows(IllegalStateException.class, ()
-        -> model.makePass(RepresentativeColor.WHITE));
+            -> model.makePass(RepresentativeColor.WHITE));
     model.makePass(RepresentativeColor.BLACK);
     Assert.assertEquals(RepresentativeColor.WHITE, model.getTurn());
     assertThrows(IllegalStateException.class, ()
-        -> model.placeMove(new RowColPair(0, 2), RepresentativeColor.BLACK));
+            -> model.placeMove(new RowColPair(0, 2), RepresentativeColor.BLACK));
     assertThrows(IllegalStateException.class, ()
-        -> model.makePass(RepresentativeColor.BLACK));
+            -> model.makePass(RepresentativeColor.BLACK));
   }
 
   @Test
@@ -470,5 +510,29 @@ public class SquareReversiModelTest {
     Assert.assertEquals(RepresentativeColor.NONE, board.get(new RowColPair(0, 2)).getColor());
     Assert.assertEquals(RepresentativeColor.BLACK, model.getColorAt(new RowColPair(0, 2)));
   }
-}
 
+//  @Test
+//  public void tryPlaceMoveThrowsExceptionForNullTurn() {
+//    //before the game has started, the turn is null
+//    SquareReversiModel unstartedModel = new SquareReversiModel.ModelBuilder().build();
+//    RowColPair validPair = new RowColPair(0, 2);
+//    RepresentativeColor turn = null;
+//    assertThrows(IllegalArgumentException.class, () -> model.placeMove(validPair, turn));
+//  }
+
+  @Test
+  public void squareBoardDisallowsStartGameBeingCalledTwice(){
+    SquareReversiModel unstartedModel = new SquareReversiModel.ModelBuilder().build();
+    unstartedModel.startGame();
+    assertThrows(IllegalStateException.class, unstartedModel::startGame);
+  }
+
+  @Test
+  public void squareBoardPreventsMutationBeforeGameHasStarted(){
+    SquareReversiModel unstartedModel = new SquareReversiModel.ModelBuilder().build();
+    assertThrows(IllegalStateException.class, () ->
+            unstartedModel.placeMove(new RowColPair(0,3), RepresentativeColor.BLACK));
+  }
+
+
+}
