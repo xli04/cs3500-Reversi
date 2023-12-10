@@ -23,7 +23,7 @@ public class HintDecorator extends JPanel {
   private boolean hint;
   private RepresentativeColor color;
   private Map<RowColPair, RowColPair> location;
-  private HexBoardPanel panel;
+  private final HexBoardPanel panel;
 
   /**
    * Constructs a HintDecorator for the given Reversi model.
@@ -42,7 +42,11 @@ public class HintDecorator extends JPanel {
     this.color = color;
   }
 
-
+  /**
+   * turn on and turn off the hints.
+   *
+   * @param color if the current color is matching with this color
+   */
   public void setFunctionality(RepresentativeColor color) {
     if (this.color == color) {
       hint = !hint;
@@ -77,10 +81,11 @@ public class HintDecorator extends JPanel {
       for (int i : values.values()) {
         value += i;
       }
-      Point2D p2d = new Point2D.Double(location.get(pair).getRow(), location.get(pair).getCol() - 6);
+      Point2D p2d = new Point2D.Double(location.get(pair).getRow(),
+          location.get(pair).getCol() - 6);
       g2d.drawString(String.valueOf(value),
-        (int) inverse().transform(p2d, null).getX(),
-        (int) inverse().transform(p2d, null).getY());
+          (int) inverse().transform(p2d, null).getX(),
+          (int) inverse().transform(p2d, null).getY());
     }
   }
 

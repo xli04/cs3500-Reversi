@@ -1,13 +1,19 @@
 package view;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
-import javax.swing.*;
-
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import model.ReadOnlyReversiModel;
 import model.RowColPair;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import java.awt.BorderLayout;
 import model.RepresentativeColor;
 
 /**

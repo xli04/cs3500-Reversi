@@ -2,7 +2,6 @@ package view;
 
 import javax.swing.JPanel;
 import model.ReadOnlyReversiModel;
-import model.RepresentativeColor;
 import model.RowColPair;
 
 /**

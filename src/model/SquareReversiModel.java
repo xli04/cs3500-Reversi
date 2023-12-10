@@ -276,7 +276,7 @@ public final class SquareReversiModel extends AbstractReversiModel {
      * @return the regular reversi model.
      */
     public SquareReversiModel build() {
-      if (size < 2 || size % 2 != 0 ) {
+      if (size < 2 || size % 2 != 0) {
         throw new IllegalArgumentException("can not build model");
       }
       return new SquareReversiModel(size, status);

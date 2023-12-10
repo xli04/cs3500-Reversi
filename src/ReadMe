@@ -3,7 +3,8 @@ Level0:
 -We successfully implement the functionality enable a “hint” mode where the selected cell shows
  how many discs would be flipped if that player chose that move.
 -We had an another class called hint panel so that it will not modify our original rendering code,
- it will add a panel on our old panel.
+ it will add a panel on our old panel. The way that we define the coordinates is by using the model's
+ size, the middle point (0,0) would be on the position (model.size() -1, model.size() - 1).
 
 Level1:
 -We successfully implement a model for the more-common square grid Reversi.
@@ -42,15 +43,6 @@ go right and decrease when go left, so that for the most of the logic inside the
 the only thing we changed is inside the abstractstrategy class, inside the get corner strategy, the method will
 return different positions based on the different model type since square model has 4 corners and hex model has
 6.
-
-
-
-
-
-
-
-
-
 
 --------------------------------------------------HW7-----------------------------------------------------------------
  1. Overview
